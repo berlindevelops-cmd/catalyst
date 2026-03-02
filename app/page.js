@@ -638,6 +638,7 @@ export default function Home() {
             ['🎨', 'Art & Crafts'],
             ['💻', 'Tech Help'],
             ['📦', 'Moving Help'],
+            ['❓', 'And more...'],
           ].map(([icon, label]) => (
             <div key={label} className="cat-chip">
               <span>{icon}</span> {label}
