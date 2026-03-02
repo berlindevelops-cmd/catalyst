@@ -16,14 +16,6 @@ export default function SignUp() {
     setLoading(true)
     setError(null)
 
-    // YOUR JOB: fill this in
-    // 1. call supabase.auth.signUp with email and password
-    // 2. if there's an error, setError(error.message)
-    // 3. if success, insert a row into the users table with:
-    //    id: data.user.id, email, name, role
-    // 4. redirect to /jobs on success (use window.location.href)
-    // 5. setLoading(false) when done
-
     const { data, err } = await supabase.auth.signUp({
         email: email,
         password: password,
@@ -303,7 +295,7 @@ export default function SignUp() {
           <p className="signup-sub">
             Connect teens with local opportunities and employers who actually care about real-world experience.
           </p>
-          <div className="signup-deco">EST. 2024 · JOBS PLATFORM</div>
+          <div className="signup-deco">EST. 2026 · CATALYST</div>
         </div>
 
         {/* Right form panel */}
@@ -376,7 +368,7 @@ export default function SignUp() {
           </form>
 
           <p className="signin-link">
-            Already have an account? <a href="/sign-in">Sign in</a>
+            Already have an account? <a href="login">Sign in</a>
           </p>
         </div>
       </div>
