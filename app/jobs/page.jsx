@@ -7,9 +7,13 @@ export default function Jobs() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [error, setError] = useState(null)
-  
+  const [currentUser, setCurrentUser] = useState(null)
+
   useEffect(() => {
     fetchJobs()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setCurrentUser(user)
+    })
   }, [])
 
   const fetchJobs = async () => {
@@ -305,7 +309,11 @@ export default function Jobs() {
           <a href="/" className="jobs-nav-logo">Catalyst</a>
           <div className="jobs-nav-right">
             <a href="/jobs/post" className="jobs-nav-link">Post a Job</a>
-            <a href="/auth/signup" className="jobs-nav-cta">Sign Up</a>
+            {currentUser ? (
+              <a href="/profile" className="jobs-nav-cta">My Profile</a>
+            ) : (
+              <a href="/auth/signup" className="jobs-nav-cta">Sign Up</a>
+            )}
           </div>
         </nav>
 
