@@ -7,7 +7,7 @@ export default function Jobs() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [error, setError] = useState(null)
-
+  
   useEffect(() => {
     fetchJobs()
   }, [])

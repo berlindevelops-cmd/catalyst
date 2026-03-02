@@ -2,12 +2,15 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
+import { useRouter } from 'next/navigation'
 
 export default function JobDetail() {
   const { id } = useParams()
   const [job, setJob] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  
+  const router = useRouter()
 
   useEffect(() => {
     fetchJob()
@@ -26,7 +29,7 @@ export default function JobDetail() {
   const handleApply = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
-        window.location.href = '/auth/login';
+        router.push('/auth/login')
         return
     } else {
         const { error } = await supabase.from('applications').insert({ job_id: id, teen_id: user.id })

@@ -2,12 +2,15 @@
 
 import { useState } from 'react'
 import { supabase } from '../../../lib/supabase'
+import { useRouter } from 'next/navigation'
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  
+  const router = useRouter()
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -22,7 +25,7 @@ export default function Login() {
     if (err) {
         setError(err.message);
     } else {
-        window.location.href = '/jobs';
+        router.push('/jobs')
     }
     setLoading(false)
   }

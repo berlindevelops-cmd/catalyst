@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
+import { useRouter } from 'next/navigation'
 
 export default function Profile() {
   const [user, setUser] = useState(null)
@@ -8,6 +9,8 @@ export default function Profile() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null) 
   
+  const router = useRouter()
+
   useEffect(() => {
     fetchProfile()
   }, [])
@@ -15,7 +18,7 @@ export default function Profile() {
   const fetchProfile = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
-        window.location.href = '/auth/login';
+        router.push('/auth/login')
         return
     }
 

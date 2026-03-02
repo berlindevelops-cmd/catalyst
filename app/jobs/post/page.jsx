@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { supabase } from '../../../lib/supabase'
+import { useRouter } from 'next/navigation'
 
 export default function PostJob() {
   const [title, setTitle] = useState('')
@@ -9,6 +10,8 @@ export default function PostJob() {
   const [location, setLocation] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  
+  const router = useRouter()
 
   const handlePostJob = async (e) => {
     e.preventDefault()
@@ -26,7 +29,7 @@ export default function PostJob() {
     if (error) {
         setError(error.message);
     } else {
-        window.location.href = '/jobs';
+        router.push('/jobs')
     }
     setLoading(false);
   }
