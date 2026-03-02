@@ -22,7 +22,9 @@ export default function SignUp() {
     });
 
     if (err) {
-        setError(err.message);
+      setError(err.message)
+    } else if (!data.user) {
+      setError('Please check your email to confirm your account')
     } else {
         const { error: insertError } = await supabase
             .from('users')
