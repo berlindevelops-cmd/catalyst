@@ -44,8 +44,6 @@ export default function PublicProfile() {
   }
 
   return (
-    // vibe code — show profile info
-    // list of reviews with star ratings
-    // review form at the bottom if currentUser exists
+    <></>
   )
 }
