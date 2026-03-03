@@ -20,16 +20,6 @@ export default function Conversation() {
   }, [])
 
   const fetchMessages = async () => {
-    // 1. get current user, redirect if none
-    // 2. fetch the original message by conversationId to get the other person's id
-    //    supabase.from('messages').select('*, sender:users!sender_id(id,name), receiver:users!receiver_id(id,name)').eq('id', conversationId).single()
-    // 3. figure out who the other person is (sender or receiver)
-    // 4. setReceiverId to the other person's id
-    // 5. fetch ALL messages between these two users
-    // 6. setMessages(data)
-    // 7. setLoading(false)
-    // 8. scroll to bottom: bottomRef.current?.scrollIntoView()
-
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
         router.push('/auth/login')
