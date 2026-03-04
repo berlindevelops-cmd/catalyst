@@ -8,358 +8,415 @@ export default function JobDetail() {
   const { id } = useParams()
   const [job, setJob] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [applied, setApplied] = useState(false)
   const [error, setError] = useState(null)
-  
+
   const router = useRouter()
 
-  useEffect(() => {
-    fetchJob()
-  }, [])
+  useEffect(() => { fetchJob() }, [])
 
   const fetchJob = async () => {
-    const { data, error } = await supabase.from('jobs').select('*').eq('id', id).single();
-    if (error) {
-        setError(error.message);
-    } else {
-        setJob(data);
-    }
-    setLoading(false);
+    const { data, error } = await supabase.from('jobs').select('*').eq('id', id).single()
+    if (error) setError(error.message)
+    else setJob(data)
+    setLoading(false)
   }
 
   const handleApply = async () => {
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-        router.push('/auth/login')
-        return
-    } else {
-        const { error } = await supabase.from('applications').insert({ job_id: id, teen_id: user.id })
-        if (error) {
-            setError(error.message);
-        }
-        alert('Application sent!')
-    }
+    if (!user) { router.push('/auth/login'); return }
+    const { error } = await supabase.from('applications').insert({ job_id: id, teen_id: user.id })
+    if (error) setError(error.message)
+    else setApplied(true)
   }
 
   return (
     <>
-        <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Epilogue:wght@300;400;500;700;900&display=swap');
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .detail-root {
-            min-height: 100vh;
-            background: #0A0A0A;
-            font-family: 'Epilogue', sans-serif;
-            color: #F5F2EB;
+        :root {
+          --yellow: #FFE033;
+          --orange: #FF5C1A;
+          --black: #0D0D0D;
+          --gray: #141414;
+          --gray2: #1A1A1A;
+          --border: rgba(255,255,255,0.08);
+          --muted: rgba(245,242,235,0.4);
         }
 
-        /* NAV */
-        .detail-nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 24px 48px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            position: sticky;
-            top: 0;
-            background: rgba(10,10,10,0.9);
-            backdrop-filter: blur(12px);
-            z-index: 10;
-        }
-        .detail-nav-logo {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 26px;
-            letter-spacing: .08em;
-            color: #FFE033;
-            text-decoration: none;
-        }
-        .detail-nav-back {
-            font-size: 13px;
-            color: rgba(245,242,235,0.4);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: color .2s;
-        }
-        .detail-nav-back:hover { color: #F5F2EB; }
+        body { background: var(--black); }
 
-        /* LAYOUT */
-        .detail-body {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 72px 48px 100px;
-            display: grid;
-            grid-template-columns: 1fr 340px;
-            gap: 64px;
-            align-items: start;
+        .root {
+          min-height: 100vh;
+          background: var(--black);
+          font-family: 'Instrument Sans', sans-serif;
+          color: #F5F2EB;
         }
 
-        /* MAIN */
-        .detail-tag {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: .18em;
-            text-transform: uppercase;
-            color: #FF5C1A;
-            margin-bottom: 16px;
-        }
-        .detail-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(56px, 8vw, 96px);
-            line-height: .92;
-            letter-spacing: .03em;
-            margin-bottom: 32px;
+        /* ── NAV ── */
+        .nav {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 40px;
+          height: 64px;
+          border-bottom: 1px solid var(--border);
+          background: rgba(13,13,13,0.85);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          position: sticky;
+          top: 0;
+          z-index: 50;
         }
 
-        .detail-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 48px;
+        .nav-logo {
+          font-family: 'Syne', sans-serif;
+          font-size: 22px;
+          font-weight: 800;
+          color: #F5F2EB;
+          text-decoration: none;
+          letter-spacing: -.01em;
         }
+
+        .nav-logo span { color: var(--yellow); }
+
+        .nav-back {
+          font-size: 14px;
+          font-weight: 500;
+          color: var(--muted);
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 7px 14px;
+          border-radius: 8px;
+          transition: color .15s, background .15s;
+        }
+
+        .nav-back:hover { color: #F5F2EB; background: rgba(255,255,255,0.06); }
+
+        /* ── BODY ── */
+        .body {
+          max-width: 1100px;
+          margin: 0 auto;
+          padding: 64px 40px 100px;
+          display: grid;
+          grid-template-columns: 1fr 320px;
+          gap: 56px;
+          align-items: start;
+        }
+
+        /* ── MAIN ── */
+        .main-eyebrow {
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: .14em;
+          text-transform: uppercase;
+          color: var(--orange);
+          margin-bottom: 16px;
+        }
+
+        .main-title {
+          font-family: 'Syne', sans-serif;
+          font-size: clamp(42px, 6vw, 72px);
+          font-weight: 800;
+          line-height: 1.0;
+          letter-spacing: -.03em;
+          margin-bottom: 28px;
+        }
+
+        .meta-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin-bottom: 48px;
+        }
+
         .meta-chip {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 18px;
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 500;
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          padding: 9px 16px;
+          border-radius: 100px;
+          font-size: 13px;
+          font-weight: 600;
         }
+
         .meta-chip.pay {
-            background: rgba(255,224,51,0.12);
-            border: 1px solid rgba(255,224,51,0.25);
-            color: #FFE033;
-        }
-        .meta-chip.location {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: rgba(245,242,235,0.6);
+          background: rgba(255,224,51,0.1);
+          border: 1px solid rgba(255,224,51,0.22);
+          color: var(--yellow);
         }
 
-        .detail-divider {
-            height: 1px;
-            background: rgba(255,255,255,0.07);
-            margin-bottom: 40px;
+        .meta-chip.loc {
+          background: rgba(255,255,255,0.04);
+          border: 1px solid var(--border);
+          color: var(--muted);
         }
 
-        .detail-section-label {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: .18em;
-            text-transform: uppercase;
-            color: rgba(245,242,235,0.3);
-            margin-bottom: 16px;
-        }
-        .detail-desc {
-            font-size: 16px;
-            font-weight: 300;
-            color: rgba(245,242,235,0.7);
-            line-height: 1.85;
-            white-space: pre-wrap;
+        .divider {
+          height: 1px;
+          background: var(--border);
+          margin-bottom: 36px;
         }
 
-        /* SIDEBAR */
-        .detail-sidebar {
-            position: sticky;
-            top: 97px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
+        .section-label {
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: .14em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.25);
+          margin-bottom: 20px;
+        }
+
+        .job-desc {
+          font-size: 16px;
+          font-weight: 400;
+          color: rgba(245,242,235,0.65);
+          line-height: 1.85;
+          white-space: pre-wrap;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+          position: sticky;
+          top: 84px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
         }
 
         .sidebar-card {
-            background: #111;
-            border: 1px solid rgba(255,255,255,0.07);
-            border-radius: 16px;
-            padding: 32px 28px;
+          background: var(--gray);
+          border: 1px solid var(--border);
+          border-radius: 20px;
+          padding: 28px 24px;
         }
 
-        .sidebar-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 20px;
-            letter-spacing: .06em;
-            margin-bottom: 8px;
+        .sidebar-card-title {
+          font-family: 'Syne', sans-serif;
+          font-size: 18px;
+          font-weight: 800;
+          letter-spacing: -.01em;
+          margin-bottom: 8px;
         }
-        .sidebar-sub {
-            font-size: 13px;
-            font-weight: 300;
-            color: rgba(245,242,235,0.4);
-            line-height: 1.6;
-            margin-bottom: 24px;
+
+        .sidebar-card-sub {
+          font-size: 13px;
+          font-weight: 400;
+          color: var(--muted);
+          line-height: 1.6;
+          margin-bottom: 24px;
         }
 
         .apply-btn {
-            display: block;
-            width: 100%;
-            padding: 17px;
-            background: #FFE033;
-            color: #0A0A0A;
-            border: none;
-            border-radius: 10px;
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 22px;
-            letter-spacing: .08em;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            transition: opacity .2s, transform .15s;
-        }
-        .apply-btn:hover { opacity: .88; transform: translateY(-2px); }
-        .apply-btn:active { transform: translateY(0); }
-
-        .share-btn {
-            display: block;
-            width: 100%;
-            padding: 14px;
-            background: transparent;
-            color: rgba(245,242,235,0.45);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px;
-            font-family: 'Epilogue', sans-serif;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            text-align: center;
-            transition: border-color .2s, color .2s;
-            margin-top: 10px;
-        }
-        .share-btn:hover {
-            border-color: rgba(255,255,255,0.3);
-            color: #F5F2EB;
+          display: block;
+          width: 100%;
+          padding: 16px;
+          background: var(--yellow);
+          color: var(--black);
+          border: none;
+          border-radius: 12px;
+          font-family: 'Syne', sans-serif;
+          font-size: 16px;
+          font-weight: 800;
+          letter-spacing: -.01em;
+          cursor: pointer;
+          text-align: center;
+          text-decoration: none;
+          transition: opacity .18s, transform .15s;
         }
 
-        /* LOADING */
-        .loading-wrap {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 60vh;
+        .apply-btn:hover:not(:disabled) { opacity: .88; transform: translateY(-1px); }
+        .apply-btn:active:not(:disabled) { transform: translateY(0); }
+        .apply-btn:disabled { opacity: .6; cursor: default; background: #4ade80; }
+
+        .apply-btn.success { background: #4ade80; color: #052e16; }
+
+        .copy-btn {
+          display: block;
+          width: 100%;
+          padding: 13px;
+          background: transparent;
+          color: var(--muted);
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          font-family: 'Instrument Sans', sans-serif;
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+          text-align: center;
+          margin-top: 10px;
+          transition: border-color .18s, color .18s;
         }
-        .loading-spinner {
-            width: 40px; height: 40px;
-            border: 3px solid rgba(255,255,255,0.08);
-            border-top-color: #FFE033;
-            border-radius: 50%;
-            animation: spin .7s linear infinite;
+
+        .copy-btn:hover { border-color: rgba(255,255,255,0.2); color: #F5F2EB; }
+
+        /* quick info card */
+        .info-row {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
         }
+
+        .info-item {}
+
+        .info-item-label {
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: .1em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.25);
+          margin-bottom: 5px;
+        }
+
+        .info-item-val {
+          font-size: 16px;
+          font-weight: 600;
+          color: var(--yellow);
+        }
+
+        .info-item-val.loc {
+          color: rgba(245,242,235,0.65);
+          font-size: 15px;
+          font-weight: 500;
+        }
+
+        /* ── STATES ── */
+        .center {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 60vh;
+          gap: 16px;
+          text-align: center;
+          padding: 40px;
+        }
+
+        .center-icon { font-size: 48px; }
+
+        .center-title {
+          font-family: 'Syne', sans-serif;
+          font-size: 28px;
+          font-weight: 800;
+          letter-spacing: -.02em;
+          color: rgba(245,242,235,0.3);
+        }
+
+        .center-sub { font-size: 14px; color: rgba(245,242,235,0.2); }
+        .center-sub a { color: var(--yellow); text-decoration: none; font-weight: 600; }
+
+        .spinner-wrap {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 60vh;
+        }
+
+        .spinner {
+          width: 36px; height: 36px;
+          border: 3px solid rgba(255,255,255,0.07);
+          border-top-color: var(--yellow);
+          border-radius: 50%;
+          animation: spin .7s linear infinite;
+        }
+
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ERROR / NOT FOUND */
-        .center-msg {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 60vh;
-            gap: 16px;
-            text-align: center;
-        }
-        .center-msg-icon { font-size: 48px; }
-        .center-msg-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 40px;
-            letter-spacing: .04em;
-            color: rgba(245,242,235,0.4);
-        }
-        .center-msg-sub {
-            font-size: 14px;
-            color: rgba(245,242,235,0.25);
-        }
-        .center-msg a { color: #FFE033; text-decoration: none; }
-
         @media (max-width: 860px) {
-            .detail-nav { padding: 20px 24px; }
-            .detail-body {
-            grid-template-columns: 1fr;
-            padding: 48px 24px 80px;
-            gap: 40px;
-            }
-            .detail-sidebar { position: static; }
+          .nav { padding: 0 20px; }
+          .body { grid-template-columns: 1fr; padding: 48px 20px 80px; gap: 40px; }
+          .sidebar { position: static; }
         }
-        `}</style>
+      `}</style>
 
-        <div className="detail-root">
-        <nav className="detail-nav">
-            <a href="/" className="detail-nav-logo">Catalyst</a>
-            <a href="/jobs" className="detail-nav-back">← All Jobs</a>
+      <div className="root">
+        <nav className="nav">
+          <a href="/" className="nav-logo">Catalyst<span>.</span></a>
+          <a href="/jobs" className="nav-back">← All Jobs</a>
         </nav>
 
         {loading ? (
-            <div className="loading-wrap">
-            <div className="loading-spinner" />
-            </div>
+          <div className="spinner-wrap"><div className="spinner" /></div>
         ) : error ? (
-            <div className="center-msg">
-            <div className="center-msg-icon">⚠️</div>
-            <p className="center-msg-title">Something went wrong</p>
-            <p className="center-msg-sub">{error}</p>
-            <p className="center-msg-sub"><a href="/jobs">← Back to jobs</a></p>
-            </div>
+          <div className="center">
+            <div className="center-icon">⚠️</div>
+            <p className="center-title">Something went wrong</p>
+            <p className="center-sub">{error}</p>
+            <p className="center-sub"><a href="/jobs">← Back to jobs</a></p>
+          </div>
         ) : !job ? (
-            <div className="center-msg">
-            <div className="center-msg-icon">🔎</div>
-            <p className="center-msg-title">Job Not Found</p>
-            <p className="center-msg-sub"><a href="/jobs">← Browse all jobs</a></p>
-            </div>
+          <div className="center">
+            <div className="center-icon">🔎</div>
+            <p className="center-title">Job Not Found</p>
+            <p className="center-sub"><a href="/jobs">← Browse all jobs</a></p>
+          </div>
         ) : (
-            <div className="detail-body">
-            {/* Main content */}
+          <div className="body">
+            {/* ── MAIN ── */}
             <div>
-                <p className="detail-tag">📋 Job Listing</p>
-                <h1 className="detail-title">{job.title}</h1>
+              <p className="main-eyebrow">📋 Job Listing</p>
+              <h1 className="main-title">{job.title}</h1>
 
-                <div className="detail-meta">
+              <div className="meta-row">
                 {job.pay && <span className="meta-chip pay">💰 {job.pay}</span>}
-                {job.location && <span className="meta-chip location">📍 {job.location}</span>}
-                </div>
+                {job.location && <span className="meta-chip loc">📍 {job.location}</span>}
+              </div>
 
-                <div className="detail-divider" />
+              <div className="divider" />
 
-                <p className="detail-section-label">About This Job</p>
-                <p className="detail-desc">{job.description}</p>
+              <p className="section-label">About This Job</p>
+              <p className="job-desc">{job.description}</p>
             </div>
 
-            {/* Sidebar */}
-            <div className="detail-sidebar">
-                <div className="sidebar-card">
-                <p className="sidebar-title">Interested?</p>
-                <p className="sidebar-sub">
-                    Apply now and the employer will reach out to you directly with next steps.
+            {/* ── SIDEBAR ── */}
+            <div className="sidebar">
+              <div className="sidebar-card">
+                <p className="sidebar-card-title">Interested?</p>
+                <p className="sidebar-card-sub">
+                  Apply now and the employer will reach out to you directly with next steps.
                 </p>
-                <button className="apply-btn" onClick={handleApply}>
-                    Apply Now →
+                <button
+                  className={`apply-btn${applied ? ' success' : ''}`}
+                  onClick={handleApply}
+                  disabled={applied}
+                >
+                  {applied ? '✓ Applied!' : 'Apply Now →'}
                 </button>
                 <button
-                    className="share-btn"
-                    onClick={() => { navigator.clipboard.writeText(window.location.href); alert('Link copied!') }}
+                  className="copy-btn"
+                  onClick={() => navigator.clipboard.writeText(window.location.href)}
                 >
-                    🔗 Copy Link
+                  🔗 Copy Link
                 </button>
-                </div>
+              </div>
 
-                {(job.pay || job.location) && (
+              {(job.pay || job.location) && (
                 <div className="sidebar-card">
-                    <p className="detail-section-label" style={{marginBottom: '20px'}}>Quick Info</p>
+                  <p className="section-label" style={{marginBottom: '20px'}}>Quick Info</p>
+                  <div className="info-row">
                     {job.pay && (
-                    <div style={{marginBottom: '14px'}}>
-                        <p style={{fontSize: '11px', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'rgba(245,242,235,0.3)', marginBottom: '4px'}}>Pay</p>
-                        <p style={{fontSize: '16px', fontWeight: 500, color: '#FFE033'}}>{job.pay}</p>
-                    </div>
+                      <div className="info-item">
+                        <p className="info-item-label">Pay</p>
+                        <p className="info-item-val">{job.pay}</p>
+                      </div>
                     )}
                     {job.location && (
-                    <div>
-                        <p style={{fontSize: '11px', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'rgba(245,242,235,0.3)', marginBottom: '4px'}}>Location</p>
-                        <p style={{fontSize: '15px', fontWeight: 400, color: 'rgba(245,242,235,0.65)'}}>{job.location}</p>
-                    </div>
+                      <div className="info-item">
+                        <p className="info-item-label">Location</p>
+                        <p className="info-item-val loc">{job.location}</p>
+                      </div>
                     )}
+                  </div>
                 </div>
-                )}
+              )}
             </div>
-            </div>
+          </div>
         )}
-        </div>
+      </div>
     </>
   )
 }
