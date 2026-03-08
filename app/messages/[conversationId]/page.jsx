@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
+import Navbar from '../../../components/Navbar'
 
 export default function Conversation() {
   const { conversationId } = useParams()
@@ -100,87 +101,6 @@ export default function Conversation() {
           color: #F5F2EB;
           overflow: hidden;
         }
-
-        /* ── NAV ── */
-        .nav {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 32px;
-          height: 64px;
-          border-bottom: 1px solid var(--border);
-          background: rgba(13,13,13,0.9);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          flex-shrink: 0;
-          z-index: 10;
-        }
-
-        .nav-left {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-        }
-
-        .nav-back {
-          font-size: 14px;
-          font-weight: 500;
-          color: var(--muted);
-          text-decoration: none;
-          padding: 7px 12px;
-          border-radius: 8px;
-          transition: color .15s, background .15s;
-        }
-
-        .nav-back:hover { color: #F5F2EB; background: rgba(255,255,255,0.06); }
-
-        .nav-divider {
-          width: 1px;
-          height: 22px;
-          background: var(--border);
-        }
-
-        .nav-avatar {
-          width: 36px; height: 36px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, var(--yellow), var(--orange));
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-family: 'Syne', sans-serif;
-          font-size: 13px;
-          font-weight: 800;
-          color: var(--black);
-          flex-shrink: 0;
-        }
-
-        .nav-info {}
-
-        .nav-name {
-          font-family: 'Syne', sans-serif;
-          font-size: 15px;
-          font-weight: 800;
-          letter-spacing: -.01em;
-          line-height: 1.2;
-        }
-
-        .nav-sub {
-          font-size: 11px;
-          color: rgba(245,242,235,0.3);
-          font-weight: 500;
-          letter-spacing: .04em;
-        }
-
-        .nav-logo {
-          font-family: 'Syne', sans-serif;
-          font-size: 20px;
-          font-weight: 800;
-          color: #F5F2EB;
-          text-decoration: none;
-          letter-spacing: -.01em;
-        }
-
-        .nav-logo span { color: var(--yellow); }
 
         /* ── MESSAGES ── */
         .messages {
@@ -406,22 +326,7 @@ export default function Conversation() {
 
       <div className="root">
         {/* ── NAV ── */}
-        <nav className="nav">
-          <div className="nav-left">
-            <a href="/inbox" className="nav-back">← Back</a>
-            <div className="nav-divider" />
-            {!loading && otherUser && (
-              <>
-                <div className="nav-avatar">{initials}</div>
-                <div className="nav-info">
-                  <p className="nav-name">{otherUser.name}</p>
-                  <p className="nav-sub">Plymouth, IN</p>
-                </div>
-              </>
-            )}
-          </div>
-          <a href="/" className="nav-logo">Catalyst<span>.</span></a>
-        </nav>
+        <Navbar />
 
         {/* ── MESSAGES ── */}
         {loading ? (

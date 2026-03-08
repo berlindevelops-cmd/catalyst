@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useRouter } from 'next/navigation'
+import Navbar from '../../components/Navbar'
 
 export default function Inbox() {
   const [conversations, setConversations] = useState([])
@@ -52,45 +53,6 @@ export default function Inbox() {
           font-family: 'Instrument Sans', sans-serif;
           color: #F5F2EB;
         }
-
-        /* ── NAV ── */
-        .nav {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 40px;
-          height: 64px;
-          border-bottom: 1px solid var(--border);
-          background: rgba(13,13,13,0.85);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          position: sticky;
-          top: 0;
-          z-index: 50;
-        }
-
-        .nav-logo {
-          font-family: 'Syne', sans-serif;
-          font-size: 22px;
-          font-weight: 800;
-          color: #F5F2EB;
-          text-decoration: none;
-          letter-spacing: -.01em;
-        }
-
-        .nav-logo span { color: var(--yellow); }
-
-        .nav-back {
-          font-size: 14px;
-          font-weight: 500;
-          color: var(--muted);
-          text-decoration: none;
-          padding: 7px 14px;
-          border-radius: 8px;
-          transition: color .15s, background .15s;
-        }
-
-        .nav-back:hover { color: #F5F2EB; background: rgba(255,255,255,0.06); }
 
         /* ── HEADER ── */
         .header {
@@ -297,10 +259,7 @@ export default function Inbox() {
       `}</style>
 
       <div className="root">
-        <nav className="nav">
-          <a href="/" className="nav-logo">Catalyst<span>.</span></a>
-          <a href="/jobs" className="nav-back">← Browse Jobs</a>
-        </nav>
+        <Navbar />
 
         <div className="header">
           <div className="header-glow" />

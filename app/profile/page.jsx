@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useRouter } from 'next/navigation'
+import Navbar from '../../components/Navbar'
 
 export default function Profile() {
   const [user, setUser] = useState(null)
@@ -42,54 +43,6 @@ export default function Profile() {
             background: #0A0A0A;
             font-family: 'Epilogue', sans-serif;
             color: #F5F2EB;
-        }
-
-        /* NAV */
-        .profile-nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 24px 48px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            position: sticky;
-            top: 0;
-            background: rgba(10,10,10,0.9);
-            backdrop-filter: blur(12px);
-            z-index: 10;
-        }
-        .profile-nav-logo {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 26px;
-            letter-spacing: .08em;
-            color: #FFE033;
-            text-decoration: none;
-        }
-        .profile-nav-right {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-        .profile-nav-link {
-            font-size: 13px;
-            color: rgba(245,242,235,0.4);
-            text-decoration: none;
-            transition: color .2s;
-        }
-        .profile-nav-link:hover { color: #F5F2EB; }
-        .profile-nav-signout {
-            font-size: 13px;
-            color: rgba(245,242,235,0.4);
-            background: none;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 6px;
-            padding: 8px 18px;
-            cursor: pointer;
-            font-family: 'Epilogue', sans-serif;
-            transition: color .2s, border-color .2s;
-        }
-        .profile-nav-signout:hover {
-            color: #F5F2EB;
-            border-color: rgba(255,255,255,0.3);
         }
 
         /* BODY */
@@ -348,21 +301,7 @@ export default function Profile() {
         `}</style>
 
         <div className="profile-root">
-        <nav className="profile-nav">
-            <a href="/" className="profile-nav-logo">Catalyst</a>
-            <div className="profile-nav-right">
-            <a href="/jobs" className="profile-nav-link">Browse Jobs</a>
-            <button
-                className="profile-nav-signout"
-                onClick={async () => {
-                await supabase.auth.signOut()
-                window.location.href = '/auth/login'
-                }}
-            >
-                Sign Out
-            </button>
-            </div>
-        </nav>
+        <Navbar />
 
         {loading ? (
             <div className="loading-wrap">

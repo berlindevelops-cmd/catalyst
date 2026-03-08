@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { useRouter } from 'next/navigation'
+import Navbar from '../../../components/Navbar'
 
 export default function JobDetail() {
   const { id } = useParams()
@@ -24,10 +25,44 @@ export default function JobDetail() {
 
   const handleApply = async () => {
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push('/auth/login'); return }
-    const { error } = await supabase.from('applications').insert({ job_id: id, teen_id: user.id })
-    if (error) setError(error.message)
-    else setApplied(true)
+    if (!user) {
+      window.location.href = '/auth/login'
+      return
+    }
+
+    const { error } = await supabase.from('applications').insert({ 
+      job_id: id, 
+      teen_id: user.id 
+    })
+
+    if (error) {
+      setError(error.message)
+      return
+    }
+
+    const { data: teenProfile } = await supabase.from('users').select('name').eq('id', user.id).single()
+    const { data: jobData } = await supabase.from('jobs').select('title, employer_id').eq('id', id).single()
+    const { data: employer } = await supabase.from('users').select('email').eq('id', jobData.employer_id).single()
+
+    await fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: employer.email,
+        subject: `New application for ${jobData.title}`,
+        html: `<p>${teenProfile.name} applied to your job <strong>${jobData.title}</strong>.</p>
+              <p><a href="https://catalyst-jet.vercel.app/profile/${user.id}">View their profile</a></p>`
+      })
+    })
+
+    await supabase.from('messages').insert({
+      sender_id: user.id,
+      receiver_id: jobData.employer_id,
+      content: `Hi! I just applied to your job "${jobData.title}". Here's my profile: https://catalyst-jet.vercel.app/profile/${user.id}`
+    })
+
+    alert('Application sent!')
+    setApplied(true)
   }
 
   return (
@@ -54,48 +89,6 @@ export default function JobDetail() {
           font-family: 'Instrument Sans', sans-serif;
           color: #F5F2EB;
         }
-
-        /* ── NAV ── */
-        .nav {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 40px;
-          height: 64px;
-          border-bottom: 1px solid var(--border);
-          background: rgba(13,13,13,0.85);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          position: sticky;
-          top: 0;
-          z-index: 50;
-        }
-
-        .nav-logo {
-          font-family: 'Syne', sans-serif;
-          font-size: 22px;
-          font-weight: 800;
-          color: #F5F2EB;
-          text-decoration: none;
-          letter-spacing: -.01em;
-        }
-
-        .nav-logo span { color: var(--yellow); }
-
-        .nav-back {
-          font-size: 14px;
-          font-weight: 500;
-          color: var(--muted);
-          text-decoration: none;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          padding: 7px 14px;
-          border-radius: 8px;
-          transition: color .15s, background .15s;
-        }
-
-        .nav-back:hover { color: #F5F2EB; background: rgba(255,255,255,0.06); }
 
         /* ── BODY ── */
         .body {
@@ -334,10 +327,7 @@ export default function JobDetail() {
       `}</style>
 
       <div className="root">
-        <nav className="nav">
-          <a href="/" className="nav-logo">Catalyst<span>.</span></a>
-          <a href="/jobs" className="nav-back">← All Jobs</a>
-        </nav>
+        <Navbar />
 
         {loading ? (
           <div className="spinner-wrap"><div className="spinner" /></div>

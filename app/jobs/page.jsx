@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
+import Navbar from '../../components/Navbar'
 
 export default function Jobs() {
   const [jobs, setJobs] = useState([])
@@ -53,61 +54,6 @@ export default function Jobs() {
           font-family: 'Instrument Sans', sans-serif;
           color: #F5F2EB;
         }
-
-        /* ── NAV ── */
-        .nav {
-          position: sticky;
-          top: 0;
-          z-index: 50;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 40px;
-          height: 64px;
-          background: rgba(13,13,13,0.85);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border-bottom: 1px solid var(--border);
-        }
-
-        .nav-logo {
-          font-family: 'Syne', sans-serif;
-          font-size: 22px;
-          font-weight: 800;
-          color: #F5F2EB;
-          text-decoration: none;
-          letter-spacing: -.01em;
-        }
-
-        .nav-logo span { color: var(--yellow); }
-
-        .nav-right {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .nav-link {
-          font-size: 14px;
-          font-weight: 500;
-          color: var(--text-muted);
-          text-decoration: none;
-          padding: 7px 14px;
-          border-radius: 8px;
-          transition: color .15s, background .15s;
-        }
-
-        .nav-link:hover { color: #F5F2EB; background: rgba(255,255,255,0.06); }
-
-        .nav-cta {
-          background: var(--yellow);
-          color: var(--black) !important;
-          font-weight: 700 !important;
-          padding: 8px 18px !important;
-          border-radius: 10px !important;
-        }
-
-        .nav-cta:hover { background: #f0d020 !important; }
 
         /* ── HEADER ── */
         .header {
@@ -447,17 +393,7 @@ export default function Jobs() {
 
       <div className="root">
         {/* ── NAV ── */}
-        <nav className="nav">
-          <a href="/" className="nav-logo">Catalyst<span>.</span></a>
-          <div className="nav-right">
-            <a href="/jobs/post" className="nav-link">Post a Job</a>
-            {currentUser ? (
-              <a href="/profile" className="nav-link nav-cta">My Profile</a>
-            ) : (
-              <a href="/auth/signup" className="nav-link nav-cta">Sign Up →</a>
-            )}
-          </div>
-        </nav>
+        <Navbar />
 
         {/* ── HEADER ── */}
         <div className="header">
