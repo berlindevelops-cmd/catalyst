@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { useRouter } from 'next/navigation'
-import Navbar from '../../../components/Navbar'
+import Navbar from '../../../components/NavBar'
 
 export default function JobDetail() {
   const { id } = useParams()

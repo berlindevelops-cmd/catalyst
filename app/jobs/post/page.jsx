@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { useRouter } from 'next/navigation'
-import Navbar from '../../../components/Navbar'
+import Navbar from '../../../components/NavBar'
 
 export default function PostJob() {
   const [title, setTitle] = useState('')

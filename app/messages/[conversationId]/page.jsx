@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
-import Navbar from '../../../components/Navbar'
+import Navbar from '../../../components/NavBar'
 
 export default function Conversation() {
   const { conversationId } = useParams()
