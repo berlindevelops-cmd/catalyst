@@ -620,7 +620,11 @@ export default function PublicProfile() {
               <span className={`role-badge ${profile.role}`}>
                 {profile.role === 'teen' ? '👋 Teen' : '🏢 Employer'}
               </span>
-
+              {currentUser && currentUser.id !== userId && (
+                <a href={`/messages?to=${userId}`} className="apply-btn">
+                  💬 Send Message
+                </a>
+              )}
               {avgRating && (
                 <div className="rating-display">
                   <div className="rating-num">{avgRating}</div>

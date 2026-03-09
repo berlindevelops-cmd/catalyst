@@ -9,7 +9,9 @@ export default function Profile() {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null) 
-  
+  const [portfolio, setPortfolio] = useState([])
+  const [reviews, setReviews] = useState([])
+
   const router = useRouter()
 
   useEffect(() => {
@@ -23,14 +25,23 @@ export default function Profile() {
         return
     }
 
-    const { data, error } = await supabase.from('users').select('*').eq('id', user.id).single();
-    if (error) {
-        setError(error.message);
-    } else {
-        setProfile(data);
+    const { data: profileData } = await supabase
+        .from('users').select('*').eq('id', user.id).single()
+    
+    // ADD THESE TWO
+    const { data: portfolioData } = await supabase
+        .from('portfolio_items').select('*').eq('user_id', user.id)
+    
+    const { data: reviewData } = await supabase
+        .from('reviews')
+        .select('*, reviewer:users!reviewer_id(id, name)')
+        .eq('reviewee_id', user.id)
+
+    setProfile(profileData)
+    setPortfolio(portfolioData || [])
+    setReviews(reviewData || [])
+    setLoading(false)
     }
-    setLoading(false);
-  }
 
   return (
     <>
@@ -414,8 +425,50 @@ export default function Profile() {
                     </div>
                     </a>
                 </div>
+                {/* Portfolio */}
+                <div className="profile-section">
+                <div className="section-header">
+                    <span className="section-label">Portfolio</span>
+                    <a href="/portfolio" className="edit-btn">Manage ✏️</a>
+                </div>
+                {portfolio.length === 0 ? (
+                    <p className="bio-empty">No portfolio items yet — <a href="/portfolio" style={{color: '#FFE033'}}>add some</a>.</p>
+                ) : (
+                    <div className="info-grid">
+                    {portfolio.map(item => (
+                        <div key={item.id} className="info-tile">
+                        <p className="info-tile-label">{item.title}</p>
+                        <p className="info-tile-value" style={{fontSize: '13px', fontWeight: 300, color: 'rgba(245,242,235,0.5)'}}>{item.description}</p>
+                        {item.url && <a href={item.url} target="_blank" style={{color: '#FFE033', fontSize: '12px', marginTop: '8px', display: 'block'}}>View →</a>}
+                        </div>
+                    ))}
+                    </div>
+                )}
                 </div>
 
+                {/* Reviews */}
+                <div className="profile-section">
+                <div className="section-header">
+                    <span className="section-label">Reviews</span>
+                    <span style={{fontSize: '12px', color: 'rgba(245,242,235,0.3)'}}>{reviews.length} total</span>
+                </div>
+                {reviews.length === 0 ? (
+                    <p className="bio-empty">No reviews yet.</p>
+                ) : (
+                    <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+                    {reviews.map(review => (
+                        <div key={review.id} className="info-tile">
+                        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '8px'}}>
+                            <p style={{fontSize: '13px', fontWeight: 600}}>{review.reviewer?.name}</p>
+                            <p style={{color: '#FFE033'}}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</p>
+                        </div>
+                        <p style={{fontSize: '13px', fontWeight: 300, color: 'rgba(245,242,235,0.5)'}}>{review.comment}</p>
+                        </div>
+                    ))}
+                    </div>
+                )}
+                </div>
+                </div>
             </div>
             </div>
         )}

@@ -18,6 +18,20 @@ export default function Inbox() {
     if (!user) { router.push('/auth/login'); return }
     setCurrentUser(user)
 
+    const params = new URLSearchParams(window.location.search)
+    const toUserId = params.get('to')
+
+    if (toUserId) {
+      // insert a starter message
+      await supabase.from('messages').insert({
+        sender_id: user.id,
+        receiver_id: toUserId,
+        content: 'Hi! I wanted to connect with you.'
+      })
+      // redirect to avoid re-sending on refresh
+      window.history.replaceState({}, '', '/messages')
+    }
+
     const { data, error } = await supabase
       .from('messages')
       .select(`*, sender:users!sender_id(id, name), receiver:users!receiver_id(id, name)`)

@@ -153,6 +153,7 @@ export default function Navbar() {
           {user ? (
             <>
               <a href="/inbox" className="nav-link nav-link-hide">Messages</a>
+              <a href="/applications" className="nav-link nav-link-hide">Applications</a>
               <a href="/portfolio" className="nav-link nav-link-hide">Portfolio</a>
               <div className="nav-divider" />
               <a href="/profile" className="nav-link">Profile</a>
