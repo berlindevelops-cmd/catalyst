@@ -5,11 +5,12 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState(null);
 
   const faqs = [
-    { q: "Who can use Catalyst?", a: "Any teen aged 13–19 living in Plymouth, Indiana can sign up for free. Families and local businesses can post jobs for free too." },
-    { q: "Is Catalyst really free?", a: "Yes — 100% free for teens and employers. No fees, no commissions, no hidden costs. You and the employer agree on rates directly." },
+    { q: "Who can use Catalyst?", a: "Any teen aged 13–19 living in Plymouth, Indiana can create a profile for free. Families and local businesses can post jobs and connect with teen workers." },
+    { q: "Is it free for teens?", a: "Yes — always. Teens never pay anything to join, apply, or get hired on Catalyst. That's a permanent commitment." },
+    { q: "What does it cost for employers?", a: "Your first listing is on us. From there, simple plans let you post more jobs, message applicants, and get priority placement. No surprise fees." },
     { q: "What kinds of jobs are available?", a: "Babysitting, lawn care, tutoring, dog walking, house cleaning, grocery help, car washing, tech help, and more. New categories added based on what the community needs." },
-    { q: "Do I need experience?", a: "Most jobs don't require any prior experience. Employers are often neighbors looking for reliable local teens — your attitude matters more than a resume." },
-    { q: "How do I get paid?", a: "Payment is handled directly between you and the employer — cash, Venmo, PayPal, whatever you both agree on. Catalyst doesn't process or hold payments." },
+    { q: "Do teens need experience?", a: "Most jobs don't require any prior experience. Employers are often neighbors looking for reliable local teens — attitude matters more than a resume." },
+    { q: "How do teens get paid?", a: "Payment is handled directly between the teen and the employer — cash, Venmo, PayPal, whatever you both agree on. Catalyst also offers SafePay for secure, guaranteed transactions." },
   ];
 
   const categories = [
@@ -1018,8 +1019,10 @@ export default function Home() {
             </div>
             <h1 className="hero-headline">
               Your first job,<br />
-              <span className="highlight">your</span>{" "}
-              <span className="highlight-orange">rules.</span>
+              <span style={{display:'inline-block', marginTop:'6px'}}>
+                <span className="highlight">your</span>{" "}
+                <span className="highlight-orange">rules.</span>
+              </span>
             </h1>
             <p className="hero-sub">
               The job board built for teens in Plymouth. Babysit, mow lawns, tutor, walk dogs — on your schedule. No resume needed.
@@ -1052,7 +1055,7 @@ export default function Home() {
               ))}
             </div>
             <div className="hero-card-footer">
-              {[["530+", "Teens"], ["$20", "Avg/hr"], ["Free", "Always"]].map(([num, label]) => (
+              {[["530+", "Teens"], ["$20", "Avg/hr"], ["Local", "Plymouth"]].map(([num, label]) => (
                 <div key={label} className="hero-card-stat">
                   <div className="hero-card-stat-num">{num}</div>
                   <div className="hero-card-stat-label">{label}</div>
@@ -1099,7 +1102,7 @@ export default function Home() {
                 "Earn $15–$30/hr for local gigs",
                 "Build a portfolio and get references",
                 "No experience required for most jobs",
-                "100% free — always",
+                "Always free for teens — no catch",
               ].map(item => (
                 <li key={item}>
                   <span className="split-check">✓</span>
@@ -1115,11 +1118,11 @@ export default function Home() {
             <h3 className="split-title">Hire local teen talent</h3>
             <ul className="split-list">
               {[
-                "Access 530+ verified local teens",
-                "Post jobs in under 2 minutes",
-                "Browse profiles and reviews",
-                "Direct messaging with applicants",
-                "Free to post — no hidden fees",
+                "Access 530+ local teens in Plymouth",
+                "Post your first listing in 2 minutes",
+                "Browse profiles, skills, and reviews",
+                "Message applicants directly",
+                "Simple plans — only pay when you need more",
               ].map(item => (
                 <li key={item}>
                   <span className="split-check">✓</span>
@@ -1127,7 +1130,7 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <a href="/jobs/post" className="btn-orange-outline">Post a Job Free →</a>
+            <a href="/jobs/post" className="btn-orange-outline">Post Your First Job →</a>
           </div>
         </div>
       </div>
@@ -1181,7 +1184,7 @@ export default function Home() {
         <h2 className="cta-title">Start earning<br />with Catalyst.</h2>
         <div className="cta-right">
           <p className="cta-sub">Join Plymouth teens already finding flexible work in their neighborhood.</p>
-          <a href="/auth/signup" className="btn-white-solid">Get started free →</a>
+          <a href="/auth/signup" className="btn-white-solid">Create your profile →</a>
         </div>
       </div>
 
