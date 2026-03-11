@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import {
   Baby, Leaf, BookOpen, Dog, Sparkles, ShoppingCart, Car, Monitor, Package, Plus,
   MapPin, UserPen, Search, Banknote, Users, ChevronDown
@@ -7,6 +8,22 @@ import {
 
 export default function Home() {
   const [openFaq, setOpenFaq] = useState(null);
+  const [user, setUser] = useState(null);
+  const supabase = createClientComponentClient();
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    // Listen for auth changes (login/logout in other tabs, etc.)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const faqs = [
     { q: "Who can use Catalyst?", a: "Any teen aged 13–19 living in Plymouth, Indiana can create a profile for free. Families and local businesses can post jobs and connect with teen workers." },
@@ -1005,9 +1022,14 @@ export default function Home() {
         </a>
         <ul className="nav-links">
           <li><a href="#how-it-works">How It Works</a></li>
-          <li><a href="#for-teens">Role Selection</a></li>
+          <li><a href="#for-teens">For Teens</a></li>
+          <li><a href="#for-employers">For Employers</a></li>
           <li><a href="/jobs">Browse Jobs</a></li>
-          <li><a href="/auth/signup" className="nav-cta">Get Started →</a></li>
+          {user ? (
+            <li><a href="/jobs" className="nav-cta">Browse Jobs →</a></li>
+          ) : (
+            <li><a href="/auth/signup" className="nav-cta">Get Started →</a></li>
+          )}
         </ul>
       </nav>
 
