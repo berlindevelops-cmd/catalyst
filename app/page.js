@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createBrowserClient } from "@supabase/ssr";
 import {
   Baby, Leaf, BookOpen, Dog, Sparkles, ShoppingCart, Car, Monitor, Package, Plus,
   MapPin, UserPen, Search, Banknote, Users, ChevronDown
@@ -9,7 +9,10 @@ import {
 export default function Home() {
   const [openFaq, setOpenFaq] = useState(null);
   const [user, setUser] = useState(null);
-  const supabase = createClientComponentClient();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
 
   useEffect(() => {
     // Get initial session
