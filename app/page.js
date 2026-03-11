@@ -1,87 +1,128 @@
 "use client";
+import { useState } from "react";
 
 export default function Home() {
+  const [openFaq, setOpenFaq] = useState(null);
+
+  const faqs = [
+    { q: "Who can use Catalyst?", a: "Any teen aged 13–19 living in Plymouth, Indiana can sign up for free. Families and local businesses can post jobs for free too." },
+    { q: "Is Catalyst really free?", a: "Yes — 100% free for teens and employers. No fees, no commissions, no hidden costs. You and the employer agree on rates directly." },
+    { q: "What kinds of jobs are available?", a: "Babysitting, lawn care, tutoring, dog walking, house cleaning, grocery help, car washing, tech help, and more. New categories added based on what the community needs." },
+    { q: "Do I need experience?", a: "Most jobs don't require any prior experience. Employers are often neighbors looking for reliable local teens — your attitude matters more than a resume." },
+    { q: "How do I get paid?", a: "Payment is handled directly between you and the employer — cash, Venmo, PayPal, whatever you both agree on. Catalyst doesn't process or hold payments." },
+  ];
+
+  const categories = [
+    ["🧒", "Babysitting", "#FFE033"],
+    ["🌿", "Lawn Care", "#a8f0a0"],
+    ["📚", "Tutoring", "#c0d8ff"],
+    ["🐶", "Dog Walking", "#ffd6a5"],
+    ["🧹", "House Cleaning", "#e0c8ff"],
+    ["🛒", "Grocery Help", "#ffc8c8"],
+    ["🚗", "Car Washing", "#c8f0e8"],
+    ["💻", "Tech Help", "#d0e8ff"],
+    ["📦", "Moving Help", "#ffe0b0"],
+    ["❓", "And more...", "#f0f0f0"],
+  ];
+
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Nunito:wght@400;500;600;700;800&display=swap');
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-          --yellow: #FFE033;
           --orange: #FF5C1A;
-          --black: #0D0D0D;
-          --white: #F5F2EB;
-          --gray: #161616;
-          --gray2: #1E1E1E;
-          --border: rgba(255,255,255,0.08);
+          --yellow: #FFE033;
+          --black: #111111;
+          --white: #FEFCF7;
+          --cream: #FFF6E8;
+          --border: #111111;
+          --shadow: 4px 4px 0px #111111;
+          --shadow-lg: 6px 6px 0px #111111;
+          --shadow-xl: 8px 8px 0px #111111;
         }
 
         html { scroll-behavior: smooth; }
 
         body {
-          background: var(--black);
-          color: var(--white);
-          font-family: 'Instrument Sans', sans-serif;
+          background: var(--white);
+          color: var(--black);
+          font-family: 'Nunito', sans-serif;
           overflow-x: hidden;
+        }
+
+        /* ── TEXTURE OVERLAY ── */
+        body::before {
+          content: '';
+          position: fixed;
+          inset: 0;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+          pointer-events: none;
+          z-index: 0;
+          opacity: 0.4;
         }
 
         /* ── NAV ── */
         .nav {
-          position: fixed;
-          top: 0; left: 0; right: 0;
+          position: sticky;
+          top: 0;
           z-index: 100;
+          background: var(--orange);
+          border-bottom: 3px solid var(--black);
           display: flex;
           align-items: center;
           justify-content: space-between;
           padding: 0 40px;
-          height: 64px;
-          background: rgba(13,13,13,0.8);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border-bottom: 1px solid var(--border);
+          height: 60px;
         }
 
         .nav-logo {
-          font-family: 'Syne', sans-serif;
-          font-size: 22px;
-          font-weight: 800;
-          color: var(--white);
+          font-family: 'Unbounded', sans-serif;
+          font-size: 20px;
+          font-weight: 900;
+          color: var(--black);
           text-decoration: none;
-          letter-spacing: -.01em;
+          letter-spacing: -.02em;
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
 
-        .nav-logo span { color: var(--yellow); }
+        .nav-logo-dot {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: var(--black);
+          display: inline-block;
+        }
 
         .nav-links {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
           list-style: none;
         }
 
         .nav-links a {
-          color: rgba(245,242,235,0.55);
+          color: var(--black);
           text-decoration: none;
-          font-size: 14px;
-          font-weight: 500;
-          padding: 7px 14px;
-          border-radius: 8px;
-          transition: color .15s, background .15s;
+          font-size: 13px;
+          font-weight: 700;
+          padding: 6px 14px;
+          border-radius: 6px;
+          transition: background .15s;
+          letter-spacing: .01em;
         }
 
-        .nav-links a:hover {
-          color: var(--white);
-          background: rgba(255,255,255,0.06);
-        }
+        .nav-links a:hover { background: rgba(0,0,0,0.1); }
 
         .nav-cta {
-          background: var(--white) !important;
-          color: var(--black) !important;
-          font-weight: 600 !important;
-          padding: 8px 18px !important;
-          border-radius: 10px !important;
+          background: var(--black) !important;
+          color: var(--white) !important;
+          border-radius: 8px !important;
+          border: 2px solid var(--black) !important;
         }
 
         .nav-cta:hover {
@@ -91,196 +132,360 @@ export default function Home() {
 
         /* ── HERO ── */
         .hero {
-          padding: 140px 40px 80px;
-          text-align: center;
+          background: var(--cream);
+          border-bottom: 3px solid var(--black);
+          padding: 72px 40px 80px;
           position: relative;
           overflow: hidden;
         }
 
-        .hero-glow {
+        .hero-bg-text {
           position: absolute;
-          top: 0; left: 50%;
-          transform: translateX(-50%);
-          width: 800px;
-          height: 400px;
-          background: radial-gradient(ellipse at 50% 0%, rgba(255,92,26,0.18) 0%, transparent 70%);
+          bottom: -20px;
+          right: -20px;
+          font-family: 'Unbounded', sans-serif;
+          font-size: 200px;
+          font-weight: 900;
+          color: rgba(255,92,26,0.06);
+          white-space: nowrap;
           pointer-events: none;
+          letter-spacing: -.05em;
+          line-height: 1;
+          user-select: none;
+        }
+
+        .hero-inner {
+          max-width: 1100px;
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: 1fr 380px;
+          gap: 64px;
+          align-items: center;
+          position: relative;
+          z-index: 1;
         }
 
         .hero-badge {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: rgba(255,255,255,0.06);
-          border: 1px solid rgba(255,255,255,0.12);
+          background: var(--yellow);
+          border: 2px solid var(--black);
           border-radius: 100px;
-          padding: 6px 16px 6px 8px;
-          font-size: 13px;
-          font-weight: 500;
-          color: rgba(245,242,235,0.7);
-          margin-bottom: 36px;
-          animation: fadeUp .5s ease both;
+          padding: 5px 14px 5px 8px;
+          font-size: 12px;
+          font-weight: 800;
+          color: var(--black);
+          margin-bottom: 28px;
+          box-shadow: 2px 2px 0 var(--black);
+          letter-spacing: .04em;
+          text-transform: uppercase;
+          animation: fadeUp .4s ease both;
         }
 
-        .hero-badge-dot {
+        .badge-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
           background: var(--orange);
-          color: var(--black);
-          font-size: 11px;
-          font-weight: 700;
-          padding: 3px 8px;
-          border-radius: 100px;
-          letter-spacing: .04em;
+          border: 1.5px solid var(--black);
+          flex-shrink: 0;
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.3); }
         }
 
         .hero-headline {
-          font-family: 'Syne', sans-serif;
-          font-size: clamp(52px, 8vw, 112px);
-          font-weight: 800;
-          line-height: 1;
-          letter-spacing: -.03em;
-          margin-bottom: 28px;
-          animation: fadeUp .5s .08s ease both;
+          font-family: 'Unbounded', sans-serif;
+          font-size: clamp(42px, 6vw, 82px);
+          font-weight: 900;
+          line-height: 1.0;
+          letter-spacing: -.04em;
+          margin-bottom: 24px;
+          animation: fadeUp .4s .07s ease both;
         }
 
-        .hero-headline .orange { color: var(--orange); }
-        .hero-headline .yellow { color: var(--yellow); }
+        .highlight {
+          background: var(--yellow);
+          padding: 2px 8px;
+          border-radius: 4px;
+          display: inline;
+          border: 2px solid var(--black);
+          position: relative;
+        }
+
+        .highlight-orange {
+          background: var(--orange);
+          color: var(--white);
+          padding: 2px 8px;
+          border-radius: 4px;
+          display: inline;
+          border: 2px solid var(--black);
+        }
 
         .hero-sub {
-          font-size: 18px;
-          font-weight: 400;
-          color: rgba(245,242,235,0.5);
-          max-width: 520px;
-          margin: 0 auto 44px;
+          font-size: 17px;
+          font-weight: 600;
+          color: #444;
+          max-width: 480px;
+          margin-bottom: 40px;
           line-height: 1.65;
-          animation: fadeUp .5s .16s ease both;
+          animation: fadeUp .4s .14s ease both;
         }
 
         .hero-btns {
           display: flex;
-          gap: 12px;
-          justify-content: center;
-          margin-bottom: 72px;
-          animation: fadeUp .5s .24s ease both;
+          gap: 14px;
+          animation: fadeUp .4s .21s ease both;
+          flex-wrap: wrap;
         }
 
-        .btn-white {
+        .btn-primary {
+          background: var(--orange);
+          color: var(--white);
+          padding: 14px 28px;
+          border-radius: 10px;
+          font-family: 'Nunito', sans-serif;
+          font-size: 15px;
+          font-weight: 800;
+          text-decoration: none;
+          border: 2.5px solid var(--black);
+          box-shadow: var(--shadow);
+          transition: transform .12s, box-shadow .12s;
+          display: inline-block;
+          letter-spacing: .01em;
+        }
+
+        .btn-primary:hover {
+          transform: translate(-2px, -2px);
+          box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary:active {
+          transform: translate(2px, 2px);
+          box-shadow: none;
+        }
+
+        .btn-secondary {
           background: var(--white);
           color: var(--black);
           padding: 14px 28px;
-          border-radius: 12px;
-          font-family: 'Instrument Sans', sans-serif;
+          border-radius: 10px;
+          font-family: 'Nunito', sans-serif;
           font-size: 15px;
-          font-weight: 600;
-          text-decoration: none;
-          transition: background .15s, transform .15s;
-          display: inline-block;
-        }
-
-        .btn-white:hover { background: var(--yellow); transform: translateY(-1px); }
-
-        .btn-ghost {
-          background: rgba(255,255,255,0.06);
-          color: var(--white);
-          padding: 14px 28px;
-          border-radius: 12px;
-          border: 1px solid rgba(255,255,255,0.1);
-          font-family: 'Instrument Sans', sans-serif;
-          font-size: 15px;
-          font-weight: 500;
-          text-decoration: none;
-          transition: background .15s, border-color .15s;
-          display: inline-block;
-        }
-
-        .btn-ghost:hover {
-          background: rgba(255,255,255,0.1);
-          border-color: rgba(255,255,255,0.2);
-        }
-
-        /* ── STATS ── */
-        .stats {
-          display: flex;
-          justify-content: center;
-          gap: 0;
-          border: 1px solid var(--border);
-          border-radius: 16px;
-          overflow: hidden;
-          max-width: 700px;
-          margin: 0 auto;
-          animation: fadeUp .5s .32s ease both;
-        }
-
-        .stat {
-          flex: 1;
-          padding: 28px 24px;
-          text-align: center;
-          border-right: 1px solid var(--border);
-          background: var(--gray);
-        }
-
-        .stat:last-child { border-right: none; }
-
-        .stat-num {
-          font-family: 'Syne', sans-serif;
-          font-size: 36px;
           font-weight: 800;
-          color: var(--yellow);
-          letter-spacing: -.02em;
-          line-height: 1;
+          text-decoration: none;
+          border: 2.5px solid var(--black);
+          box-shadow: var(--shadow);
+          transition: transform .12s, box-shadow .12s;
+          display: inline-block;
         }
 
-        .stat-label {
-          font-size: 12px;
-          font-weight: 500;
-          color: rgba(245,242,235,0.4);
-          margin-top: 6px;
-          letter-spacing: .04em;
-          text-transform: uppercase;
+        .btn-secondary:hover {
+          transform: translate(-2px, -2px);
+          box-shadow: var(--shadow-lg);
+          background: var(--yellow);
         }
 
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
+        .btn-secondary:active {
+          transform: translate(2px, 2px);
+          box-shadow: none;
         }
 
-        /* ── SECTION ── */
-        .section {
-          padding: 100px 40px;
-          max-width: 1200px;
-          margin: 0 auto;
+        /* ── HERO CARD (right side) ── */
+        .hero-card {
+          background: var(--white);
+          border: 3px solid var(--black);
+          border-radius: 20px;
+          box-shadow: var(--shadow-xl);
+          padding: 28px;
+          animation: fadeUp .4s .28s ease both;
+          transform: rotate(1.5deg);
+          transition: transform .2s;
         }
 
-        .section-eyebrow {
-          font-size: 12px;
+        .hero-card:hover { transform: rotate(0deg); }
+
+        .hero-card-title {
+          font-family: 'Unbounded', sans-serif;
+          font-size: 13px;
           font-weight: 700;
-          letter-spacing: .14em;
           text-transform: uppercase;
-          color: var(--orange);
+          letter-spacing: .08em;
+          color: #888;
           margin-bottom: 16px;
         }
 
-        .section-title {
-          font-family: 'Syne', sans-serif;
-          font-size: clamp(36px, 5vw, 60px);
+        .job-preview {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .job-item {
+          background: var(--cream);
+          border: 2px solid var(--black);
+          border-radius: 12px;
+          padding: 14px 16px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          transition: transform .12s, box-shadow .12s;
+          cursor: default;
+        }
+
+        .job-item:hover {
+          transform: translate(-2px, -2px);
+          box-shadow: 3px 3px 0 var(--black);
+        }
+
+        .job-item-left {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .job-emoji {
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          border: 2px solid var(--black);
+          background: var(--yellow);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          flex-shrink: 0;
+        }
+
+        .job-name {
+          font-size: 14px;
           font-weight: 800;
-          letter-spacing: -.03em;
-          line-height: 1.05;
-          margin-bottom: 16px;
+          color: var(--black);
         }
 
-        .section-sub {
-          font-size: 16px;
-          color: rgba(245,242,235,0.5);
-          max-width: 500px;
-          line-height: 1.65;
-          margin-bottom: 56px;
+        .job-location {
+          font-size: 12px;
+          color: #777;
+          font-weight: 600;
+        }
+
+        .job-pay {
+          font-family: 'Unbounded', sans-serif;
+          font-size: 13px;
+          font-weight: 700;
+          color: var(--orange);
+          white-space: nowrap;
+          background: #fff0eb;
+          border: 1.5px solid var(--orange);
+          padding: 4px 10px;
+          border-radius: 6px;
+        }
+
+        .hero-card-footer {
+          margin-top: 16px;
+          padding-top: 16px;
+          border-top: 2px dashed #ddd;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .hero-card-stat {
+          text-align: center;
+        }
+
+        .hero-card-stat-num {
+          font-family: 'Unbounded', sans-serif;
+          font-size: 22px;
+          font-weight: 900;
+          color: var(--black);
+        }
+
+        .hero-card-stat-label {
+          font-size: 11px;
+          font-weight: 700;
+          color: #999;
+          text-transform: uppercase;
+          letter-spacing: .06em;
+        }
+
+        /* ── TICKER STRIP ── */
+        .ticker {
+          background: var(--yellow);
+          border-top: 3px solid var(--black);
+          border-bottom: 3px solid var(--black);
+          overflow: hidden;
+          white-space: nowrap;
+          padding: 12px 0;
+        }
+
+        .ticker-inner {
+          display: inline-flex;
+          animation: ticker 20s linear infinite;
+          gap: 0;
+        }
+
+        .ticker-item {
+          font-family: 'Unbounded', sans-serif;
+          font-size: 13px;
+          font-weight: 700;
+          letter-spacing: .04em;
+          color: var(--black);
+          padding: 0 32px;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+
+        .ticker-item::after {
+          content: '★';
+          color: var(--orange);
+          font-size: 12px;
+        }
+
+        @keyframes ticker {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
         }
 
         /* ── CATEGORIES ── */
         .cats-section {
-          padding: 0 40px 80px;
-          max-width: 1200px;
+          padding: 80px 40px;
+          max-width: 1100px;
           margin: 0 auto;
+        }
+
+        .section-label {
+          font-family: 'Unbounded', sans-serif;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: .18em;
+          text-transform: uppercase;
+          color: var(--orange);
+          margin-bottom: 12px;
+        }
+
+        .section-title {
+          font-family: 'Unbounded', sans-serif;
+          font-size: clamp(28px, 4vw, 52px);
+          font-weight: 900;
+          letter-spacing: -.04em;
+          line-height: 1.05;
+          margin-bottom: 12px;
+        }
+
+        .section-sub {
+          font-size: 16px;
+          font-weight: 600;
+          color: #666;
+          margin-bottom: 48px;
+          max-width: 500px;
+          line-height: 1.6;
         }
 
         .cats-grid {
@@ -290,32 +495,31 @@ export default function Home() {
         }
 
         .cat-chip {
-          background: var(--gray);
-          border: 1px solid var(--border);
-          border-radius: 12px;
-          padding: 12px 20px;
-          font-size: 14px;
-          font-weight: 500;
-          color: rgba(245,242,235,0.65);
           display: flex;
           align-items: center;
           gap: 10px;
+          padding: 10px 18px 10px 10px;
+          border: 2.5px solid var(--black);
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 800;
+          color: var(--black);
           cursor: default;
-          transition: background .15s, border-color .15s, color .15s, transform .15s;
+          box-shadow: 3px 3px 0 var(--black);
+          transition: transform .12s, box-shadow .12s;
+          background: var(--white);
         }
 
         .cat-chip:hover {
-          background: var(--gray2);
-          border-color: rgba(255,224,51,0.25);
-          color: var(--white);
-          transform: translateY(-2px);
+          transform: translate(-2px, -2px);
+          box-shadow: 5px 5px 0 var(--black);
         }
 
-        .cat-chip-icon {
-          width: 32px;
-          height: 32px;
+        .cat-icon {
+          width: 34px;
+          height: 34px;
           border-radius: 8px;
-          background: rgba(255,255,255,0.06);
+          border: 2px solid var(--black);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -323,90 +527,26 @@ export default function Home() {
           flex-shrink: 0;
         }
 
-        /* ── FEATURE CARDS (like Whop's "all tools you need") ── */
-        .feature-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 12px;
+        /* ── SPLIT CARDS ── */
+        .split-wrapper {
+          padding: 0 40px 80px;
         }
 
-        .feature-card {
-          background: var(--gray);
-          border: 1px solid var(--border);
-          border-radius: 20px;
-          padding: 32px;
-          transition: border-color .2s, transform .2s;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .feature-card:hover {
-          border-color: rgba(255,255,255,0.15);
-          transform: translateY(-3px);
-        }
-
-        .feature-card-icon {
-          width: 48px;
-          height: 48px;
-          border-radius: 14px;
-          background: rgba(255,92,26,0.15);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 22px;
-          margin-bottom: 20px;
-        }
-
-        .feature-card-title {
-          font-family: 'Syne', sans-serif;
-          font-size: 20px;
-          font-weight: 700;
-          letter-spacing: -.01em;
-          margin-bottom: 10px;
-        }
-
-        .feature-card-desc {
-          font-size: 14px;
-          font-weight: 400;
-          color: rgba(245,242,235,0.45);
-          line-height: 1.6;
-        }
-
-        .feature-card-preview {
-          margin-top: 28px;
-          background: rgba(0,0,0,0.3);
-          border: 1px solid var(--border);
-          border-radius: 12px;
-          padding: 16px;
-          font-size: 12px;
-          color: rgba(245,242,235,0.35);
-        }
-
-        .preview-row {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 8px;
-        }
-
-        .preview-row:last-child { margin-bottom: 0; }
-
-        .preview-label { color: rgba(245,242,235,0.4); font-size: 12px; }
-        .preview-val { color: var(--yellow); font-weight: 700; font-size: 14px; }
-
-        /* ── SPLIT FOR TEENS / EMPLOYERS ── */
         .split-section {
+          max-width: 1100px;
+          margin: 0 auto;
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 12px;
-          padding: 0 40px 12px;
+          gap: 16px;
         }
 
         .split-card {
+          border: 3px solid var(--black);
           border-radius: 24px;
-          padding: 56px 48px;
+          padding: 52px 48px;
           position: relative;
           overflow: hidden;
+          box-shadow: var(--shadow-xl);
         }
 
         .split-card.teens {
@@ -415,25 +555,25 @@ export default function Home() {
         }
 
         .split-card.employers {
-          background: var(--gray);
-          border: 1px solid var(--border);
-          color: var(--white);
+          background: var(--cream);
+          color: var(--black);
         }
 
         .split-eyebrow {
+          font-family: 'Unbounded', sans-serif;
           font-size: 11px;
           font-weight: 700;
           letter-spacing: .16em;
           text-transform: uppercase;
-          opacity: 0.5;
-          margin-bottom: 16px;
+          opacity: 0.6;
+          margin-bottom: 14px;
         }
 
         .split-title {
-          font-family: 'Syne', sans-serif;
-          font-size: clamp(32px, 3.5vw, 52px);
-          font-weight: 800;
-          letter-spacing: -.03em;
+          font-family: 'Unbounded', sans-serif;
+          font-size: clamp(28px, 3vw, 44px);
+          font-weight: 900;
+          letter-spacing: -.04em;
           line-height: 1.05;
           margin-bottom: 32px;
         }
@@ -442,7 +582,7 @@ export default function Home() {
           list-style: none;
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 14px;
           margin-bottom: 40px;
         }
 
@@ -451,89 +591,128 @@ export default function Home() {
           align-items: center;
           gap: 12px;
           font-size: 15px;
-          font-weight: 500;
+          font-weight: 700;
         }
 
         .split-check {
-          width: 22px;
-          height: 22px;
-          border-radius: 6px;
+          width: 26px;
+          height: 26px;
+          border-radius: 7px;
+          border: 2px solid var(--black);
+          background: var(--black);
+          color: var(--white);
           display: flex;
           align-items: center;
           justify-content: center;
+          font-size: 13px;
+          font-weight: 800;
           flex-shrink: 0;
-          font-size: 12px;
         }
 
-        .split-card.teens .split-check { background: rgba(0,0,0,0.15); }
-        .split-card.employers .split-check { background: rgba(255,92,26,0.2); color: var(--orange); }
+        .split-card.employers .split-check {
+          background: var(--orange);
+          border-color: var(--black);
+          color: var(--white);
+        }
 
         .btn-dark {
           background: var(--black);
           color: var(--white);
           padding: 14px 28px;
-          border-radius: 12px;
-          font-family: 'Instrument Sans', sans-serif;
+          border-radius: 10px;
+          font-family: 'Nunito', sans-serif;
           font-size: 15px;
-          font-weight: 600;
+          font-weight: 800;
           text-decoration: none;
+          border: 2.5px solid var(--black);
+          box-shadow: 4px 4px 0 rgba(0,0,0,0.25);
+          transition: transform .12s, box-shadow .12s;
           display: inline-block;
-          transition: opacity .15s, transform .15s;
         }
 
-        .btn-dark:hover { opacity: .85; transform: translateY(-1px); }
+        .btn-dark:hover {
+          transform: translate(-2px, -2px);
+          box-shadow: 6px 6px 0 rgba(0,0,0,0.25);
+          background: var(--yellow);
+          color: var(--black);
+        }
 
-        .btn-orange {
+        .btn-orange-outline {
           background: var(--orange);
           color: var(--white);
           padding: 14px 28px;
-          border-radius: 12px;
-          font-family: 'Instrument Sans', sans-serif;
+          border-radius: 10px;
+          font-family: 'Nunito', sans-serif;
           font-size: 15px;
-          font-weight: 600;
+          font-weight: 800;
           text-decoration: none;
+          border: 2.5px solid var(--black);
+          box-shadow: var(--shadow);
+          transition: transform .12s, box-shadow .12s;
           display: inline-block;
-          transition: opacity .15s, transform .15s;
         }
 
-        .btn-orange:hover { opacity: .85; transform: translateY(-1px); }
+        .btn-orange-outline:hover {
+          transform: translate(-2px, -2px);
+          box-shadow: var(--shadow-lg);
+        }
 
         /* ── HOW IT WORKS ── */
+        .hiw-section {
+          background: var(--black);
+          border-top: 3px solid var(--black);
+          border-bottom: 3px solid var(--black);
+          padding: 80px 40px;
+        }
+
+        .hiw-inner {
+          max-width: 1100px;
+          margin: 0 auto;
+        }
+
+        .hiw-section .section-label { color: var(--yellow); }
+        .hiw-section .section-title { color: var(--white); }
+        .hiw-section .section-sub { color: rgba(255,255,255,0.45); }
+
         .steps-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 12px;
+          gap: 16px;
         }
 
         .step-card {
-          background: var(--gray);
-          border: 1px solid var(--border);
+          background: #1A1A1A;
+          border: 2.5px solid #333;
           border-radius: 20px;
-          padding: 40px 32px;
+          padding: 36px 28px;
           position: relative;
           overflow: hidden;
-          transition: border-color .2s;
+          transition: border-color .2s, transform .12s;
         }
 
-        .step-card:hover { border-color: rgba(255,255,255,0.15); }
+        .step-card:hover {
+          border-color: var(--orange);
+          transform: translateY(-4px);
+        }
 
         .step-number {
-          font-family: 'Syne', sans-serif;
-          font-size: 72px;
-          font-weight: 800;
+          font-family: 'Unbounded', sans-serif;
+          font-size: 80px;
+          font-weight: 900;
           color: rgba(255,255,255,0.04);
           position: absolute;
-          top: 16px;
-          right: 24px;
+          top: 8px;
+          right: 16px;
           line-height: 1;
-          letter-spacing: -.04em;
           pointer-events: none;
+          letter-spacing: -.05em;
         }
 
-        .step-icon-wrap {
-          width: 52px;
-          height: 52px;
-          background: rgba(255,224,51,0.1);
+        .step-icon {
+          width: 54px;
+          height: 54px;
+          background: var(--yellow);
+          border: 2.5px solid #555;
           border-radius: 14px;
           display: flex;
           align-items: center;
@@ -543,130 +722,140 @@ export default function Home() {
         }
 
         .step-title {
-          font-family: 'Syne', sans-serif;
-          font-size: 22px;
+          font-family: 'Unbounded', sans-serif;
+          font-size: 18px;
           font-weight: 700;
-          letter-spacing: -.01em;
+          letter-spacing: -.02em;
           margin-bottom: 12px;
+          color: var(--white);
         }
 
         .step-desc {
           font-size: 14px;
-          color: rgba(245,242,235,0.45);
+          color: rgba(255,255,255,0.45);
           line-height: 1.65;
+          font-weight: 600;
         }
 
         /* ── FAQ ── */
         .faq-section {
-          padding: 100px 40px;
-          max-width: 800px;
+          padding: 80px 40px;
+          max-width: 760px;
           margin: 0 auto;
         }
 
-        .faq-title {
-          font-family: 'Syne', sans-serif;
-          font-size: clamp(36px, 5vw, 60px);
-          font-weight: 800;
-          letter-spacing: -.03em;
-          text-align: center;
-          margin-bottom: 56px;
-        }
+        .faq-section .section-title { text-align: center; margin-bottom: 48px; }
 
         .faq-item {
-          border-bottom: 1px solid var(--border);
+          border: 2.5px solid var(--black);
+          border-radius: 14px;
+          margin-bottom: 10px;
+          overflow: hidden;
+          box-shadow: 3px 3px 0 var(--black);
+          transition: box-shadow .12s, transform .12s;
+        }
+
+        .faq-item:hover {
+          box-shadow: 5px 5px 0 var(--black);
+          transform: translate(-1px, -1px);
         }
 
         .faq-question {
           width: 100%;
-          background: none;
+          background: var(--cream);
           border: none;
-          padding: 24px 0;
+          padding: 20px 24px;
           display: flex;
           align-items: center;
           justify-content: space-between;
           cursor: pointer;
-          color: var(--white);
-          font-family: 'Instrument Sans', sans-serif;
-          font-size: 16px;
-          font-weight: 600;
+          color: var(--black);
+          font-family: 'Nunito', sans-serif;
+          font-size: 15px;
+          font-weight: 800;
           text-align: left;
           gap: 16px;
-          transition: color .15s;
+          transition: background .15s;
         }
 
-        .faq-question:hover { color: rgba(245,242,235,0.7); }
+        .faq-question:hover { background: #fff0d8; }
+
+        .faq-item.open .faq-question { background: var(--yellow); }
 
         .faq-arrow {
-          flex-shrink: 0;
-          width: 28px;
-          height: 28px;
+          width: 30px;
+          height: 30px;
           border-radius: 8px;
-          background: var(--gray);
-          border: 1px solid var(--border);
+          background: var(--black);
+          color: var(--white);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 14px;
-          transition: transform .2s, background .2s;
+          font-size: 16px;
+          flex-shrink: 0;
+          transition: transform .2s;
         }
 
-        .faq-item.open .faq-arrow {
-          transform: rotate(180deg);
-          background: var(--orange);
-          border-color: var(--orange);
-        }
+        .faq-item.open .faq-arrow { transform: rotate(180deg); background: var(--orange); }
 
         .faq-answer {
           max-height: 0;
           overflow: hidden;
-          transition: max-height .3s ease, padding .3s ease;
+          transition: max-height .3s ease;
+          background: var(--white);
         }
 
-        .faq-item.open .faq-answer { max-height: 200px; }
+        .faq-item.open .faq-answer { max-height: 180px; }
 
         .faq-answer-inner {
-          padding-bottom: 24px;
+          padding: 20px 24px 24px;
           font-size: 15px;
-          color: rgba(245,242,235,0.5);
+          color: #555;
           line-height: 1.7;
+          font-weight: 600;
+          border-top: 2px solid #eee;
         }
 
         /* ── CTA BANNER ── */
         .cta-section {
-          margin: 0 40px 40px;
-          border-radius: 28px;
-          overflow: hidden;
-          position: relative;
+          margin: 0 40px 60px;
+          border-radius: 24px;
           background: var(--orange);
-          padding: 80px 64px;
+          border: 3px solid var(--black);
+          box-shadow: var(--shadow-xl);
+          padding: 72px 64px;
           display: flex;
           align-items: center;
           justify-content: space-between;
           gap: 48px;
+          position: relative;
+          overflow: hidden;
         }
 
-        .cta-section::before {
-          content: 'CATALYST';
+        .cta-bg {
           position: absolute;
-          right: -20px;
+          right: -40px;
           top: 50%;
           transform: translateY(-50%);
-          font-family: 'Syne', sans-serif;
-          font-size: 180px;
-          font-weight: 800;
-          color: rgba(0,0,0,0.08);
+          font-family: 'Unbounded', sans-serif;
+          font-size: 200px;
+          font-weight: 900;
+          color: rgba(0,0,0,0.07);
           white-space: nowrap;
           pointer-events: none;
-          letter-spacing: -.04em;
+          letter-spacing: -.05em;
+          user-select: none;
         }
 
         .cta-title {
-          font-family: 'Syne', sans-serif;
-          font-size: clamp(40px, 6vw, 80px);
-          font-weight: 800;
-          color: var(--black);
-          letter-spacing: -.03em;
-          line-height: 1;
+          font-family: 'Unbounded', sans-serif;
+          font-size: clamp(36px, 5vw, 64px);
+          font-weight: 900;
+          color: var(--white);
+          letter-spacing: -.04em;
+          line-height: 1.0;
+          position: relative;
+          z-index: 1;
         }
 
         .cta-right {
@@ -681,37 +870,60 @@ export default function Home() {
 
         .cta-sub {
           font-size: 16px;
-          color: rgba(0,0,0,0.6);
+          color: rgba(255,255,255,0.75);
           max-width: 260px;
           line-height: 1.6;
-          font-weight: 500;
+          font-weight: 700;
+        }
+
+        .btn-white-solid {
+          background: var(--white);
+          color: var(--black);
+          padding: 14px 28px;
+          border-radius: 10px;
+          font-family: 'Nunito', sans-serif;
+          font-size: 15px;
+          font-weight: 800;
+          text-decoration: none;
+          border: 2.5px solid var(--black);
+          box-shadow: var(--shadow);
+          transition: transform .12s, box-shadow .12s, background .12s;
+          display: inline-block;
+        }
+
+        .btn-white-solid:hover {
+          transform: translate(-2px, -2px);
+          box-shadow: var(--shadow-lg);
+          background: var(--yellow);
         }
 
         /* ── FOOTER ── */
         .footer {
+          background: var(--black);
+          border-top: 3px solid var(--black);
           padding: 48px 40px;
-          border-top: 1px solid var(--border);
           display: grid;
-          grid-template-columns: 200px 1fr auto;
+          grid-template-columns: 220px 1fr auto;
           gap: 48px;
           align-items: start;
         }
 
         .footer-logo {
-          font-family: 'Syne', sans-serif;
-          font-size: 22px;
-          font-weight: 800;
+          font-family: 'Unbounded', sans-serif;
+          font-size: 20px;
+          font-weight: 900;
           color: var(--white);
-          letter-spacing: -.01em;
+          letter-spacing: -.02em;
           margin-bottom: 10px;
         }
 
-        .footer-logo span { color: var(--yellow); }
+        .footer-logo span { color: var(--orange); }
 
         .footer-tagline {
           font-size: 13px;
-          color: rgba(245,242,235,0.3);
+          color: rgba(255,255,255,0.3);
           line-height: 1.5;
+          font-weight: 600;
         }
 
         .footer-links {
@@ -720,11 +932,12 @@ export default function Home() {
         }
 
         .footer-col-title {
-          font-size: 12px;
+          font-family: 'Unbounded', sans-serif;
+          font-size: 10px;
           font-weight: 700;
-          letter-spacing: .1em;
+          letter-spacing: .12em;
           text-transform: uppercase;
-          color: rgba(245,242,235,0.35);
+          color: rgba(255,255,255,0.3);
           margin-bottom: 16px;
         }
 
@@ -737,44 +950,54 @@ export default function Home() {
 
         .footer-col ul a {
           font-size: 14px;
-          color: rgba(245,242,235,0.5);
+          color: rgba(255,255,255,0.5);
           text-decoration: none;
+          font-weight: 700;
           transition: color .15s;
         }
 
-        .footer-col ul a:hover { color: var(--white); }
+        .footer-col ul a:hover { color: var(--yellow); }
 
         .footer-copy {
           font-size: 12px;
-          color: rgba(245,242,235,0.2);
+          color: rgba(255,255,255,0.2);
           white-space: nowrap;
           padding-top: 4px;
+          font-weight: 600;
         }
 
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── MOBILE ── */
         @media (max-width: 960px) {
           .nav { padding: 0 20px; }
           .nav-links { display: none; }
-          .hero { padding: 100px 20px 60px; }
-          .hero-btns { flex-direction: column; align-items: center; }
-          .stats { max-width: 100%; flex-wrap: wrap; }
-          .stat { border-right: none; border-bottom: 1px solid var(--border); min-width: 140px; }
-          .stat:last-child { border-bottom: none; }
-          .cats-section { padding: 0 20px 60px; }
-          .section { padding: 64px 20px; }
-          .feature-grid { grid-template-columns: 1fr; }
+          .hero { padding: 72px 20px 60px; }
+          .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+          .hero-bg-text { display: none; }
+          .hero-btns { flex-direction: column; align-items: stretch; }
+          .cats-section { padding: 60px 20px; }
+          .split-wrapper { padding: 0 20px 60px; }
+          .split-section { grid-template-columns: 1fr; }
+          .hiw-section { padding: 60px 20px; }
           .steps-grid { grid-template-columns: 1fr; }
-          .split-section { grid-template-columns: 1fr; padding: 0 20px 12px; }
-          .cta-section { flex-direction: column; margin: 0 20px 20px; padding: 48px 32px; }
-          .cta-section::before { display: none; }
+          .faq-section { padding: 60px 20px; }
+          .cta-section { flex-direction: column; margin: 0 20px 40px; padding: 48px 32px; }
+          .cta-bg { display: none; }
           .footer { grid-template-columns: 1fr; gap: 32px; padding: 40px 20px; }
           .footer-links { flex-wrap: wrap; gap: 32px; }
-          .faq-section { padding: 64px 20px; }
         }
       `}</style>
 
-      {/* ── NAV ── */}
+      {/* NAV */}
       <nav className="nav">
-        <a href="/" className="nav-logo">Catalyst<span>.</span></a>
+        <a href="/" className="nav-logo">
+          <span className="nav-logo-dot" />
+          Catalyst
+        </a>
         <ul className="nav-links">
           <li><a href="#how-it-works">How It Works</a></li>
           <li><a href="#for-teens">For Teens</a></li>
@@ -784,228 +1007,162 @@ export default function Home() {
         </ul>
       </nav>
 
-      {/* ── HERO ── */}
+      {/* HERO */}
       <section className="hero">
-        <div className="hero-glow" />
-        <div className="hero-badge">
-          <span className="hero-badge-dot">LIVE</span>
-          Now in Plymouth, Indiana
-        </div>
-        <h1 className="hero-headline">
-          Your first job,<br />
-          <span className="orange">your</span> <span className="yellow">rules.</span>
-        </h1>
-        <p className="hero-sub">
-          The job board built for teens in Plymouth. Babysit, mow lawns, tutor, walk dogs — on your schedule. No resume needed.
-        </p>
-        <div className="hero-btns">
-          <a href="/auth/signup" className="btn-white">Start earning today →</a>
-          <a href="/jobs/post" className="btn-ghost">Post a job</a>
-        </div>
-        <div className="stats">
-          <div className="stat">
-            <div className="stat-num">530+</div>
-            <div className="stat-label">Teens in Plymouth</div>
+        <div className="hero-bg-text">CATALYST</div>
+        <div className="hero-inner">
+          <div>
+            <div className="hero-badge">
+              <div className="badge-dot" />
+              Now Live · Plymouth, Indiana
+            </div>
+            <h1 className="hero-headline">
+              Your first job,<br />
+              <span className="highlight">your</span>{" "}
+              <span className="highlight-orange">rules.</span>
+            </h1>
+            <p className="hero-sub">
+              The job board built for teens in Plymouth. Babysit, mow lawns, tutor, walk dogs — on your schedule. No resume needed.
+            </p>
+            <div className="hero-btns">
+              <a href="/auth/signup" className="btn-primary">Start earning today →</a>
+              <a href="/jobs/post" className="btn-secondary">Post a job</a>
+            </div>
           </div>
-          <div className="stat">
-            <div className="stat-num">$20</div>
-            <div className="stat-label">Avg. Hourly Rate</div>
-          </div>
-          <div className="stat">
-            <div className="stat-num">100%</div>
-            <div className="stat-label">Free to Join</div>
-          </div>
-          <div className="stat">
-            <div className="stat-num">Local</div>
-            <div className="stat-label">Plymouth Only</div>
+
+          {/* FLOATING CARD */}
+          <div className="hero-card">
+            <div className="hero-card-title">📍 Jobs near you</div>
+            <div className="job-preview">
+              {[
+                { emoji: "🧒", name: "Babysitter Needed", loc: "0.4 mi away", pay: "$20/hr" },
+                { emoji: "🌿", name: "Lawn Mowing", loc: "0.8 mi away", pay: "$45/job" },
+                { emoji: "📚", name: "Math Tutor", loc: "1.2 mi away", pay: "$25/hr" },
+              ].map(job => (
+                <div key={job.name} className="job-item">
+                  <div className="job-item-left">
+                    <div className="job-emoji">{job.emoji}</div>
+                    <div>
+                      <div className="job-name">{job.name}</div>
+                      <div className="job-location">{job.loc}</div>
+                    </div>
+                  </div>
+                  <div className="job-pay">{job.pay}</div>
+                </div>
+              ))}
+            </div>
+            <div className="hero-card-footer">
+              {[["530+", "Teens"], ["$20", "Avg/hr"], ["Free", "Always"]].map(([num, label]) => (
+                <div key={label} className="hero-card-stat">
+                  <div className="hero-card-stat-num">{num}</div>
+                  <div className="hero-card-stat-label">{label}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── JOB CATEGORIES ── */}
-      <div className="cats-section">
-        <div style={{fontSize:'12px', fontWeight:'700', letterSpacing:'.14em', textTransform:'uppercase', color:'rgba(245,242,235,0.3)', marginBottom:'20px'}}>WHAT'S AVAILABLE</div>
-        <div className="cats-grid">
-          {[
-            ['🧒', 'Babysitting'],
-            ['🌿', 'Lawn Care'],
-            ['📚', 'Tutoring'],
-            ['🐶', 'Dog Walking'],
-            ['🧹', 'House Cleaning'],
-            ['🛒', 'Grocery Help'],
-            ['🚗', 'Car Washing'],
-            ['🎨', 'Art & Crafts'],
-            ['💻', 'Tech Help'],
-            ['📦', 'Moving Help'],
-            ['❓', 'And more...'],
-          ].map(([icon, label]) => (
-            <div key={label} className="cat-chip">
-              <div className="cat-chip-icon">{icon}</div>
-              {label}
-            </div>
+      {/* TICKER */}
+      <div className="ticker">
+        <div className="ticker-inner">
+          {["Babysitting", "Lawn Care", "Tutoring", "Dog Walking", "Car Washing", "House Cleaning", "Tech Help", "Moving Help", "Grocery Help", "Babysitting", "Lawn Care", "Tutoring", "Dog Walking", "Car Washing", "House Cleaning", "Tech Help", "Moving Help", "Grocery Help"].map((item, i) => (
+            <span key={i} className="ticker-item">{item}</span>
           ))}
         </div>
       </div>
 
-      {/* ── ALL THE TOOLS (Feature cards like Whop) ── */}
-      <section className="section" id="features">
-        <p className="section-eyebrow">Everything you need</p>
-        <h2 className="section-title">All the tools to<br />land your first gig</h2>
-        <p className="section-sub">Your profile, jobs, and connections — all in one place. Built for Plymouth teens.</p>
-        <div className="feature-grid">
-          <div className="feature-card">
-            <div className="feature-card-icon">✍️</div>
-            <div className="feature-card-title">Your Profile</div>
-            <p className="feature-card-desc">Build a profile in 60 seconds. Add your skills, a photo, and availability. Employers can find you.</p>
-            <div className="feature-card-preview">
-              <div className="preview-row">
-                <span className="preview-label">Profile Views</span>
-                <span className="preview-val">124</span>
-              </div>
-              <div className="preview-row">
-                <span className="preview-label">Applications Sent</span>
-                <span className="preview-val">8</span>
-              </div>
-              <div className="preview-row">
-                <span className="preview-label">Jobs Completed</span>
-                <span className="preview-val">3 ⭐</span>
-              </div>
+      {/* CATEGORIES */}
+      <section className="cats-section">
+        <p className="section-label">What's Available</p>
+        <h2 className="section-title">Find work in<br />your neighborhood</h2>
+        <p className="section-sub">Dozens of job types posted by families and businesses right here in Plymouth.</p>
+        <div className="cats-grid">
+          {categories.map(([icon, label, color]) => (
+            <div key={label} className="cat-chip">
+              <div className="cat-icon" style={{ background: color }}>{icon}</div>
+              {label}
             </div>
-          </div>
-          <div className="feature-card">
-            <div className="feature-card-icon">💸</div>
-            <div className="feature-card-title">Direct Payments</div>
-            <p className="feature-card-desc">Agree on a rate, do the work, get paid. Employers connect with you directly — no middleman taking a cut.</p>
-            <div className="feature-card-preview">
-              <div className="preview-row">
-                <span className="preview-label">This Week</span>
-                <span className="preview-val" style={{color:'#4ade80'}}>+$120.00</span>
-              </div>
-              <div className="preview-row">
-                <span className="preview-label">Avg. Hourly</span>
-                <span className="preview-val">$20/hr</span>
-              </div>
-            </div>
-          </div>
-          <div className="feature-card">
-            <div className="feature-card-icon">⭐</div>
-            <div className="feature-card-title">Reviews & Trust</div>
-            <p className="feature-card-desc">Every job builds your reputation. Reviews from employers help you stand out and land better gigs over time.</p>
-            <div className="feature-card-preview">
-              <div className="preview-row">
-                <span className="preview-label">Your Rating</span>
-                <span className="preview-val">4.9 / 5.0</span>
-              </div>
-              <div className="preview-row">
-                <span className="preview-label">Total Reviews</span>
-                <span className="preview-val">12</span>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ── */}
-      <section className="section" id="how-it-works" style={{paddingTop: '0'}}>
-        <p className="section-eyebrow">Simple as that</p>
-        <h2 className="section-title">How Catalyst works</h2>
-        <p className="section-sub">Three steps from sign-up to getting paid. No applications, no experience required.</p>
-        <div className="steps-grid">
-          <div className="step-card">
-            <div className="step-number">01</div>
-            <div className="step-icon-wrap">✍️</div>
-            <div className="step-title">Create Your Profile</div>
-            <p className="step-desc">Sign up in 60 seconds. Add your skills, availability, and a short bio. No resume needed.</p>
+      {/* SPLIT CARDS */}
+      <div className="split-wrapper">
+        <div className="split-section">
+          <div className="split-card teens" id="for-teens">
+            <p className="split-eyebrow">For Teens</p>
+            <h3 className="split-title">Work on your terms</h3>
+            <ul className="split-list">
+              {[
+                "Set your own hours and availability",
+                "Earn $15–$30/hr for local gigs",
+                "Build a portfolio and get references",
+                "No experience required for most jobs",
+                "100% free — always",
+              ].map(item => (
+                <li key={item}>
+                  <span className="split-check">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <a href="/auth/signup" className="btn-dark">Create Teen Profile →</a>
           </div>
-          <div className="step-card">
-            <div className="step-number">02</div>
-            <div className="step-icon-wrap">🔍</div>
-            <div className="step-title">Browse Local Jobs</div>
-            <p className="step-desc">See jobs posted by families and businesses right here in Plymouth. Filter by type, pay, and distance.</p>
-          </div>
-          <div className="step-card">
-            <div className="step-number">03</div>
-            <div className="step-icon-wrap">💸</div>
-            <div className="step-title">Apply & Get Paid</div>
-            <p className="step-desc">One-click apply. Connect directly with employers. Show up, do great work, get paid.</p>
-          </div>
-        </div>
-      </section>
 
-      {/* ── FOR TEENS / FOR EMPLOYERS ── */}
-      <div className="split-section" id="for-teens">
-        <div className="split-card teens">
-          <p className="split-eyebrow">For Teens</p>
-          <h3 className="split-title">Work on your terms</h3>
-          <ul className="split-list">
-            {[
-              'Set your own hours and availability',
-              'Earn $15–$30/hr for local gigs',
-              'Build a portfolio and get references',
-              'No experience required for most jobs',
-              '100% free — always',
-            ].map(item => (
-              <li key={item}>
-                <span className="split-check">✓</span>
-                {item}
-              </li>
-            ))}
-          </ul>
-          <a href="/auth/signup" className="btn-dark">Create Teen Profile →</a>
-        </div>
-        <div className="split-card employers" id="for-employers">
-          <p className="split-eyebrow">For Employers</p>
-          <h3 className="split-title">Hire local teen talent</h3>
-          <ul className="split-list">
-            {[
-              'Access 530+ verified local teens',
-              'Post jobs in under 2 minutes',
-              'Browse profiles and reviews',
-              'Direct messaging with applicants',
-              'Free to post — no hidden fees',
-            ].map(item => (
-              <li key={item}>
-                <span className="split-check">✓</span>
-                {item}
-              </li>
-            ))}
-          </ul>
-          <a href="/jobs/post" className="btn-orange">Post a Job Free →</a>
+          <div className="split-card employers" id="for-employers">
+            <p className="split-eyebrow">For Employers</p>
+            <h3 className="split-title">Hire local teen talent</h3>
+            <ul className="split-list">
+              {[
+                "Access 530+ verified local teens",
+                "Post jobs in under 2 minutes",
+                "Browse profiles and reviews",
+                "Direct messaging with applicants",
+                "Free to post — no hidden fees",
+              ].map(item => (
+                <li key={item}>
+                  <span className="split-check">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <a href="/jobs/post" className="btn-orange-outline">Post a Job Free →</a>
+          </div>
         </div>
       </div>
 
-      {/* ── FAQ ── */}
+      {/* HOW IT WORKS */}
+      <section className="hiw-section" id="how-it-works">
+        <div className="hiw-inner">
+          <p className="section-label">Simple as that</p>
+          <h2 className="section-title">How Catalyst works</h2>
+          <p className="section-sub" style={{marginBottom: '48px'}}>Three steps from sign-up to getting paid. No applications, no experience required.</p>
+          <div className="steps-grid">
+            {[
+              { n: "01", icon: "✍️", title: "Create Your Profile", desc: "Sign up in 60 seconds. Add your skills, availability, and a short bio. No resume needed." },
+              { n: "02", icon: "🔍", title: "Browse Local Jobs", desc: "See jobs posted by families and businesses in Plymouth. Filter by type, pay, and distance." },
+              { n: "03", icon: "💸", title: "Apply & Get Paid", desc: "One-click apply. Connect directly with employers. Show up, do great work, get paid." },
+            ].map(step => (
+              <div key={step.n} className="step-card">
+                <div className="step-number">{step.n}</div>
+                <div className="step-icon">{step.icon}</div>
+                <div className="step-title">{step.title}</div>
+                <p className="step-desc">{step.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
       <div className="faq-section">
-        <h2 className="faq-title">Frequently asked questions</h2>
-        {[
-          {
-            q: 'Who can use Catalyst?',
-            a: 'Any teen aged 13–19 living in Plymouth, Indiana can sign up for free. Employers (families, local businesses, neighbors) can also post jobs for free.'
-          },
-          {
-            q: 'Is Catalyst really free?',
-            a: 'Yes — 100% free for teens and employers. We never charge fees, commissions, or hidden costs. Teens and employers agree on rates directly.'
-          },
-          {
-            q: 'What kinds of jobs are available?',
-            a: 'Babysitting, lawn care, tutoring, dog walking, house cleaning, grocery help, car washing, tech help, and more. New categories are added based on community demand.'
-          },
-          {
-            q: 'Do I need experience to apply?',
-            a: 'Most jobs on Catalyst don\'t require prior experience. Employers are often neighbors looking for reliable, local teens — your attitude matters more than a resume.'
-          },
-          {
-            q: 'How do I get paid?',
-            a: 'Payment is handled directly between you and the employer — cash, Venmo, PayPal, or whatever you agree on. Catalyst doesn\'t process or hold payments.'
-          },
-        ].map((item, i) => (
+        <h2 className="section-title">FAQs</h2>
+        {faqs.map((item, i) => (
           <div
             key={i}
-            className="faq-item"
-            onClick={e => {
-              const el = e.currentTarget;
-              el.classList.toggle('open');
-            }}
+            className={`faq-item${openFaq === i ? " open" : ""}`}
+            onClick={() => setOpenFaq(openFaq === i ? null : i)}
           >
             <button className="faq-question">
               {item.q}
@@ -1018,16 +1175,17 @@ export default function Home() {
         ))}
       </div>
 
-      {/* ── CTA BANNER ── */}
+      {/* CTA BANNER */}
       <div className="cta-section">
+        <div className="cta-bg">GO.</div>
         <h2 className="cta-title">Start earning<br />with Catalyst.</h2>
         <div className="cta-right">
-          <p className="cta-sub">Join hundreds of Plymouth teens already finding flexible work in their neighborhood.</p>
-          <a href="/auth/signup" className="btn-dark">Get started free →</a>
+          <p className="cta-sub">Join Plymouth teens already finding flexible work in their neighborhood.</p>
+          <a href="/auth/signup" className="btn-white-solid">Get started free →</a>
         </div>
       </div>
 
-      {/* ── FOOTER ── */}
+      {/* FOOTER */}
       <footer className="footer">
         <div>
           <div className="footer-logo">Catalyst<span>.</span></div>
@@ -1061,5 +1219,5 @@ export default function Home() {
         <p className="footer-copy">© 2026 Catalyst · Plymouth, Indiana</p>
       </footer>
     </>
-  )
+  );
 }
