@@ -1,5 +1,9 @@
 "use client";
 import { useState } from "react";
+import {
+  Baby, Leaf, BookOpen, Dog, Sparkles, ShoppingCart, Car, Monitor, Package, Plus,
+  MapPin, UserPen, Search, Banknote, Users, ChevronDown
+} from "lucide-react";
 
 export default function Home() {
   const [openFaq, setOpenFaq] = useState(null);
@@ -14,16 +18,16 @@ export default function Home() {
   ];
 
   const categories = [
-    ["🧒", "Babysitting", "#FFE033"],
-    ["🌿", "Lawn Care", "#a8f0a0"],
-    ["📚", "Tutoring", "#c0d8ff"],
-    ["🐶", "Dog Walking", "#ffd6a5"],
-    ["🧹", "House Cleaning", "#e0c8ff"],
-    ["🛒", "Grocery Help", "#ffc8c8"],
-    ["🚗", "Car Washing", "#c8f0e8"],
-    ["💻", "Tech Help", "#d0e8ff"],
-    ["📦", "Moving Help", "#ffe0b0"],
-    ["❓", "And more...", "#f0f0f0"],
+    [<Baby size={16} strokeWidth={2.5} />, "Babysitting", "#FFE033"],
+    [<Leaf size={16} strokeWidth={2.5} />, "Lawn Care", "#a8f0a0"],
+    [<BookOpen size={16} strokeWidth={2.5} />, "Tutoring", "#c0d8ff"],
+    [<Dog size={16} strokeWidth={2.5} />, "Dog Walking", "#ffd6a5"],
+    [<Sparkles size={16} strokeWidth={2.5} />, "House Cleaning", "#e0c8ff"],
+    [<ShoppingCart size={16} strokeWidth={2.5} />, "Grocery Help", "#ffc8c8"],
+    [<Car size={16} strokeWidth={2.5} />, "Car Washing", "#c8f0e8"],
+    [<Monitor size={16} strokeWidth={2.5} />, "Tech Help", "#d0e8ff"],
+    [<Package size={16} strokeWidth={2.5} />, "Moving Help", "#ffe0b0"],
+    [<Plus size={16} strokeWidth={2.5} />, "And more...", "#f0f0f0"],
   ];
 
   return (
@@ -359,8 +363,8 @@ export default function Home() {
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 18px;
           flex-shrink: 0;
+          color: var(--black);
         }
 
         .job-name {
@@ -524,8 +528,8 @@ export default function Home() {
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 16px;
           flex-shrink: 0;
+          color: var(--black);
         }
 
         /* ── SPLIT CARDS ── */
@@ -718,8 +722,8 @@ export default function Home() {
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 24px;
           margin-bottom: 24px;
+          color: var(--black);
         }
 
         .step-title {
@@ -1035,16 +1039,16 @@ export default function Home() {
 
           {/* FLOATING CARD */}
           <div className="hero-card">
-            <div className="hero-card-title">📍 Jobs near you</div>
+            <div className="hero-card-title"><MapPin size={14} strokeWidth={2.5} style={{display:'inline', marginRight:6, verticalAlign:'middle'}} />Jobs near you</div>
             <div className="job-preview">
               {[
-                { emoji: "🧒", name: "Babysitter Needed", loc: "0.4 mi away", pay: "$20/hr" },
-                { emoji: "🌿", name: "Lawn Mowing", loc: "0.8 mi away", pay: "$45/job" },
-                { emoji: "📚", name: "Math Tutor", loc: "1.2 mi away", pay: "$25/hr" },
+                { icon: <Baby size={18} strokeWidth={2.5} />, name: "Babysitter Needed", loc: "0.4 mi away", pay: "$20/hr", bg: "#FFE033" },
+                { icon: <Leaf size={18} strokeWidth={2.5} />, name: "Lawn Mowing", loc: "0.8 mi away", pay: "$45/job", bg: "#a8f0a0" },
+                { icon: <BookOpen size={18} strokeWidth={2.5} />, name: "Math Tutor", loc: "1.2 mi away", pay: "$25/hr", bg: "#c0d8ff" },
               ].map(job => (
                 <div key={job.name} className="job-item">
                   <div className="job-item-left">
-                    <div className="job-emoji">{job.emoji}</div>
+                    <div className="job-emoji" style={{background: job.bg, display:'flex', alignItems:'center', justifyContent:'center'}}>{job.icon}</div>
                     <div>
                       <div className="job-name">{job.name}</div>
                       <div className="job-location">{job.loc}</div>
@@ -1143,9 +1147,9 @@ export default function Home() {
           <p className="section-sub" style={{marginBottom: '48px'}}>Three steps from sign-up to getting paid. No applications, no experience required.</p>
           <div className="steps-grid">
             {[
-              { n: "01", icon: "✍️", title: "Create Your Profile", desc: "Sign up in 60 seconds. Add your skills, availability, and a short bio. No resume needed." },
-              { n: "02", icon: "🔍", title: "Browse Local Jobs", desc: "See jobs posted by families and businesses in Plymouth. Filter by type, pay, and distance." },
-              { n: "03", icon: "💸", title: "Apply & Get Paid", desc: "One-click apply. Connect directly with employers. Show up, do great work, get paid." },
+              { n: "01", icon: <UserPen size={24} strokeWidth={2.5} />, title: "Create Your Profile", desc: "Sign up in 60 seconds. Add your skills, availability, and a short bio. No resume needed." },
+              { n: "02", icon: <Search size={24} strokeWidth={2.5} />, title: "Browse Local Jobs", desc: "See jobs posted by families and businesses in Plymouth. Filter by type, pay, and distance." },
+              { n: "03", icon: <Banknote size={24} strokeWidth={2.5} />, title: "Apply & Get Paid", desc: "One-click apply. Connect directly with employers. Show up, do great work, get paid." },
             ].map(step => (
               <div key={step.n} className="step-card">
                 <div className="step-number">{step.n}</div>
@@ -1169,7 +1173,7 @@ export default function Home() {
           >
             <button className="faq-question">
               {item.q}
-              <span className="faq-arrow">↓</span>
+              <span className="faq-arrow"><ChevronDown size={16} strokeWidth={2.5} /></span>
             </button>
             <div className="faq-answer">
               <div className="faq-answer-inner">{item.a}</div>
