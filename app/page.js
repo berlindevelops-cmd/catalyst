@@ -1005,8 +1005,7 @@ export default function Home() {
         </a>
         <ul className="nav-links">
           <li><a href="#how-it-works">How It Works</a></li>
-          <li><a href="#for-teens">For Teens</a></li>
-          <li><a href="#for-employers">For Employers</a></li>
+          <li><a href="#for-teens">Role Selection</a></li>
           <li><a href="/jobs">Browse Jobs</a></li>
           <li><a href="/auth/signup" className="nav-cta">Get Started →</a></li>
         </ul>
