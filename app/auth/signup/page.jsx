@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { useRouter } from 'next/navigation'
+import { AlertCircle, ArrowRight, Loader, User, Briefcase } from 'lucide-react'
 
 export default function SignUp() {
   const [email, setEmail] = useState('')
@@ -11,32 +12,23 @@ export default function SignUp() {
   const [role, setRole] = useState('teen')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  
   const router = useRouter()
 
   const handleSignUp = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
-
-    const { data, err } = await supabase.auth.signUp({
-        email: email,
-        password: password,
-    });
-
+    const { data, error: err } = await supabase.auth.signUp({ email, password })
     if (err) {
       setError(err.message)
     } else if (!data.user) {
-      setError('Please check your email to confirm your account')
+      setError('Please check your email to confirm your account.')
     } else {
-        const { error: insertError } = await supabase
-            .from('users')
-            .insert({ id: data.user.id, email, name, role });
-        if (insertError) {
-            setError(insertError.message);
-        } else {
-            router.push('/jobs')
-        }
+      const { error: insertError } = await supabase
+        .from('users')
+        .insert({ id: data.user.id, email, name, role })
+      if (insertError) setError(insertError.message)
+      else router.push('/jobs')
     }
     setLoading(false)
   }
@@ -44,246 +36,265 @@ export default function SignUp() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap');
-
+        @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Nunito:wght@400;600;700;800&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-          --yellow: #FFE033;
           --orange: #FF5C1A;
-          --black: #0D0D0D;
-          --gray: #141414;
-          --border: rgba(255,255,255,0.08);
+          --yellow: #FFE033;
+          --black: #111111;
+          --white: #FEFCF7;
+          --cream: #FFF6E8;
+          --shadow: 4px 4px 0px #111111;
+          --shadow-lg: 6px 6px 0px #111111;
         }
 
         body {
-          background: var(--black);
-          font-family: 'Instrument Sans', sans-serif;
-          color: #fff;
+          background: var(--white);
+          font-family: 'Nunito', sans-serif;
+          color: var(--black);
+          min-height: 100vh;
         }
 
         .root {
           min-height: 100vh;
           display: flex;
-          align-items: stretch;
-          overflow: hidden;
         }
 
         /* ── LEFT PANEL ── */
         .left {
           flex: 1;
+          background: var(--yellow);
+          border-right: 3px solid var(--black);
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          padding: 48px 64px;
+          padding: 48px 56px;
           position: relative;
           overflow: hidden;
-          background: var(--black);
         }
 
-        .left-glow-top {
+        .left-bg {
           position: absolute;
-          top: -100px; right: -100px;
-          width: 500px; height: 500px;
-          background: radial-gradient(circle, rgba(255,92,26,0.14) 0%, transparent 65%);
+          bottom: -40px;
+          right: -40px;
+          font-family: 'Unbounded', sans-serif;
+          font-size: 220px;
+          font-weight: 900;
+          color: rgba(0,0,0,0.06);
+          white-space: nowrap;
           pointer-events: none;
-        }
-
-        .left-glow-bottom {
-          position: absolute;
-          bottom: -100px; left: -50px;
-          width: 400px; height: 400px;
-          background: radial-gradient(circle, rgba(255,224,51,0.08) 0%, transparent 65%);
-          pointer-events: none;
+          letter-spacing: -.05em;
+          line-height: 1;
+          user-select: none;
         }
 
         .left-logo {
-          font-family: 'Syne', sans-serif;
-          font-size: 22px;
-          font-weight: 800;
-          color: #fff;
+          font-family: 'Unbounded', sans-serif;
+          font-size: 20px;
+          font-weight: 900;
+          color: var(--black);
           text-decoration: none;
-          letter-spacing: -.01em;
+          letter-spacing: -.02em;
+          display: flex;
+          align-items: center;
+          gap: 8px;
           position: relative;
           z-index: 1;
         }
 
-        .left-logo span { color: var(--yellow); }
+        .logo-dot {
+          width: 10px; height: 10px;
+          border-radius: 50%;
+          background: var(--black);
+        }
 
         .left-body {
           position: relative;
           z-index: 1;
         }
 
-        .left-badge {
+        .live-badge {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: rgba(255,255,255,0.06);
-          border: 1px solid rgba(255,255,255,0.1);
+          background: var(--black);
           border-radius: 100px;
           padding: 5px 14px 5px 8px;
-          font-size: 12px;
-          font-weight: 500;
-          color: rgba(255,255,255,0.6);
-          margin-bottom: 28px;
-        }
-
-        .left-badge-dot {
-          background: var(--orange);
-          color: #fff;
+          font-family: 'Unbounded', sans-serif;
           font-size: 10px;
           font-weight: 700;
-          padding: 2px 7px;
-          border-radius: 100px;
-          letter-spacing: .04em;
+          color: var(--yellow);
+          letter-spacing: .08em;
+          text-transform: uppercase;
+          margin-bottom: 28px;
+          box-shadow: var(--shadow);
+        }
+
+        .live-dot {
+          width: 8px; height: 8px;
+          border-radius: 50%;
+          background: var(--orange);
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.3); opacity: .8; }
         }
 
         .left-headline {
-          font-family: 'Syne', sans-serif;
-          font-size: clamp(42px, 5vw, 68px);
-          font-weight: 800;
+          font-family: 'Unbounded', sans-serif;
+          font-size: clamp(38px, 5vw, 60px);
+          font-weight: 900;
           line-height: 1.0;
-          letter-spacing: -.03em;
-          margin-bottom: 20px;
+          letter-spacing: -.04em;
+          color: var(--black);
+          margin-bottom: 24px;
         }
 
-        .left-headline .yellow { color: var(--yellow); }
-        .left-headline .orange { color: var(--orange); }
+        .left-headline .orange-box {
+          background: var(--orange);
+          color: var(--white);
+          padding: 0 8px;
+          border-radius: 6px;
+          border: 2px solid var(--black);
+          display: inline;
+        }
 
         .left-sub {
-          font-size: 15px;
-          font-weight: 400;
-          color: rgba(255,255,255,0.4);
-          max-width: 360px;
-          line-height: 1.7;
-          margin-bottom: 48px;
+          font-size: 16px;
+          font-weight: 600;
+          color: rgba(0,0,0,0.5);
+          max-width: 340px;
+          line-height: 1.65;
+          margin-bottom: 40px;
         }
 
-        /* social proof cards */
         .proof-cards {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 10px;
           max-width: 360px;
         }
 
         .proof-card {
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.07);
+          background: var(--white);
+          border: 2.5px solid var(--black);
           border-radius: 14px;
           padding: 16px 20px;
           display: flex;
           align-items: center;
           gap: 16px;
+          box-shadow: var(--shadow);
         }
 
         .proof-icon {
-          width: 40px; height: 40px;
+          width: 42px; height: 42px;
           border-radius: 10px;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 18px;
+          border: 2px solid var(--black);
+          display: flex;
+          align-items: center;
+          justify-content: center;
           flex-shrink: 0;
+          color: var(--black);
         }
 
-        .proof-icon.yellow { background: rgba(255,224,51,0.12); }
-        .proof-icon.orange { background: rgba(255,92,26,0.12); }
+        .proof-icon.orange-bg { background: var(--orange); color: var(--white); border-color: var(--black); }
+        .proof-icon.black-bg { background: var(--black); color: var(--yellow); }
 
         .proof-text strong {
           display: block;
           font-size: 14px;
-          font-weight: 600;
+          font-weight: 800;
           margin-bottom: 2px;
+          color: var(--black);
         }
 
         .proof-text span {
           font-size: 12px;
-          color: rgba(255,255,255,0.35);
+          font-weight: 600;
+          color: #888;
         }
 
         .left-footer {
-          font-size: 12px;
-          color: rgba(255,255,255,0.18);
-          letter-spacing: .06em;
+          font-family: 'Unbounded', sans-serif;
+          font-size: 10px;
+          font-weight: 700;
+          color: rgba(0,0,0,0.3);
+          letter-spacing: .1em;
+          text-transform: uppercase;
           position: relative;
           z-index: 1;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .left-footer::before {
-          content: '';
-          display: block;
-          width: 32px; height: 1px;
-          background: rgba(255,255,255,0.15);
         }
 
         /* ── RIGHT PANEL ── */
         .right {
           width: 500px;
           min-height: 100vh;
-          background: var(--gray);
-          border-left: 1px solid var(--border);
+          background: var(--cream);
           display: flex;
           flex-direction: column;
           justify-content: center;
           padding: 64px 52px;
+          overflow-y: auto;
         }
 
         .form-eyebrow {
-          font-size: 11px;
+          font-family: 'Unbounded', sans-serif;
+          font-size: 10px;
           font-weight: 700;
-          letter-spacing: .14em;
+          letter-spacing: .16em;
           text-transform: uppercase;
-          color: rgba(255,255,255,0.3);
+          color: var(--orange);
           margin-bottom: 10px;
         }
 
         .form-title {
-          font-family: 'Syne', sans-serif;
-          font-size: 26px;
-          font-weight: 800;
-          letter-spacing: -.02em;
-          margin-bottom: 32px;
+          font-family: 'Unbounded', sans-serif;
+          font-size: 28px;
+          font-weight: 900;
+          letter-spacing: -.03em;
+          margin-bottom: 28px;
+          color: var(--black);
         }
 
         /* role toggle */
         .role-toggle {
           display: flex;
-          background: var(--black);
-          border: 1px solid var(--border);
+          background: var(--white);
+          border: 2.5px solid var(--black);
           border-radius: 12px;
           padding: 4px;
           margin-bottom: 28px;
           gap: 4px;
+          box-shadow: var(--shadow);
         }
 
         .role-btn {
           flex: 1;
           padding: 11px 0;
           background: transparent;
-          border: none;
-          border-radius: 9px;
-          color: rgba(255,255,255,0.35);
-          font-family: 'Instrument Sans', sans-serif;
+          border: 2px solid transparent;
+          border-radius: 8px;
+          color: #999;
+          font-family: 'Nunito', sans-serif;
           font-size: 14px;
-          font-weight: 500;
+          font-weight: 700;
           cursor: pointer;
-          transition: all .18s;
+          transition: all .15s;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 7px;
+          gap: 8px;
         }
 
         .role-btn.active {
-          background: var(--yellow);
-          color: #0d0d0d;
-          font-weight: 700;
+          background: var(--black);
+          color: var(--yellow);
+          border-color: var(--black);
         }
 
-        /* field */
         .field {
           margin-bottom: 16px;
           display: flex;
@@ -292,149 +303,177 @@ export default function SignUp() {
         }
 
         .field label {
-          font-size: 11px;
+          font-family: 'Unbounded', sans-serif;
+          font-size: 10px;
           font-weight: 700;
-          letter-spacing: .1em;
+          letter-spacing: .12em;
           text-transform: uppercase;
-          color: rgba(255,255,255,0.3);
+          color: #888;
         }
 
         .field input {
-          background: var(--black);
-          border: 1px solid rgba(255,255,255,0.09);
+          background: var(--white);
+          border: 2.5px solid var(--black);
           border-radius: 10px;
           padding: 14px 16px;
-          color: #fff;
-          font-family: 'Instrument Sans', sans-serif;
-          font-size: 14px;
-          font-weight: 400;
+          color: var(--black);
+          font-family: 'Nunito', sans-serif;
+          font-size: 15px;
+          font-weight: 600;
           outline: none;
-          transition: border-color .18s, box-shadow .18s;
+          box-shadow: 3px 3px 0 var(--black);
+          transition: box-shadow .12s, transform .12s;
         }
 
-        .field input::placeholder { color: rgba(255,255,255,0.18); }
+        .field input::placeholder { color: #bbb; font-weight: 600; }
 
         .field input:focus {
-          border-color: var(--yellow);
-          box-shadow: 0 0 0 3px rgba(255,224,51,0.08);
+          box-shadow: 5px 5px 0 var(--black);
+          transform: translate(-1px, -1px);
         }
 
-        /* error */
         .error-box {
-          background: rgba(255,80,60,0.08);
-          border: 1px solid rgba(255,80,60,0.25);
+          background: #fff0ee;
+          border: 2px solid #ff5c5c;
           border-radius: 10px;
           padding: 12px 16px;
           font-size: 13px;
-          color: #ff7060;
+          font-weight: 700;
+          color: #cc2200;
           margin-bottom: 16px;
           display: flex;
           align-items: center;
           gap: 8px;
+          box-shadow: 3px 3px 0 #ff5c5c;
         }
 
-        /* submit */
         .submit-btn {
           width: 100%;
           padding: 16px;
           margin-top: 8px;
-          background: var(--yellow);
-          color: #0d0d0d;
-          border: none;
+          background: var(--orange);
+          color: var(--white);
+          border: 2.5px solid var(--black);
           border-radius: 12px;
-          font-family: 'Syne', sans-serif;
+          font-family: 'Nunito', sans-serif;
           font-size: 15px;
           font-weight: 800;
           cursor: pointer;
-          letter-spacing: -.01em;
-          transition: opacity .18s, transform .15s;
+          box-shadow: var(--shadow);
+          transition: transform .12s, box-shadow .12s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          letter-spacing: .01em;
         }
 
-        .submit-btn:hover:not(:disabled) { opacity: .88; transform: translateY(-1px); }
-        .submit-btn:active:not(:disabled) { transform: translateY(0); }
-        .submit-btn:disabled { opacity: .45; cursor: not-allowed; }
-
-        .spinner {
-          display: inline-block;
-          width: 15px; height: 15px;
-          border: 2px solid rgba(0,0,0,0.25);
-          border-top-color: #0d0d0d;
-          border-radius: 50%;
-          animation: spin .6s linear infinite;
-          vertical-align: middle;
-          margin-right: 8px;
+        .submit-btn:hover:not(:disabled) {
+          transform: translate(-2px, -2px);
+          box-shadow: var(--shadow-lg);
         }
 
+        .submit-btn:active:not(:disabled) {
+          transform: translate(2px, 2px);
+          box-shadow: none;
+        }
+
+        .submit-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+        .spinning { animation: spin .6s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        .terms {
+          margin-top: 14px;
+          font-size: 12px;
+          font-weight: 600;
+          color: #aaa;
+          text-align: center;
+          line-height: 1.5;
+        }
+
+        .terms a { color: var(--orange); text-decoration: none; font-weight: 700; }
+        .terms a:hover { text-decoration: underline; }
 
         .divider {
           display: flex;
           align-items: center;
           gap: 12px;
           margin: 24px 0;
-          color: rgba(255,255,255,0.15);
+          color: #ccc;
           font-size: 12px;
+          font-weight: 700;
+          letter-spacing: .06em;
+          text-transform: uppercase;
         }
 
         .divider::before, .divider::after {
           content: '';
           flex: 1;
-          height: 1px;
-          background: rgba(255,255,255,0.08);
+          height: 2px;
+          background: #e8e0d4;
+          border-radius: 2px;
         }
 
-        .signin-link {
+        .bottom-link {
           text-align: center;
-          font-size: 13px;
-          color: rgba(255,255,255,0.3);
+          font-size: 14px;
+          font-weight: 700;
+          color: #999;
         }
 
-        .signin-link a {
-          color: var(--yellow);
+        .bottom-link a {
+          color: var(--black);
           text-decoration: none;
-          font-weight: 600;
+          font-weight: 800;
+          border-bottom: 2px solid var(--black);
+          padding-bottom: 1px;
+          transition: color .15s, border-color .15s;
         }
 
-        .signin-link a:hover { text-decoration: underline; }
+        .bottom-link a:hover { color: var(--orange); border-color: var(--orange); }
 
         @media (max-width: 860px) {
           .left { display: none; }
-          .right { width: 100%; border-left: none; padding: 48px 28px; }
+          .right { width: 100%; padding: 48px 28px; }
         }
       `}</style>
 
       <div className="root">
-        {/* ── LEFT PANEL ── */}
+        {/* LEFT */}
         <div className="left">
-          <div className="left-glow-top" />
-          <div className="left-glow-bottom" />
-
-          <a href="/" className="left-logo">Catalyst<span>.</span></a>
-
+          <div className="left-bg">GO.</div>
+          <a href="/" className="left-logo">
+            <span className="logo-dot" />
+            Catalyst
+          </a>
           <div className="left-body">
-            <div className="left-badge">
-              <span className="left-badge-dot">LIVE</span>
-              Plymouth, Indiana
+            <div className="live-badge">
+              <span className="live-dot" />
+              Live · Plymouth, IN
             </div>
             <h1 className="left-headline">
               Your first<br />
-              <span className="yellow">hustle</span><br />
+              <span className="orange-box">hustle</span><br />
               starts here.
             </h1>
             <p className="left-sub">
-              Join hundreds of Plymouth teens finding flexible, local work — on their schedule.
+              Join Plymouth teens finding flexible, local work — on their schedule, their terms.
             </p>
-
             <div className="proof-cards">
               <div className="proof-card">
-                <div className="proof-icon yellow">💸</div>
+                <div className="proof-icon orange-bg">
+                  <Briefcase size={18} strokeWidth={2.5} />
+                </div>
                 <div className="proof-text">
                   <strong>Earn $15–$30/hr</strong>
                   <span>For local gigs in Plymouth</span>
                 </div>
               </div>
               <div className="proof-card">
-                <div className="proof-icon orange">⚡</div>
+                <div className="proof-icon black-bg">
+                  <User size={18} strokeWidth={2.5} />
+                </div>
                 <div className="proof-text">
                   <strong>No experience needed</strong>
                   <span>Most jobs just need a good attitude</span>
@@ -442,14 +481,13 @@ export default function SignUp() {
               </div>
             </div>
           </div>
-
-          <div className="left-footer">EST. 2026 · CATALYST · PLYMOUTH, IN</div>
+          <div className="left-footer">Est. 2026 · Catalyst · Plymouth, IN</div>
         </div>
 
-        {/* ── RIGHT PANEL ── */}
+        {/* RIGHT */}
         <div className="right">
-          <p className="form-eyebrow">Step 1 of 1</p>
-          <p className="form-title">Create your account</p>
+          <p className="form-eyebrow">Get started</p>
+          <h2 className="form-title">Create your account</h2>
 
           <div className="role-toggle">
             <button
@@ -457,14 +495,16 @@ export default function SignUp() {
               className={`role-btn ${role === 'teen' ? 'active' : ''}`}
               onClick={() => setRole('teen')}
             >
-              👋 I'm a Teen
+              <User size={15} strokeWidth={2.5} />
+              I'm a Teen
             </button>
             <button
               type="button"
               className={`role-btn ${role === 'employer' ? 'active' : ''}`}
               onClick={() => setRole('employer')}
             >
-              🏢 I'm an Employer
+              <Briefcase size={15} strokeWidth={2.5} />
+              I'm an Employer
             </button>
           </div>
 
@@ -479,7 +519,6 @@ export default function SignUp() {
                 required
               />
             </div>
-
             <div className="field">
               <label>Email</label>
               <input
@@ -490,7 +529,6 @@ export default function SignUp() {
                 required
               />
             </div>
-
             <div className="field">
               <label>Password</label>
               <input
@@ -505,19 +543,25 @@ export default function SignUp() {
 
             {error && (
               <div className="error-box">
-                <span>⚠️</span> {error}
+                <AlertCircle size={16} strokeWidth={2.5} />
+                {error}
               </div>
             )}
 
             <button type="submit" className="submit-btn" disabled={loading}>
-              {loading && <span className="spinner" />}
-              {loading ? 'Creating account…' : 'Create Account →'}
+              {loading
+                ? <><Loader size={16} className="spinning" /> Creating account…</>
+                : <>Create Account <ArrowRight size={16} strokeWidth={2.5} /></>
+              }
             </button>
           </form>
 
-          <div className="divider">already have an account?</div>
+          <p className="terms">
+            By signing up you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.
+          </p>
 
-          <p className="signin-link">
+          <div className="divider">Already have an account?</div>
+          <p className="bottom-link">
             <a href="/auth/login">Sign in instead →</a>
           </p>
         </div>
