@@ -1,8 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import Navbar from '../../components/NavBar'
-import { MapPin, Search, ArrowRight, Briefcase } from 'lucide-react'
 
 export default function Jobs() {
   const [jobs, setJobs] = useState([])

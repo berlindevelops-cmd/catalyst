@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { useRouter } from 'next/navigation'
-import { MapPin, AlertCircle, ArrowRight, Loader } from 'lucide-react'
 
 export default function Login() {
   const [email, setEmail] = useState('')

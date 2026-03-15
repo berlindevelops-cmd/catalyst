@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { useRouter } from 'next/navigation'
-import { AlertCircle, ArrowRight, Loader, User, Briefcase } from 'lucide-react'
 
 export default function SignUp() {
   const [email, setEmail] = useState('')

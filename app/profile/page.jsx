@@ -2,8 +2,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { useRouter } from 'next/navigation'
-import Navbar from '../../components/NavBar'
-import { MapPin, Pencil, Search, Briefcase, Star, ExternalLink, User } from 'lucide-react'
 
 export default function Profile() {
   const [profile, setProfile] = useState(null)
