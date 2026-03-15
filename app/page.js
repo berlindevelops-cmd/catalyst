@@ -122,16 +122,18 @@ export default function Home() {
 
         {/* social proof numbers */}
         <div className="mt-14 flex gap-8 text-center">
-          {[
-            { n: "530+", label: "teens in Plymouth" },
-            { n: "350+", label: "local households" },
-            { n: "$0", label: "to get started" },
-          ].map(({ n, label }) => (
-            <div key={label} className="flex flex-col gap-0.5">
-              <span className="text-2xl font-bold text-gray-900">{n}</span>
-              <span className="text-xs text-gray-400">{label}</span>
-            </div>
-          ))}
+          <div className="flex flex-col gap-0.5">
+            <span className="text-2xl font-bold text-gray-900">530+</span>
+            <span className="text-xs text-gray-400">teens in Plymouth</span>
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-2xl font-bold text-gray-900">350+</span>
+            <span className="text-xs text-gray-400">local households</span>
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-2xl font-bold text-gray-900">$0</span>
+            <span className="text-xs text-gray-400">to get started</span>
+          </div>
         </div>
       </section>
     </main>
