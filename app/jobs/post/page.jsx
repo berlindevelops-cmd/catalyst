@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { useRouter } from 'next/navigation'
 import Navbar from '../../../components/NavBar'
-import { Lightbulb, MapPin, Zap, AlertCircle, ArrowRight, Loader } from 'lucide-react'
+import { Lightbulb, MapPin, Zap, AlertCircle, ArrowRight, Loader, Briefcase } from 'lucide-react'
 
 export default function PostJob() {
   const [title, setTitle] = useState('')
