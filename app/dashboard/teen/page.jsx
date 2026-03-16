@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
+const SKILLS = ["Babysitting", "Lawn Care", "Tutoring", "Pet Sitting", "Snow Removal", "House Cleaning", "Grocery Help", "Moving Help", "Car Washing", "Dog Walking"];
+const AVAILABILITY = ["Weekday mornings", "Weekday afternoons", "Weekday evenings", "Weekend mornings", "Weekend afternoons", "Weekend evenings"];
+
 export default function TeenDashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("browse");
@@ -24,32 +27,51 @@ export default function TeenDashboard() {
   const [editAvailability, setEditAvailability] = useState([]);
   const [saveLoading, setSaveLoading] = useState(false);
 
-  const SKILLS = ["Babysitting", "Lawn Care", "Tutoring", "Pet Sitting", "Snow Removal", "House Cleaning", "Grocery Help", "Moving Help", "Car Washing", "Dog Walking"];
-  const AVAILABILITY = ["Weekday mornings", "Weekday afternoons", "Weekday evenings", "Weekend mornings", "Weekend afternoons", "Weekend evenings"];
-
   useEffect(() => {
     async function load() {
-      const { data: { user } } = await getSupabase().auth.getUser();
-      if (!user) { router.push("/auth/login"); return; }
+      try {
+        const { data: authData } = await getSupabase().auth.getUser();
+        const user = authData?.user;
+        if (!user) { router.push("/auth/login"); return; }
 
-      const [profileRes, jobsRes, appsRes, notifsRes] = await Promise.all([
-        getSupabase().from("profiles").select("*").eq("id", user.id).maybeSingle(),
-        getSupabase().from("jobs").select("*, profiles(full_name, employer_type, business_name)").eq("is_active", true).order("created_at", { ascending: false }),
-        getSupabase().from("applications").select("*, jobs(title, pay, location)").eq("teen_id", user.id).order("created_at", { ascending: false }),
-        getSupabase().from("notifications").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-      ]);
+        const profileRes = await getSupabase()
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .maybeSingle();
 
-      // if no profile yet, send to onboarding
-      if (!profileRes.data) {
-        router.push("/auth/onboarding/teen"); // or /employer for employer dashboard
-        return;
+        if (!profileRes.data) {
+          router.push("/auth/onboarding/teen");
+          return;
+        }
+
+        const jobsRes = await getSupabase()
+          .from("jobs")
+          .select("*, profiles(full_name, employer_type, business_name)")
+          .eq("is_active", true)
+          .order("created_at", { ascending: false });
+
+        const appsRes = await getSupabase()
+          .from("applications")
+          .select("*, jobs(title, pay, location)")
+          .eq("teen_id", user.id)
+          .order("created_at", { ascending: false });
+
+        const notifsRes = await getSupabase()
+          .from("notifications")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false });
+
+        setProfile(profileRes.data);
+        setJobs(jobsRes.data || []);
+        setApplications(appsRes.data || []);
+        setNotifications(notifsRes.data || []);
+        setLoading(false);
+      } catch (err) {
+        console.error("Dashboard load error:", err);
+        router.push("/auth/login");
       }
-
-      setProfile(profileRes.data);
-      setJobs(jobsRes.data || []);
-      setApplications(appsRes.data || []);
-      setNotifications(notifsRes.data || []);
-      setLoading(false);
     }
     load();
   }, []);
@@ -58,40 +80,57 @@ export default function TeenDashboard() {
     if (!selectedJob) return;
     setApplyLoading(true);
     setApplyError("");
-    const { data: { user } } = await getSupabase().auth.getUser();
-    if (!user) return;
-    const { error } = await getSupabase().from("applications").insert({
-      job_id: selectedJob.id,
-      teen_id: user.id,
-      message: applyMessage,
-    });
-    setApplyLoading(false);
-    if (error) {
-      setApplyError(error.code === "23505" ? "You already applied to this job." : "Something went wrong.");
-      return;
+    try {
+      const { data: authData } = await getSupabase().auth.getUser();
+      const user = authData?.user;
+      if (!user) return;
+      const { error } = await getSupabase().from("applications").insert({
+        job_id: selectedJob.id,
+        teen_id: user.id,
+        message: applyMessage,
+      });
+      if (error) {
+        setApplyError(error.code === "23505" ? "You already applied to this job." : "Something went wrong.");
+      } else {
+        setApplySuccess(true);
+        setApplications((prev) => [...prev, {
+          job_id: selectedJob.id,
+          jobs: { title: selectedJob.title, pay: selectedJob.pay, location: selectedJob.location },
+          status: "pending",
+          created_at: new Date().toISOString()
+        }]);
+      }
+    } catch (err) {
+      setApplyError("Something went wrong.");
     }
-    setApplySuccess(true);
-    setApplications((prev) => [...prev, {
-      job_id: selectedJob.id,
-      jobs: { title: selectedJob.title, pay: selectedJob.pay, location: selectedJob.location },
-      status: "pending",
-      created_at: new Date().toISOString()
-    }]);
+    setApplyLoading(false);
   }
 
   async function handleSaveProfile() {
     setSaveLoading(true);
-    const { data: { user } } = await getSupabase().auth.getUser();
-    await getSupabase().from("profiles").upsert({
-      id: user.id,
-      full_name: editName,
-      bio: editBio,
-      skills: editSkills,
-      availability: editAvailability.join(", "),
-    });
-    setProfile((prev) => ({ ...prev, full_name: editName, bio: editBio, skills: editSkills, availability: editAvailability.join(", ") }));
+    try {
+      const { data: authData } = await getSupabase().auth.getUser();
+      const user = authData?.user;
+      if (!user) return;
+      await getSupabase().from("profiles").upsert({
+        id: user.id,
+        full_name: editName,
+        bio: editBio,
+        skills: editSkills,
+        availability: editAvailability.join(", "),
+      });
+      setProfile((prev) => ({
+        ...prev,
+        full_name: editName,
+        bio: editBio,
+        skills: editSkills,
+        availability: editAvailability.join(", ")
+      }));
+      setEditMode(false);
+    } catch (err) {
+      console.error(err);
+    }
     setSaveLoading(false);
-    setEditMode(false);
   }
 
   async function markNotifsRead() {
@@ -102,9 +141,9 @@ export default function TeenDashboard() {
   }
 
   const filteredJobs = jobs.filter((j) =>
-    j.title.toLowerCase().includes(search.toLowerCase()) ||
-    j.location.toLowerCase().includes(search.toLowerCase()) ||
-    j.job_type.toLowerCase().includes(search.toLowerCase())
+    j.title?.toLowerCase().includes(search.toLowerCase()) ||
+    j.location?.toLowerCase().includes(search.toLowerCase()) ||
+    j.job_type?.toLowerCase().includes(search.toLowerCase())
   );
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
@@ -117,19 +156,25 @@ export default function TeenDashboard() {
     );
   }
 
+  if (!profile) {
+    return (
+      <main className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col pb-24">
-      {/* header */}
       <div className="bg-white border-b border-gray-100 px-5 py-4 flex items-center justify-between sticky top-0 z-40">
         <span className="text-lg font-bold text-gray-900">
           catalyst<span className="text-[#C8FF00]">.</span>
         </span>
         <span className="text-sm text-gray-500">
-          Hey, <span className="font-semibold text-gray-900">{profile?.full_name?.split(" ")[0]}</span> 👋
+          Hey, <span className="font-semibold text-gray-900">{profile.full_name?.split(" ")[0]}</span> 👋
         </span>
       </div>
 
-      {/* BROWSE TAB */}
       {activeTab === "browse" && (
         <div className="flex flex-col gap-4 px-4 py-5">
           <input
@@ -139,14 +184,18 @@ export default function TeenDashboard() {
             onChange={(e) => setSearch(e.target.value)}
             className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-black transition bg-white"
           />
-
           {filteredJobs.length === 0 ? (
             <div className="text-center py-16 text-gray-400 text-sm">No jobs found.</div>
           ) : (
             filteredJobs.map((job) => (
               <div
                 key={job.id}
-                onClick={() => { setSelectedJob(job); setApplySuccess(false); setApplyError(""); setApplyMessage(""); }}
+                onClick={() => {
+                  setSelectedJob(job);
+                  setApplySuccess(false);
+                  setApplyError("");
+                  setApplyMessage("");
+                }}
                 className="bg-white rounded-2xl border border-gray-200 p-5 flex flex-col gap-3 cursor-pointer hover:border-black transition"
               >
                 <div className="flex items-start justify-between gap-2">
@@ -174,15 +223,14 @@ export default function TeenDashboard() {
         </div>
       )}
 
-      {/* APPLIED TAB */}
       {activeTab === "applied" && (
         <div className="flex flex-col gap-4 px-4 py-5">
           <h2 className="text-lg font-bold text-gray-900">Your Applications</h2>
           {applications.length === 0 ? (
-            <div className="text-center py-16 text-gray-400 text-sm">No applications yet. Browse jobs to get started.</div>
+            <div className="text-center py-16 text-gray-400 text-sm">No applications yet.</div>
           ) : (
-            applications.map((app) => (
-              <div key={app.id} className="bg-white rounded-2xl border border-gray-200 p-5 flex flex-col gap-2">
+            applications.map((app, i) => (
+              <div key={app.id || i} className="bg-white rounded-2xl border border-gray-200 p-5 flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-gray-900">{app.jobs?.title}</h3>
                   <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
@@ -190,7 +238,7 @@ export default function TeenDashboard() {
                     app.status === "rejected" ? "bg-red-100 text-red-600" :
                     "bg-gray-100 text-gray-600"
                   }`}>
-                    {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                    {app.status ? app.status.charAt(0).toUpperCase() + app.status.slice(1) : "Pending"}
                   </span>
                 </div>
                 <p className="text-xs text-gray-400">{app.jobs?.location} · {app.jobs?.pay}</p>
@@ -201,7 +249,6 @@ export default function TeenDashboard() {
         </div>
       )}
 
-      {/* NOTIFICATIONS TAB */}
       {activeTab === "notifications" && (
         <div className="flex flex-col gap-4 px-4 py-5">
           <div className="flex items-center justify-between">
@@ -225,7 +272,6 @@ export default function TeenDashboard() {
         </div>
       )}
 
-      {/* PROFILE TAB */}
       {activeTab === "profile" && (
         <div className="flex flex-col gap-4 px-4 py-5">
           <div className="flex items-center justify-between">
@@ -233,10 +279,10 @@ export default function TeenDashboard() {
             {!editMode && (
               <button
                 onClick={() => {
-                  setEditName(profile?.full_name || "");
-                  setEditBio(profile?.bio || "");
-                  setEditSkills(profile?.skills || []);
-                  setEditAvailability(profile?.availability ? profile.availability.split(", ") : []);
+                  setEditName(profile.full_name || "");
+                  setEditBio(profile.bio || "");
+                  setEditSkills(profile.skills || []);
+                  setEditAvailability(profile.availability ? profile.availability.split(", ") : []);
                   setEditMode(true);
                 }}
                 className="text-xs font-semibold border border-gray-200 px-3 py-1.5 rounded-full hover:bg-gray-50 transition"
@@ -250,15 +296,15 @@ export default function TeenDashboard() {
             <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-full bg-black text-[#C8FF00] flex items-center justify-center text-xl font-bold">
-                  {profile?.full_name?.[0]?.toUpperCase()}
+                  {profile.full_name?.[0]?.toUpperCase()}
                 </div>
                 <div>
-                  <p className="font-bold text-gray-900">{profile?.full_name}</p>
-                  <p className="text-xs text-gray-400">Age {profile?.age} · Teen</p>
+                  <p className="font-bold text-gray-900">{profile.full_name}</p>
+                  <p className="text-xs text-gray-400">Age {profile.age} · Teen</p>
                 </div>
               </div>
-              {profile?.bio && <p className="text-sm text-gray-600">{profile.bio}</p>}
-              {profile?.skills?.length > 0 && (
+              {profile.bio && <p className="text-sm text-gray-600">{profile.bio}</p>}
+              {profile.skills?.length > 0 && (
                 <div>
                   <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Skills</p>
                   <div className="flex flex-wrap gap-2">
@@ -268,7 +314,7 @@ export default function TeenDashboard() {
                   </div>
                 </div>
               )}
-              {profile?.availability && (
+              {profile.availability && (
                 <div>
                   <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2">Availability</p>
                   <p className="text-sm text-gray-600">{profile.availability}</p>
@@ -297,7 +343,8 @@ export default function TeenDashboard() {
                 <label className="text-xs font-medium text-gray-700 mb-2 block">Skills</label>
                 <div className="flex flex-wrap gap-2">
                   {SKILLS.map((skill) => (
-                    <button key={skill} onClick={() => setEditSkills((prev) => prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill])}
+                    <button key={skill}
+                      onClick={() => setEditSkills((prev) => prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill])}
                       className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${editSkills.includes(skill) ? "bg-black text-[#C8FF00] border-black" : "bg-white text-gray-600 border-gray-200"}`}>
                       {skill}
                     </button>
@@ -308,7 +355,8 @@ export default function TeenDashboard() {
                 <label className="text-xs font-medium text-gray-700 mb-2 block">Availability</label>
                 <div className="flex flex-wrap gap-2">
                   {AVAILABILITY.map((slot) => (
-                    <button key={slot} onClick={() => setEditAvailability((prev) => prev.includes(slot) ? prev.filter((s) => s !== slot) : [...prev, slot])}
+                    <button key={slot}
+                      onClick={() => setEditAvailability((prev) => prev.includes(slot) ? prev.filter((s) => s !== slot) : [...prev, slot])}
                       className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${editAvailability.includes(slot) ? "bg-black text-[#C8FF00] border-black" : "bg-white text-gray-600 border-gray-200"}`}>
                       {slot}
                     </button>
@@ -317,7 +365,8 @@ export default function TeenDashboard() {
               </div>
               <div className="flex gap-3">
                 <button onClick={() => setEditMode(false)} className="flex-1 border border-gray-200 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition">Cancel</button>
-                <button onClick={handleSaveProfile} disabled={saveLoading} className="flex-1 bg-black text-[#C8FF00] py-2.5 rounded-xl text-sm font-semibold hover:bg-gray-900 transition disabled:opacity-50">
+                <button onClick={handleSaveProfile} disabled={saveLoading}
+                  className="flex-1 bg-black text-[#C8FF00] py-2.5 rounded-xl text-sm font-semibold hover:bg-gray-900 transition disabled:opacity-50">
                   {saveLoading ? "Saving..." : "Save"}
                 </button>
               </div>
@@ -326,27 +375,28 @@ export default function TeenDashboard() {
         </div>
       )}
 
-      {/* JOB DETAIL MODAL */}
       {selectedJob && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end" onClick={() => setSelectedJob(null)}>
-          <div className="bg-white rounded-t-3xl w-full p-6 flex flex-col gap-4 max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white rounded-t-3xl w-full p-6 flex flex-col gap-4 max-h-[85vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="text-xl font-bold text-gray-900">{selectedJob.title}</h2>
                   {selectedJob.is_urgent && <span className="bg-[#C8FF00] text-black text-xs font-bold px-2 py-0.5 rounded-full">⚡ Urgent</span>}
                 </div>
-                <p className="text-sm text-gray-400 mt-0.5">{selectedJob.profiles?.business_name || selectedJob.profiles?.full_name} · {selectedJob.location}</p>
+                <p className="text-sm text-gray-400 mt-0.5">
+                  {selectedJob.profiles?.business_name || selectedJob.profiles?.full_name} · {selectedJob.location}
+                </p>
               </div>
               <button onClick={() => setSelectedJob(null)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <span className="text-sm font-bold text-gray-900 bg-[#C8FF00] px-3 py-1 rounded-full">{selectedJob.pay}</span>
               <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">{selectedJob.job_type}</span>
               {selectedJob.hours && <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">{selectedJob.hours}</span>}
             </div>
             <p className="text-sm text-gray-600 leading-relaxed">{selectedJob.description}</p>
-
             {applySuccess ? (
               <div className="bg-[#C8FF00] text-black text-sm font-semibold px-4 py-3 rounded-xl text-center">
                 Applied successfully!
@@ -354,7 +404,9 @@ export default function TeenDashboard() {
             ) : (
               <>
                 <div>
-                  <label className="text-xs font-medium text-gray-700 mb-1.5 block">Message to employer <span className="text-gray-400">(optional)</span></label>
+                  <label className="text-xs font-medium text-gray-700 mb-1.5 block">
+                    Message to employer <span className="text-gray-400">(optional)</span>
+                  </label>
                   <textarea
                     placeholder="Introduce yourself, mention relevant experience..."
                     value={applyMessage}
@@ -377,30 +429,35 @@ export default function TeenDashboard() {
         </div>
       )}
 
-      {/* BOTTOM TAB BAR */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex items-center justify-around px-2 py-3 z-40">
-        <button onClick={() => setActiveTab("browse")} className={`flex flex-col items-center gap-1 px-4 transition ${activeTab === "browse" ? "text-black" : "text-gray-400"}`}>
+        <button onClick={() => setActiveTab("browse")}
+          className={`flex flex-col items-center gap-1 px-4 transition ${activeTab === "browse" ? "text-black" : "text-gray-400"}`}>
           <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
           </svg>
           <span className="text-xs font-medium">Browse</span>
         </button>
-        <button onClick={() => setActiveTab("applied")} className={`flex flex-col items-center gap-1 px-4 transition ${activeTab === "applied" ? "text-black" : "text-gray-400"}`}>
+        <button onClick={() => setActiveTab("applied")}
+          className={`flex flex-col items-center gap-1 px-4 transition ${activeTab === "applied" ? "text-black" : "text-gray-400"}`}>
           <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
           </svg>
           <span className="text-xs font-medium">Applied</span>
         </button>
-        <button onClick={() => { setActiveTab("notifications"); markNotifsRead(); }} className={`flex flex-col items-center gap-1 px-4 transition relative ${activeTab === "notifications" ? "text-black" : "text-gray-400"}`}>
+        <button onClick={() => { setActiveTab("notifications"); markNotifsRead(); }}
+          className={`flex flex-col items-center gap-1 px-4 transition relative ${activeTab === "notifications" ? "text-black" : "text-gray-400"}`}>
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#C8FF00] text-black text-xs font-bold rounded-full flex items-center justify-center">{unreadCount}</span>
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#C8FF00] text-black text-xs font-bold rounded-full flex items-center justify-center">
+              {unreadCount}
+            </span>
           )}
           <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
           </svg>
           <span className="text-xs font-medium">Alerts</span>
         </button>
-        <button onClick={() => setActiveTab("profile")} className={`flex flex-col items-center gap-1 px-4 transition ${activeTab === "profile" ? "text-black" : "text-gray-400"}`}>
+        <button onClick={() => setActiveTab("profile")}
+          className={`flex flex-col items-center gap-1 px-4 transition ${activeTab === "profile" ? "text-black" : "text-gray-400"}`}>
           <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
           </svg>
