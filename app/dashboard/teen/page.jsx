@@ -55,9 +55,11 @@ export default function TeenDashboard() {
   }, []);
 
   async function handleApply() {
+    if (!selectedJob) return;
     setApplyLoading(true);
     setApplyError("");
     const { data: { user } } = await getSupabase().auth.getUser();
+    if (!user) return;
     const { error } = await getSupabase().from("applications").insert({
       job_id: selectedJob.id,
       teen_id: user.id,
@@ -69,7 +71,12 @@ export default function TeenDashboard() {
       return;
     }
     setApplySuccess(true);
-    setApplications((prev) => [...prev, { job_id: selectedJob.id, jobs: { title: selectedJob.title, pay: selectedJob.pay, location: selectedJob.location }, status: "pending", created_at: new Date().toISOString() }]);
+    setApplications((prev) => [...prev, {
+      job_id: selectedJob.id,
+      jobs: { title: selectedJob.title, pay: selectedJob.pay, location: selectedJob.location },
+      status: "pending",
+      created_at: new Date().toISOString()
+    }]);
   }
 
   async function handleSaveProfile() {
