@@ -8,7 +8,7 @@ export async function GET(request) {
   const role = requestUrl.searchParams.get("role");
 
   if (code) {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY,
@@ -27,30 +27,20 @@ export async function GET(request) {
     await supabase.auth.exchangeCodeForSession(code);
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-      return NextResponse.redirect(new URL("/auth/signup", requestUrl.origin));
-    }
+    if (!user) return NextResponse.redirect(new URL("/auth/login", requestUrl.origin));
 
-    // check if profile already exists
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", user.id)
       .single();
 
-    // returning user with profile — send to their dashboard
     if (profile?.role) {
-      return NextResponse.redirect(
-        new URL(`/dashboard/${profile.role}`, requestUrl.origin)
-      );
+      return NextResponse.redirect(new URL(`/dashboard/${profile.role}`, requestUrl.origin));
     }
 
-    // new user — send to onboarding based on role param
-    if (role === "teen") {
-      return NextResponse.redirect(new URL("/auth/onboarding/teen", requestUrl.origin));
-    } else if (role === "employer") {
-      return NextResponse.redirect(new URL("/auth/onboarding/employer", requestUrl.origin));
-    }
+    if (role === "teen") return NextResponse.redirect(new URL("/auth/onboarding/teen", requestUrl.origin));
+    if (role === "employer") return NextResponse.redirect(new URL("/auth/onboarding/employer", requestUrl.origin));
   }
 
   return NextResponse.redirect(new URL("/auth/signup", requestUrl.origin));
