@@ -29,7 +29,8 @@ export default function EmployerSignup() {
     await getSupabase().auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/onboarding/employer`,
+        redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: { role: "employer" }
       }
     });
   }

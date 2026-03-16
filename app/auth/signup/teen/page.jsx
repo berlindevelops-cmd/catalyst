@@ -29,7 +29,7 @@ export default function TeenSignup() {
     await getSupabase().auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/onboarding/teen`,
+        redirectTo: `${window.location.origin}/auth/callback`,
         queryParams: { role: "teen" }
       }
     });
