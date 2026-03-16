@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +18,7 @@ export default function Home() {
     }
     setLoading(true);
     setError("");
-    const { error: sbError } = await supabase
+    const { error: sbError } = await getSupabase()
       .from("waitlist_emails")
       .insert({ email, role });
     setLoading(false);
