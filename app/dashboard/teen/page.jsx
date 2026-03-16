@@ -39,6 +39,12 @@ export default function TeenDashboard() {
         getSupabase().from("notifications").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       ]);
 
+      // if no profile yet, send to onboarding
+      if (!profileRes.data) {
+        router.push("/auth/onboarding/teen"); // or /employer for employer dashboard
+        return;
+      }
+
       setProfile(profileRes.data);
       setJobs(jobsRes.data || []);
       setApplications(appsRes.data || []);

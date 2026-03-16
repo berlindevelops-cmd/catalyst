@@ -43,6 +43,8 @@ export default function EmployerDashboard() {
         getSupabase().from("jobs").select("*").eq("employer_id", user.id).order("created_at", { ascending: false }),
       ]);
 
+      if (!profileRes.data) { router.push("/auth/onboarding/employer"); return; }
+
       setProfile(profileRes.data);
       setJobs(jobsRes.data || []);
 
