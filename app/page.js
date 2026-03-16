@@ -112,7 +112,7 @@ export default function Home() {
           catalyst<span className="text-[#C8FF00]">.</span>
         </span>
         <a
-          href="#waitlist"
+          href="/auth/signup"
           className="text-sm font-semibold bg-[#C8FF00] text-black px-4 py-2 rounded-full hover:bg-lime-300 transition"
         >
           Get early access
