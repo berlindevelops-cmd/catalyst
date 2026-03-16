@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
@@ -9,6 +9,25 @@ export default function TeenSignup() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    // if they land back here with a session, they're already registered
+    async function checkSession() {
+      const { data: { user } } = await getSupabase().auth.getUser();
+      if (user) {
+        const { data: profile } = await getSupabase()
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+        if (profile?.role) {
+          setError("You already have an account. Redirecting...");
+          setTimeout(() => router.push(`/dashboard/${profile.role}`), 1500);
+        }
+      }
+    }
+    checkSession();
+  }, []);
 
   async function handleEmailSignup() {
     if (!email || !password) { setError("Please fill in all fields."); return; }
@@ -29,8 +48,7 @@ export default function TeenSignup() {
     await getSupabase().auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-        queryParams: { role: "teen" }
+        redirectTo: `${window.location.origin}/auth/signup/teen`,
       }
     });
   }
