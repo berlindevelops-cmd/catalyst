@@ -6,6 +6,7 @@ export async function GET(request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
   const role = requestUrl.searchParams.get("role");
+  const isLogin = requestUrl.searchParams.get("login");
 
   if (code) {
     const cookieStore = await cookies();
@@ -29,19 +30,27 @@ export async function GET(request) {
 
     if (!user) return NextResponse.redirect(new URL("/auth/login", requestUrl.origin));
 
+    // always check profile first
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", user.id)
       .single();
 
+    // has profile — send to their dashboard
     if (profile?.role) {
       return NextResponse.redirect(new URL(`/dashboard/${profile.role}`, requestUrl.origin));
     }
 
+    // no profile + this was a login attempt — they don't have an account yet
+    if (isLogin) {
+      return NextResponse.redirect(new URL("/auth/signup", requestUrl.origin));
+    }
+
+    // no profile + signup flow — send to onboarding
     if (role === "teen") return NextResponse.redirect(new URL("/auth/onboarding/teen", requestUrl.origin));
     if (role === "employer") return NextResponse.redirect(new URL("/auth/onboarding/employer", requestUrl.origin));
   }
 
-  return NextResponse.redirect(new URL("/auth/signup", requestUrl.origin));
+  return NextResponse.redirect(new URL("/auth/login", requestUrl.origin));
 }
