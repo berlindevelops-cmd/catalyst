@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
@@ -10,25 +10,45 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    async function checkSession() {
+      const { data: { user } } = await getSupabase().auth.getUser();
+      if (!user) return;
+      const { data: profile } = await getSupabase()
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (profile?.role) {
+        router.push(`/dashboard/${profile.role}`);
+      }
+    }
+    checkSession();
+  }, []);
+
   async function handleLogin() {
     if (!email || !password) { setError("Please fill in all fields."); return; }
     setLoading(true);
     setError("");
     const { data, error: sbError } = await getSupabase().auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (sbError) { setError("Invalid email or password."); return; }
-
-    // check profile for role instead of user_metadata
+    if (sbError) {
+      // check if this is a google account
+      const { data: methods } = await getSupabase().auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/auth/callback?login=true` }
+      });
+      return;
+    }
     const { data: profile } = await getSupabase()
       .from("profiles")
       .select("role")
       .eq("id", data.user.id)
-      .single();
+      .maybeSingle();
 
     if (profile?.role) {
       router.push(`/dashboard/${profile.role}`);
     } else {
-      // no profile yet — send to onboarding based on metadata fallback
       const role = data.user?.user_metadata?.role;
       router.push(role === "teen" ? "/auth/onboarding/teen" : "/auth/onboarding/employer");
     }
