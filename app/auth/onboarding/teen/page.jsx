@@ -34,6 +34,7 @@ export default function TeenOnboarding() {
     setError("");
     const { data: { user } } = await getSupabase().auth.getUser();
     if (!user) { setError("Not logged in."); setLoading(false); return; }
+    
     const { error: sbError } = await getSupabase().from("profiles").upsert({
       id: user.id,
       role: "teen",
@@ -43,8 +44,25 @@ export default function TeenOnboarding() {
       skills,
       availability: availability.join(", "),
     });
-    setLoading(false);
-    if (sbError) { setError(sbError.message); return; }
+    
+    if (sbError) { setError(sbError.message); setLoading(false); return; }
+
+    // wait until profile is confirmed written before redirecting
+    let retries = 0;
+    while (retries < 10) {
+      const { data: check } = await getSupabase()
+        .from("profiles")
+        .select("id")
+        .eq("id", user.id)
+        .single();
+      if (check?.id) {
+        router.push("/dashboard/teen");
+        return;
+      }
+      await new Promise((res) => setTimeout(res, 400));
+      retries++;
+    }
+    // fallback if retries exhausted
     router.push("/dashboard/teen");
   }
 

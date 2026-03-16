@@ -17,8 +17,21 @@ export default function Login() {
     const { data, error: sbError } = await getSupabase().auth.signInWithPassword({ email, password });
     setLoading(false);
     if (sbError) { setError("Invalid email or password."); return; }
-    const role = data.user?.user_metadata?.role;
-    router.push(role === "teen" ? "/dashboard/teen" : "/dashboard/employer");
+
+    // check profile for role instead of user_metadata
+    const { data: profile } = await getSupabase()
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .single();
+
+    if (profile?.role) {
+      router.push(`/dashboard/${profile.role}`);
+    } else {
+      // no profile yet — send to onboarding based on metadata fallback
+      const role = data.user?.user_metadata?.role;
+      router.push(role === "teen" ? "/auth/onboarding/teen" : "/auth/onboarding/employer");
+    }
   }
 
   async function handleGoogleLogin() {

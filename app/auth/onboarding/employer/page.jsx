@@ -18,6 +18,7 @@ export default function EmployerOnboarding() {
     setError("");
     const { data: { user } } = await getSupabase().auth.getUser();
     if (!user) { setError("Not logged in."); setLoading(false); return; }
+
     const { error: sbError } = await getSupabase().from("profiles").upsert({
       id: user.id,
       role: "employer",
@@ -26,8 +27,25 @@ export default function EmployerOnboarding() {
       business_name: employerType === "business" ? businessName : null,
       location,
     });
-    setLoading(false);
-    if (sbError) { setError(sbError.message); return; }
+
+    if (sbError) { setError(sbError.message); setLoading(false); return; }
+
+    // wait until profile is confirmed written before redirecting
+    let retries = 0;
+    while (retries < 10) {
+      const { data: check } = await getSupabase()
+        .from("profiles")
+        .select("id")
+        .eq("id", user.id)
+        .single();
+      if (check?.id) {
+        router.push("/dashboard/employer");
+        return;
+      }
+      await new Promise((res) => setTimeout(res, 400));
+      retries++;
+    }
+    // fallback if retries exhausted
     router.push("/dashboard/employer");
   }
 
