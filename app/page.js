@@ -404,7 +404,7 @@ export default function Home() {
       </section>
 
       {/* FAQ */}
-      <section className="w-full px-5 py-20 bg-gray-50">
+      <section className="w-full px-5 py-20 bg-white-50">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">FAQ</p>
