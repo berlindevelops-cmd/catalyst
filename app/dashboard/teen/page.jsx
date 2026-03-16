@@ -33,7 +33,7 @@ export default function TeenDashboard() {
       if (!user) { router.push("/auth/login"); return; }
 
       const [profileRes, jobsRes, appsRes, notifsRes] = await Promise.all([
-        getSupabase().from("profiles").select("*").eq("id", user.id).single(),
+        getSupabase().from("profiles").select("*").eq("id", user.id).maybesingle(),
         getSupabase().from("jobs").select("*, profiles(full_name, employer_type, business_name)").eq("is_active", true).order("created_at", { ascending: false }),
         getSupabase().from("applications").select("*, jobs(title, pay, location)").eq("teen_id", user.id).order("created_at", { ascending: false }),
         getSupabase().from("notifications").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),

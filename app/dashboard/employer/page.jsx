@@ -39,7 +39,7 @@ export default function EmployerDashboard() {
       if (!user) { router.push("/auth/login"); return; }
 
       const [profileRes, jobsRes] = await Promise.all([
-        getSupabase().from("profiles").select("*").eq("id", user.id).single(),
+        getSupabase().from("profiles").select("*").eq("id", user.id).maybesingle(),
         getSupabase().from("jobs").select("*").eq("employer_id", user.id).order("created_at", { ascending: false }),
       ]);
 
@@ -82,7 +82,7 @@ export default function EmployerDashboard() {
       job_type: jobType,
       hours,
       is_urgent: isUrgent,
-    }).select().single();
+    }).select().maybesingle();
     setPostLoading(false);
     if (error) { setPostError("Something went wrong."); return; }
     setJobs((prev) => [data, ...prev]);
