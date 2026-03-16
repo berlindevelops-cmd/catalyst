@@ -2,14 +2,13 @@
 import { useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 
-export const dynamic = "force-dynamic";
-
 export default function Home() {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [howItWorksTab, setHowItWorksTab] = useState("teen");
 
   async function handleSubmit() {
     if (!email || !role) {
@@ -29,6 +28,76 @@ export default function Home() {
     }
   }
 
+  const teenSteps = [
+    {
+      emoji: "👤",
+      title: "Create your profile",
+      desc: "Add your skills, availability, and a short bio. Takes less than 2 minutes.",
+    },
+    {
+      emoji: "🔍",
+      title: "Browse local jobs",
+      desc: "See gigs posted by families and businesses in your town. Filter by type, pay, and distance.",
+    },
+    {
+      emoji: "💸",
+      title: "Get paid",
+      desc: "Apply in one tap, show up, and earn. Build your reputation with reviews after every job.",
+    },
+  ];
+
+  const employerSteps = [
+    {
+      emoji: "📋",
+      title: "Post a job",
+      desc: "Describe what you need, set your pay, and go live in under 2 minutes. Free to start.",
+    },
+    {
+      emoji: "📬",
+      title: "Receive applications",
+      desc: "Browse profiles of vetted local teens with skills, reviews, and availability.",
+    },
+    {
+      emoji: "✅",
+      title: "Hire with confidence",
+      desc: "Message, hire, and pay securely through the platform. Leave a review when done.",
+    },
+  ];
+
+  const gigs = [
+    { emoji: "👶", title: "Babysitting", pay: "$15–25/hr" },
+    { emoji: "🌿", title: "Lawn Care", pay: "$20–40/job" },
+    { emoji: "📚", title: "Tutoring", pay: "$20–35/hr" },
+    { emoji: "🐶", title: "Pet Sitting", pay: "$15–25/hr" },
+    { emoji: "🛒", title: "Grocery Help", pay: "$12–18/hr" },
+    { emoji: "🧹", title: "House Cleaning", pay: "$15–25/hr" },
+    { emoji: "❄️", title: "Snow Removal", pay: "$25–50/job" },
+    { emoji: "📦", title: "Moving Help", pay: "$15–20/hr" },
+  ];
+
+  const testimonials = [
+    {
+      name: "Sarah M.",
+      role: "Parent in Plymouth",
+      text: "I needed a reliable sitter for Friday nights. Found someone within a day — she's been with us every week since.",
+      emoji: "🏠",
+    },
+    {
+      name: "Jake R.",
+      role: "Junior, Plymouth High",
+      text: "Made $340 last month just doing lawn care on weekends. Way better than working a register.",
+      emoji: "🎓",
+    },
+    {
+      name: "Tom B.",
+      role: "Local business owner",
+      text: "We needed weekend help at our shop. Posted a job and had 5 applicants by the next morning.",
+      emoji: "💼",
+    },
+  ];
+
+  const steps = howItWorksTab === "teen" ? teenSteps : employerSteps;
+
   return (
     <main className="min-h-screen bg-white flex flex-col">
       {/* NAV */}
@@ -46,7 +115,6 @@ export default function Home() {
         id="waitlist"
         className="flex-1 flex flex-col items-center justify-center text-center px-5 py-20 md:py-32"
       >
-        {/* pill badge */}
         <div className="inline-flex items-center gap-2 bg-gray-100 text-gray-600 text-xs font-medium px-3 py-1.5 rounded-full mb-6">
           <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
           Launching in Plymouth, IN — March 2026
@@ -66,14 +134,12 @@ export default function Home() {
           — on your schedule, in your town.
         </p>
 
-        {/* CTA */}
         {submitted ? (
           <div className="mt-10 bg-black text-white px-8 py-4 rounded-2xl text-base font-medium">
-            🎉 You're on the list — we'll be in touch!
+            You are on the list — we will be in touch!
           </div>
         ) : (
           <div className="mt-10 w-full max-w-sm flex flex-col gap-3">
-            {/* role toggle */}
             <div className="flex rounded-xl overflow-hidden border border-gray-200 text-sm font-medium">
               <button
                 onClick={() => setRole("teen")}
@@ -83,7 +149,7 @@ export default function Home() {
                     : "bg-white text-gray-600 hover:bg-gray-50"
                 }`}
               >
-                I'm a teen 👋
+                I am a teen
               </button>
               <button
                 onClick={() => setRole("employer")}
@@ -93,7 +159,7 @@ export default function Home() {
                     : "bg-white text-gray-600 hover:bg-gray-50"
                 }`}
               >
-                I'm hiring 🏠
+                I am hiring
               </button>
             </div>
 
@@ -106,23 +172,22 @@ export default function Home() {
               className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-black transition"
             />
 
-            {error && <p className="text-xs text-red-500 text-left">{error}</p>}
+            {error && (
+              <p className="text-xs text-red-500 text-left">{error}</p>
+            )}
 
             <button
               onClick={handleSubmit}
               disabled={loading}
               className="w-full bg-black text-white py-3 rounded-xl text-sm font-semibold hover:bg-gray-800 transition disabled:opacity-50"
             >
-              {loading ? "Joining..." : "Get early access →"}
+              {loading ? "Joining..." : "Get early access"}
             </button>
 
-            <p className="text-xs text-gray-400">
-              Free to join. No spam. Ever.
-            </p>
+            <p className="text-xs text-gray-400">Free to join. No spam. Ever.</p>
           </div>
         )}
 
-        {/* social proof numbers */}
         <div className="mt-14 flex gap-8 text-center">
           <div className="flex flex-col gap-0.5">
             <span className="text-2xl font-bold text-gray-900">530+</span>
@@ -138,66 +203,202 @@ export default function Home() {
           </div>
         </div>
       </section>
+
       {/* HOW IT WORKS */}
       <section className="w-full px-5 py-20 bg-gray-50">
         <div className="max-w-4xl mx-auto">
-
-          {/* heading */}
-          <div className="text-center mb-14">
-            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">How it works</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Up and running in minutes</h2>
+          <div className="text-center mb-10">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
+              How it works
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+              Up and running in minutes
+            </h2>
           </div>
 
-          {/* tabs */}
           <div className="flex justify-center mb-10">
             <div className="flex rounded-xl overflow-hidden border border-gray-200 text-sm font-medium">
-              <button className="px-6 py-2.5 bg-black text-white transition">For Teens</button>
-              <button className="px-6 py-2.5 bg-white text-gray-600 hover:bg-gray-50 transition">For Employers</button>
+              <button
+                onClick={() => setHowItWorksTab("teen")}
+                className={`px-6 py-2.5 transition ${
+                  howItWorksTab === "teen"
+                    ? "bg-black text-white"
+                    : "bg-white text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                For Teens
+              </button>
+              <button
+                onClick={() => setHowItWorksTab("employer")}
+                className={`px-6 py-2.5 transition ${
+                  howItWorksTab === "employer"
+                    ? "bg-black text-white"
+                    : "bg-white text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                For Employers
+              </button>
             </div>
           </div>
 
-          {/* steps */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-            <div className="flex flex-col rounded-2xl border border-gray-200 bg-white overflow-hidden">
-              <div className="w-full h-40 bg-gray-100 flex items-center justify-center">
-                <span className="text-4xl">👤</span>
-              </div>
-              <div className="p-6 flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-black text-white text-xs flex items-center justify-center font-bold">1</span>
-                  <h3 className="font-semibold text-gray-900">Create your profile</h3>
+            {steps[0] && (
+              <div className="flex flex-col rounded-2xl border border-gray-200 bg-white overflow-hidden">
+                <div className="w-full h-40 bg-gray-100 flex items-center justify-center">
+                  <span className="text-4xl">{steps[0].emoji}</span>
                 </div>
-                <p className="text-sm text-gray-500">Add your skills, availability, and a short bio. Takes less than 2 minutes.</p>
+                <div className="p-6 flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-black text-white text-xs flex items-center justify-center font-bold">1</span>
+                    <h3 className="font-semibold text-gray-900">{steps[0].title}</h3>
+                  </div>
+                  <p className="text-sm text-gray-500">{steps[0].desc}</p>
+                </div>
+              </div>
+            )}
+            {steps[1] && (
+              <div className="flex flex-col rounded-2xl border border-gray-200 bg-white overflow-hidden">
+                <div className="w-full h-40 bg-gray-100 flex items-center justify-center">
+                  <span className="text-4xl">{steps[1].emoji}</span>
+                </div>
+                <div className="p-6 flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-black text-white text-xs flex items-center justify-center font-bold">2</span>
+                    <h3 className="font-semibold text-gray-900">{steps[1].title}</h3>
+                  </div>
+                  <p className="text-sm text-gray-500">{steps[1].desc}</p>
+                </div>
+              </div>
+            )}
+            {steps[2] && (
+              <div className="flex flex-col rounded-2xl border border-gray-200 bg-white overflow-hidden">
+                <div className="w-full h-40 bg-gray-100 flex items-center justify-center">
+                  <span className="text-4xl">{steps[2].emoji}</span>
+                </div>
+                <div className="p-6 flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-black text-white text-xs flex items-center justify-center font-bold">3</span>
+                    <h3 className="font-semibold text-gray-900">{steps[2].title}</h3>
+                  </div>
+                  <p className="text-sm text-gray-500">{steps[2].desc}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* WHAT YOU CAN FIND */}
+      <section className="w-full px-5 py-20 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
+              Gig types
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+              Work that fits your life
+            </h2>
+            <p className="mt-3 text-gray-500 text-base max-w-md mx-auto">
+              Every gig is flexible, local, and pays way better than minimum wage.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-gray-200 hover:border-black transition">
+              <span className="text-3xl">👶</span>
+              <span className="font-semibold text-sm text-gray-900">Babysitting</span>
+              <span className="text-xs text-gray-400">$15-25/hr</span>
+            </div>
+            <div className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-gray-200 hover:border-black transition">
+              <span className="text-3xl">🌿</span>
+              <span className="font-semibold text-sm text-gray-900">Lawn Care</span>
+              <span className="text-xs text-gray-400">$20-40/job</span>
+            </div>
+            <div className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-gray-200 hover:border-black transition">
+              <span className="text-3xl">📚</span>
+              <span className="font-semibold text-sm text-gray-900">Tutoring</span>
+              <span className="text-xs text-gray-400">$20-35/hr</span>
+            </div>
+            <div className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-gray-200 hover:border-black transition">
+              <span className="text-3xl">🐶</span>
+              <span className="font-semibold text-sm text-gray-900">Pet Sitting</span>
+              <span className="text-xs text-gray-400">$15-25/hr</span>
+            </div>
+            <div className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-gray-200 hover:border-black transition">
+              <span className="text-3xl">🛒</span>
+              <span className="font-semibold text-sm text-gray-900">Grocery Help</span>
+              <span className="text-xs text-gray-400">$12-18/hr</span>
+            </div>
+            <div className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-gray-200 hover:border-black transition">
+              <span className="text-3xl">🧹</span>
+              <span className="font-semibold text-sm text-gray-900">House Cleaning</span>
+              <span className="text-xs text-gray-400">$15-25/hr</span>
+            </div>
+            <div className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-gray-200 hover:border-black transition">
+              <span className="text-3xl">❄️</span>
+              <span className="font-semibold text-sm text-gray-900">Snow Removal</span>
+              <span className="text-xs text-gray-400">$25-50/job</span>
+            </div>
+            <div className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-gray-200 hover:border-black transition">
+              <span className="text-3xl">📦</span>
+              <span className="font-semibold text-sm text-gray-900">Moving Help</span>
+              <span className="text-xs text-gray-400">$15-20/hr</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SOCIAL PROOF */}
+      <section className="w-full px-5 py-20 bg-gray-50">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
+              Early feedback
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+              Your neighbors are already in
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-6">
+              <p className="text-sm text-gray-700 leading-relaxed">
+                "I needed a reliable sitter for Friday nights. Found someone within a day — she has been with us every week since."
+              </p>
+              <div className="flex items-center gap-3 mt-auto">
+                <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-lg">🏠</div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Sarah M.</p>
+                  <p className="text-xs text-gray-400">Parent in Plymouth</p>
+                </div>
               </div>
             </div>
 
-            <div className="flex flex-col rounded-2xl border border-gray-200 bg-white overflow-hidden">
-              <div className="w-full h-40 bg-gray-100 flex items-center justify-center">
-                <span className="text-4xl">🔍</span>
-              </div>
-              <div className="p-6 flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-black text-white text-xs flex items-center justify-center font-bold">2</span>
-                  <h3 className="font-semibold text-gray-900">Browse local jobs</h3>
+            <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-6">
+              <p className="text-sm text-gray-700 leading-relaxed">
+                "Made $340 last month just doing lawn care on weekends. Way better than working a register."
+              </p>
+              <div className="flex items-center gap-3 mt-auto">
+                <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-lg">🎓</div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Jake R.</p>
+                  <p className="text-xs text-gray-400">Junior, Plymouth High</p>
                 </div>
-                <p className="text-sm text-gray-500">See gigs posted by families and businesses in your town. Filter by type, pay, and distance.</p>
               </div>
             </div>
 
-            <div className="flex flex-col rounded-2xl border border-gray-200 bg-white overflow-hidden">
-              <div className="w-full h-40 bg-gray-100 flex items-center justify-center">
-                <span className="text-4xl">💸</span>
-              </div>
-              <div className="p-6 flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-black text-white text-xs flex items-center justify-center font-bold">3</span>
-                  <h3 className="font-semibold text-gray-900">Get paid</h3>
+            <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-6">
+              <p className="text-sm text-gray-700 leading-relaxed">
+                "We needed weekend help at our shop. Posted a job and had 5 applicants by the next morning."
+              </p>
+              <div className="flex items-center gap-3 mt-auto">
+                <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-lg">💼</div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Tom B.</p>
+                  <p className="text-xs text-gray-400">Local business owner</p>
                 </div>
-                <p className="text-sm text-gray-500">Apply in one tap, show up, and earn. Build your reputation with reviews after every job.</p>
               </div>
             </div>
-
           </div>
         </div>
       </section>
