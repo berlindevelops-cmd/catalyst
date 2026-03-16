@@ -138,6 +138,69 @@ export default function Home() {
           </div>
         </div>
       </section>
+      {/* HOW IT WORKS */}
+      <section className="w-full px-5 py-20 bg-gray-50">
+        <div className="max-w-4xl mx-auto">
+
+          {/* heading */}
+          <div className="text-center mb-14">
+            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">How it works</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Up and running in minutes</h2>
+          </div>
+
+          {/* tabs */}
+          <div className="flex justify-center mb-10">
+            <div className="flex rounded-xl overflow-hidden border border-gray-200 text-sm font-medium">
+              <button className="px-6 py-2.5 bg-black text-white transition">For Teens</button>
+              <button className="px-6 py-2.5 bg-white text-gray-600 hover:bg-gray-50 transition">For Employers</button>
+            </div>
+          </div>
+
+          {/* steps */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <div className="flex flex-col rounded-2xl border border-gray-200 bg-white overflow-hidden">
+              <div className="w-full h-40 bg-gray-100 flex items-center justify-center">
+                <span className="text-4xl">👤</span>
+              </div>
+              <div className="p-6 flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-black text-white text-xs flex items-center justify-center font-bold">1</span>
+                  <h3 className="font-semibold text-gray-900">Create your profile</h3>
+                </div>
+                <p className="text-sm text-gray-500">Add your skills, availability, and a short bio. Takes less than 2 minutes.</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col rounded-2xl border border-gray-200 bg-white overflow-hidden">
+              <div className="w-full h-40 bg-gray-100 flex items-center justify-center">
+                <span className="text-4xl">🔍</span>
+              </div>
+              <div className="p-6 flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-black text-white text-xs flex items-center justify-center font-bold">2</span>
+                  <h3 className="font-semibold text-gray-900">Browse local jobs</h3>
+                </div>
+                <p className="text-sm text-gray-500">See gigs posted by families and businesses in your town. Filter by type, pay, and distance.</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col rounded-2xl border border-gray-200 bg-white overflow-hidden">
+              <div className="w-full h-40 bg-gray-100 flex items-center justify-center">
+                <span className="text-4xl">💸</span>
+              </div>
+              <div className="p-6 flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-black text-white text-xs flex items-center justify-center font-bold">3</span>
+                  <h3 className="font-semibold text-gray-900">Get paid</h3>
+                </div>
+                <p className="text-sm text-gray-500">Apply in one tap, show up, and earn. Build your reputation with reviews after every job.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
