@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export default function Home() {
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<"teen" | "employer" | null>(null);
+  const [role, setRole] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
