@@ -2,11 +2,13 @@
 import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter, usePathname } from "next/navigation";
+import MessagingPopup from "@/components/MessagingPopup";
 
 export default function EmployerDashboardLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   const [profile, setProfile] = useState(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     async function loadUser() {
@@ -19,6 +21,7 @@ export default function EmployerDashboardLayout({ children }) {
         .single();
       if (!profile) { router.push("/auth/onboarding/employer"); return; }
       setProfile(profile);
+      setUser(user);
     }
     loadUser();
   }, []);
@@ -93,6 +96,7 @@ export default function EmployerDashboardLayout({ children }) {
           </a>
         ))}
       </nav>
+      <MessagingPopup userId={user?.id} />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter, usePathname } from "next/navigation";
+import MessagingPopup from "@/components/MessagingPopup";
 
 export default function TeenDashboardLayout({ children }) {
   const router = useRouter();
@@ -99,6 +100,7 @@ export default function TeenDashboardLayout({ children }) {
           </a>
         ))}
       </nav>
+      <MessagingPopup userId={user?.id} />
     </div>
   );
 }
