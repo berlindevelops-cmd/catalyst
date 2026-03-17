@@ -27,7 +27,7 @@ export default function EmployerApplicants() {
         .select(`
           *,
           jobs ( title, pay, pay_type, location, category ),
-          profiles!applications_teen_id_fkey (
+          profiles!teen_id (
             full_name,
             age,
             bio,
@@ -58,7 +58,7 @@ export default function EmployerApplicants() {
               .select(`
                 *,
                 jobs ( title, pay, pay_type, location, category ),
-                profiles!applications_teen_id_fkey (
+                profiles!teen_id (
                   full_name,
                   age,
                   bio,

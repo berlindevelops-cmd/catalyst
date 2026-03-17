@@ -35,9 +35,9 @@ export default function EmployerDashboard() {
   async function handleCloseJob(jobId) {
     await getSupabase()
       .from("jobs")
-      .update({ status: "closed" })
+      .delete()
       .eq("id", jobId);
-    setJobs((prev) => prev.map((j) => j.id === jobId ? { ...j, status: "closed" } : j));
+    setJobs((prev) => prev.filter((j) => j.id !== jobId));
   }
 
   const activeJobs = jobs.filter((j) => j.status === "active");
@@ -152,7 +152,7 @@ function JobCard({ job, onClose, closed }) {
             onClick={() => onClose(job.id)}
             className="text-xs font-medium border border-red-200 text-red-500 px-3 py-2 rounded-lg hover:bg-red-50 transition"
           >
-            Close job
+            Delete job
           </button>
         </div>
       )}

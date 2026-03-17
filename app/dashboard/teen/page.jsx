@@ -74,6 +74,13 @@ export default function TeenDashboard() {
             );
           }
         )
+        .on(
+          "postgres_changes",
+          { event: "DELETE", schema: "public", table: "jobs" },
+          (payload) => {
+            setJobs((prev) => prev.filter((j) => j.id !== payload.old.id));
+          }
+        )
         .subscribe();
 
       return () => getSupabase().removeChannel(channel);
