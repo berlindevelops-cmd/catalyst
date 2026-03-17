@@ -49,14 +49,14 @@ export default function MessagingPopup({ userId }) {
         )
       `)
       .eq("status", "accepted")
-      .or(`teen_id.eq.${userId},employer_id.eq.${userId}`)
-      .filter("jobs.status", "eq", "active");
+      .or(`teen_id.eq.${userId},employer_id.eq.${userId}`);
 
-    // filter out any where job was deleted/closed
-    const active = (data ?? []).filter((c) => c.jobs !== null);
+    // filter out convos where job is missing or closed/deleted
+    const active = (data ?? []).filter(
+      (c) => c.jobs !== null && c.jobs.status === "active"
+    );
     setConversations(active);
 
-    // count unread — messages not from current user in last load
     const appIds = active.map((c) => c.id);
     if (appIds.length > 0) {
       const { data: unread } = await getSupabase()
