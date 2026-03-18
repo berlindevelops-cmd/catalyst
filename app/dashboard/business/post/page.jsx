@@ -55,29 +55,36 @@ export default function BusinessPostJob() {
       .eq("id", user.id)
       .single();
 
-    const { error: sbError } = await getSupabase().from("jobs").insert({
+    const insertData = {
       employer_id: user.id,
       listing_type: "business",
       title,
-      department,
       category,
-      job_type: jobType,
       description,
       pay,
       pay_type: payType,
-      location: location || profile?.location,
-      schedule,
-      openings: parseInt(openings) || 1,
-      start_date: startDate,
-      dress_code: dressCode,
-      interview_required: interviewRequired,
+      location: location || profile?.location || "",
       urgent,
       status: "active",
-      business_name: profile?.business_name,
-    });
+      business_name: profile?.business_name ?? "",
+    };
+
+    // only add optional fields if they have values
+    if (department) insertData.department = department;
+    if (jobType) insertData.job_type = jobType;
+    if (schedule) insertData.schedule = schedule;
+    if (openings) insertData.openings = parseInt(openings) || 1;
+    if (startDate) insertData.start_date = startDate;
+    if (dressCode) insertData.dress_code = dressCode;
+    insertData.interview_required = interviewRequired;
+
+    const { error: sbError } = await getSupabase().from("jobs").insert(insertData);
 
     setLoading(false);
-    if (sbError) { setError(sbError.message); return; }
+    if (sbError) {
+      setError(sbError.message);
+      return;
+    }
     router.push("/dashboard/business");
   }
 
