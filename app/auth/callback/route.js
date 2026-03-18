@@ -38,8 +38,12 @@ export async function GET(request) {
       .single();
 
     // has profile — send to their dashboard
-    if (profile?.role) {
-      return NextResponse.redirect(new URL(`/dashboard/${profile.role}`, requestUrl.origin));
+    if (profile?.role === "teen") {
+      return NextResponse.redirect(new URL("/dashboard/teen", requestUrl.origin));
+    } else if (profile?.role === "business") {
+      return NextResponse.redirect(new URL("/dashboard/business", requestUrl.origin));
+    } else if (profile?.role === "employer") {
+      return NextResponse.redirect(new URL("/dashboard/employer", requestUrl.origin));
     }
 
     // no profile + this was a login attempt — they don't have an account yet

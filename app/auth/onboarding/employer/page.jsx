@@ -20,7 +20,7 @@ export default function EmployerOnboarding() {
     if (!user) { setError("Not logged in."); setLoading(false); return; }
     const { error: sbError } = await getSupabase().from("profiles").upsert({
       id: user.id,
-      role: "employer",
+      role: employerType === "business" ? "business" : "employer",
       full_name: fullName,
       employer_type: employerType,
       business_name: employerType === "business" ? businessName : null,
@@ -28,7 +28,6 @@ export default function EmployerOnboarding() {
     });
     setLoading(false);
     if (sbError) { setError(sbError.message); return; }
-    // route based on type
     router.push(employerType === "business" ? "/dashboard/business" : "/dashboard/employer");
   }
 

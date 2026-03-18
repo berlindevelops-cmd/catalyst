@@ -32,26 +32,20 @@ export default function Login() {
     setError("");
     const { data, error: sbError } = await getSupabase().auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (sbError) {
-      // check if this is a google account
-      const { data: methods } = await getSupabase().auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: `${window.location.origin}/auth/callback?login=true` }
-      });
-      return;
-    }
+    if (sbError) { setError("Invalid email or password."); return; }
+
+    // get profile role for accurate redirect
     const { data: profile } = await getSupabase()
       .from("profiles")
       .select("role")
       .eq("id", data.user.id)
-      .maybeSingle();
+      .single();
 
-    if (profile?.role) {
-      router.push(`/dashboard/${profile.role}`);
-    } else {
-      const role = data.user?.user_metadata?.role;
-      router.push(role === "teen" ? "/auth/onboarding/teen" : "/auth/onboarding/employer");
-    }
+    const role = profile?.role ?? data.user?.user_metadata?.role;
+
+    if (role === "teen") router.push("/dashboard/teen");
+    else if (role === "business") router.push("/dashboard/business");
+    else router.push("/dashboard/employer");
   }
 
   async function handleGoogleLogin() {

@@ -44,14 +44,16 @@ export default function AuthProvider({ children }) {
         pathname.startsWith("/auth/login") ||
         pathname.startsWith("/auth/signup")
       ) {
+        // in checkSession and onAuthStateChange, replace the role redirect with:
         if (role === "teen") {
           router.push("/dashboard/teen");
+        } else if (role === "business") {
+          router.push("/dashboard/business");
         } else if (role === "employer") {
           router.push("/dashboard/employer");
         }
       }
     }
-
     checkSession();
 
     // listen for auth state changes (login/logout)

@@ -20,6 +20,10 @@ export default function BusinessDashboardLayout({ children }) {
         .eq("id", user.id)
         .single();
       if (!profile) { router.push("/auth/onboarding/employer"); return; }
+      if (profile.role === "employer") {
+        router.push("/dashboard/employer");
+        return;
+      }
       setProfile(profile);
     }
     loadUser();
