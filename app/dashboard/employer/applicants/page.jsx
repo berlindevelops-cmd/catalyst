@@ -79,13 +79,40 @@ export default function EmployerApplicants() {
   }, []);
 
   async function updateStatus(appId, status) {
-    await getSupabase()
-      .from("applications")
-      .update({ status })
-      .eq("id", appId);
+    await getSupabase().from("applications").update({ status }).eq("id", appId);
     setApplications((prev) =>
       prev.map((a) => a.id === appId ? { ...a, status } : a)
     );
+
+    if (status === "accepted" || status === "rejected") {
+      const app = applications.find((a) => a.id === appId);
+      if (!app) return;
+
+      // get teen email
+      const { data: teenAuth } = await getSupabase()
+        .rpc("get_user_email", { user_id: app.teen_id })
+        .single();
+
+      const { data: employerProfile } = await getSupabase()
+        .from("profiles")
+        .select("full_name, business_name")
+        .eq("id", app.employer_id)
+        .single();
+
+      if (teenAuth?.email) {
+        await fetch("/api/notify/status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            teenEmail: teenAuth.email,
+            teenName: app.profiles?.full_name ?? "there",
+            jobTitle: app.jobs?.title,
+            status,
+            employerName: employerProfile?.business_name ?? employerProfile?.full_name ?? "Your employer",
+          }),
+        });
+      }
+    }
   }
 
   const filtered = selectedJob === "all"

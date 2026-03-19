@@ -116,6 +116,7 @@ export default function TeenDashboard() {
   async function submitApplication() {
     const { data: { user } } = await getSupabase().auth.getUser();
     if (!user) return;
+
     const { error } = await getSupabase().from("applications").insert({
       job_id: applyingTo.id,
       teen_id: user.id,
@@ -123,10 +124,39 @@ export default function TeenDashboard() {
       message,
       status: "pending",
     });
+
     if (!error) {
       setAppliedJobs((prev) => [...prev, applyingTo.id]);
       setApplyingTo(null);
       setMessage("");
+
+      // get employer email
+      const { data: employerData } = await getSupabase()
+        .from("profiles")
+        .select("full_name, business_name")
+        .eq("id", applyingTo.employer_id)
+        .single();
+
+      const { data: { user: currentUser } } = await getSupabase().auth.getUser();
+
+      // get employer auth email via our own profile
+      const { data: employerAuth } = await getSupabase()
+        .rpc("get_user_email", { user_id: applyingTo.employer_id })
+        .single();
+
+      if (employerAuth?.email) {
+        await fetch("/api/notify/apply", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            employerEmail: employerAuth.email,
+            employerName: employerData?.business_name ?? employerData?.full_name ?? "there",
+            teenName: profile?.full_name ?? "A teen",
+            jobTitle: applyingTo.title,
+            message,
+          }),
+        });
+      }
     }
   }
 
