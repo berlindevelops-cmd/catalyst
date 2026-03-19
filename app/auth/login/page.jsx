@@ -127,7 +127,7 @@ export default function Login() {
             {loading ? "Signing in..." : "Sign in"}
           </button>
 
-          <a href="#" className="text-center text-xs text-gray-400 hover:text-gray-600 transition">
+          <a href="/auth/forgot-password" className="text-center text-xs text-gray-400 hover:text-gray-600 transition">
             Forgot your password?
           </a>
         </div>
