@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+import ReportModal from "@/components/ReportModal";
 
 const CATEGORIES = [
   "All", "Babysitting", "Lawn Care", "Tutoring", "Pet Sitting",
@@ -294,70 +295,92 @@ export default function TeenDashboard() {
 }
 
 function JobCard({ job, applied, onApply }) {
+  const [reporting, setReporting] = useState(false);
   const isBusiness = job.listing_type === "business";
 
   return (
-    <div className={`w-full bg-white rounded-2xl border p-5 flex flex-col gap-3 transition ${
-      job.urgent ? "border-[#C8FF00] shadow-sm" : isBusiness ? "border-gray-900 shadow-sm" : "border-gray-200"
-    }`}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-2 flex-wrap">
-            {isBusiness && (
-              <span className="bg-black text-[#C8FF00] text-xs font-bold px-2 py-0.5 rounded-full">
-                💼 Business
-              </span>
+    <>
+      <div className={`w-full bg-white rounded-2xl border p-5 flex flex-col gap-3 transition ${
+        job.urgent ? "border-[#C8FF00] shadow-sm" : isBusiness ? "border-gray-900 shadow-sm" : "border-gray-200"
+      }`}>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-2 flex-wrap">
+              {isBusiness && (
+                <span className="bg-black text-[#C8FF00] text-xs font-bold px-2 py-0.5 rounded-full">
+                  💼 Business
+                </span>
+              )}
+              {job.job_type && (
+                <span className="bg-gray-100 text-gray-600 text-xs font-medium px-2 py-0.5 rounded-full">
+                  {job.job_type}
+                </span>
+              )}
+              {job.urgent && (
+                <span className="bg-[#C8FF00] text-black text-xs font-bold px-2 py-0.5 rounded-full">
+                  ⚡ Urgent
+                </span>
+              )}
+            </div>
+            <h3 className="font-semibold text-gray-900">{job.title}</h3>
+            {isBusiness && job.business_name && (
+              <p className="text-xs font-medium text-gray-500">{job.business_name}</p>
             )}
-            {job.job_type && (
-              <span className="bg-gray-100 text-gray-600 text-xs font-medium px-2 py-0.5 rounded-full">
-                {job.job_type}
-              </span>
+            {isBusiness && job.department && (
+              <p className="text-xs text-gray-400">{job.department}</p>
             )}
-            {job.urgent && (
-              <span className="bg-[#C8FF00] text-black text-xs font-bold px-2 py-0.5 rounded-full">
-                ⚡ Urgent
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="text-xs text-gray-400">📍 {job.location}</span>
+              <span className="text-xs font-semibold text-gray-700">
+                ${job.pay}/{job.pay_type === "hourly" ? "hr" : "job"}
               </span>
+              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                {job.category}
+              </span>
+              {isBusiness && job.openings > 1 && (
+                <span className="text-xs text-gray-400">{job.openings} openings</span>
+              )}
+            </div>
+            {isBusiness && job.schedule && (
+              <p className="text-xs text-gray-500">🕐 {job.schedule}</p>
+            )}
+            {isBusiness && job.interview_required && (
+              <p className="text-xs text-orange-500 font-medium">📋 Interview required</p>
             )}
           </div>
-          <h3 className="font-semibold text-gray-900">{job.title}</h3>
-          {isBusiness && job.business_name && (
-            <p className="text-xs font-medium text-gray-500">{job.business_name}</p>
-          )}
-          {isBusiness && job.department && (
-            <p className="text-xs text-gray-400">{job.department}</p>
-          )}
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-xs text-gray-400">📍 {job.location}</span>
-            <span className="text-xs font-semibold text-gray-700">
-              ${job.pay}/{job.pay_type === "hourly" ? "hr" : "job"}
-            </span>
-            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{job.category}</span>
-            {isBusiness && job.openings > 1 && (
-              <span className="text-xs text-gray-400">{job.openings} openings</span>
-            )}
+          <div className="flex flex-col items-end gap-2 shrink-0">
+            <button
+              onClick={() => !applied && onApply(job)}
+              disabled={applied}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold transition ${
+                applied ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-black text-[#C8FF00] hover:bg-gray-900"
+              }`}>
+              {applied ? "Applied ✓" : "Apply"}
+            </button>
+            <button
+              onClick={() => setReporting(true)}
+              className="text-xs text-gray-300 hover:text-red-400 transition"
+            >
+              Report
+            </button>
           </div>
-          {isBusiness && job.schedule && (
-            <p className="text-xs text-gray-500">🕐 {job.schedule}</p>
-          )}
-          {isBusiness && job.interview_required && (
-            <p className="text-xs text-orange-500 font-medium">📋 Interview required</p>
-          )}
         </div>
-        <button
-          onClick={() => !applied && onApply(job)}
-          disabled={applied}
-          className={`shrink-0 px-4 py-2 rounded-xl text-xs font-semibold transition ${
-            applied ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-black text-[#C8FF00] hover:bg-gray-900"
-          }`}>
-          {applied ? "Applied ✓" : "Apply"}
-        </button>
+        <p className="text-sm text-gray-500 line-clamp-3">{job.description}</p>
+        {isBusiness && job.dress_code && (
+          <p className="text-xs text-gray-400 bg-gray-50 px-3 py-2 rounded-lg">
+            👔 Dress code: {job.dress_code}
+          </p>
+        )}
       </div>
-      <p className="text-sm text-gray-500 line-clamp-3">{job.description}</p>
-      {isBusiness && job.dress_code && (
-        <p className="text-xs text-gray-400 bg-gray-50 px-3 py-2 rounded-lg">
-          👔 Dress code: {job.dress_code}
-        </p>
+
+      {reporting && (
+        <ReportModal
+          type="job"
+          jobId={job.id}
+          jobTitle={job.title}
+          onClose={() => setReporting(false)}
+        />
       )}
-    </div>
+    </>
   );
 }
