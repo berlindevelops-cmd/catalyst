@@ -26,12 +26,12 @@ export default function AuthProvider({ children }) {
         return;
       }
 
-      // logged in + on landing or auth pages = send to their dashboard
-      const isPublicPage = pathname === "/" ||
+      // logged in + trying to hit login or signup = send to their dashboard
+      const isAuthPage =
         pathname.startsWith("/auth/login") ||
         pathname.startsWith("/auth/signup");
 
-      if (!isPublicPage) return; // already on dashboard or elsewhere, do nothing
+      if (!isAuthPage) return; // landing page, dashboard, anywhere else = do nothing
 
       const { data: profile } = await getSupabase()
         .from("profiles")
@@ -50,12 +50,8 @@ export default function AuthProvider({ children }) {
   useEffect(() => {
     const { data: { subscription } } = getSupabase().auth.onAuthStateChange(
       async (event, session) => {
-        if (event === "SIGNED_OUT") {
-          router.replace("/");
-        }
-        if (event === "PASSWORD_RECOVERY") {
-          router.replace("/auth/reset-password");
-        }
+        if (event === "SIGNED_OUT") router.replace("/");
+        if (event === "PASSWORD_RECOVERY") router.replace("/auth/reset-password");
       }
     );
     return () => subscription.unsubscribe();
