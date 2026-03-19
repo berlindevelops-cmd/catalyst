@@ -39,6 +39,7 @@ export default function EmployerDashboardLayout({ children }) {
     { label: "My Jobs", href: "/dashboard/employer", emoji: "📋" },
     { label: "Post a Job", href: "/dashboard/employer/post", emoji: "➕" },
     { label: "Applicants", href: "/dashboard/employer/applicants", emoji: "📬" },
+    { label: "Profile", href: "/dashboard/employer/profile", emoji: "👤" },
   ];
 
   return (
