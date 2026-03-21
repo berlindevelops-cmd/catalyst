@@ -39,6 +39,8 @@ export default function BusinessDashboardLayout({ children }) {
     { label: "Post Job", href: "/dashboard/business/post", emoji: "➕" },
     { label: "Applicants", href: "/dashboard/business/applicants", emoji: "📬" },
     { label: "Profile", href: "/dashboard/business/profile", emoji: "👤" },
+    { label: "Billing", href: "/dashboard/business/billing", emoji: "💳" },
+
   ];
 
   return (
