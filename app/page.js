@@ -3,11 +3,6 @@ import { useState, useEffect, useRef } from "react";
 import { getSupabase } from "@/lib/supabase";
 
 export default function Home() {
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState(null);
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [howItWorksTab, setHowItWorksTab] = useState("teen");
 
   // animated counters
@@ -47,34 +42,64 @@ export default function Home() {
     }, interval);
   }
 
-  async function handleSubmit() {
-    if (!email || !role) {
-      setError("Pick a role and enter your email.");
-      return;
-    }
-    setLoading(true);
-    setError("");
-    const { error: sbError } = await getSupabase()
-      .from("waitlist_emails")
-      .insert({ email, role });
-    setLoading(false);
-    if (sbError) {
-      setError(sbError.code === "23505" ? "You're already on the list!" : "Something went wrong.");
-    } else {
-      setSubmitted(true);
-    }
-  }
-
   const teenSteps = [
-    { emoji: "👤", title: "Create your profile", desc: "Add your skills, availability, and a short bio. Takes less than 2 minutes." },
-    { emoji: "🔍", title: "Browse local jobs", desc: "See gigs posted by families and businesses in your town. Filter by type, pay, and distance." },
-    { emoji: "💸", title: "Get paid", desc: "Apply in one tap, show up, and earn. Build your reputation with reviews after every job." },
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} className="text-black">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+        </svg>
+      ),
+      title: "Create your profile",
+      desc: "Add your skills, availability, and a short bio. Takes less than 2 minutes.",
+    },
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} className="text-black">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z" />
+        </svg>
+      ),
+      title: "Browse local jobs",
+      desc: "See gigs posted by families and businesses in your town. Filter by type, pay, and distance.",
+    },
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} className="text-black">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+        </svg>
+      ),
+      title: "Get paid",
+      desc: "Apply in one tap, show up, and earn. Build your reputation with reviews after every job.",
+    },
   ];
 
   const employerSteps = [
-    { emoji: "📋", title: "Post a job", desc: "Describe what you need, set your pay, and go live in under 2 minutes. Free to start." },
-    { emoji: "📬", title: "Receive applications", desc: "Browse profiles of vetted local teens with skills, reviews, and availability." },
-    { emoji: "✅", title: "Hire with confidence", desc: "Message, hire, and pay securely through the platform. Leave a review when done." },
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} className="text-black">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
+        </svg>
+      ),
+      title: "Post a job",
+      desc: "Describe what you need, set your pay, and go live in under 2 minutes. Free to start.",
+    },
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} className="text-black">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+        </svg>
+      ),
+      title: "Receive applications",
+      desc: "Browse profiles of vetted local teens with skills, reviews, and availability.",
+    },
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} className="text-black">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      title: "Hire with confidence",
+      desc: "Message, hire, and pay securely through the platform. Leave a review when done.",
+    },
   ];
 
   const steps = howItWorksTab === "teen" ? teenSteps : employerSteps;
@@ -90,6 +115,94 @@ export default function Home() {
     "Moving Help · $18/hr",
     "Car Washing · $25/job",
     "Dog Walking · $15/hr",
+  ];
+
+  const gigTypes = [
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+        </svg>
+      ),
+      label: "Babysitting",
+      rate: "$15-25/hr",
+    },
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+        </svg>
+      ),
+      label: "Lawn Care",
+      rate: "$20-40/job",
+    },
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+        </svg>
+      ),
+      label: "Tutoring",
+      rate: "$20-35/hr",
+    },
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z" />
+        </svg>
+      ),
+      label: "Pet Sitting",
+      rate: "$15-25/hr",
+    },
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+        </svg>
+      ),
+      label: "Grocery Help",
+      rate: "$12-18/hr",
+    },
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      ),
+      label: "House Cleaning",
+      rate: "$15-25/hr",
+    },
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z" />
+        </svg>
+      ),
+      label: "Snow Removal",
+      rate: "$25-50/job",
+    },
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+        </svg>
+      ),
+      label: "Moving Help",
+      rate: "$15-20/hr",
+    },
+  ];
+
+  const testimonialIcons = [
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+    </svg>,
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+    </svg>,
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z" />
+    </svg>,
   ];
 
   return (
@@ -121,7 +234,7 @@ export default function Home() {
 
       {/* HERO */}
       <section
-        id="waitlist"
+        id="hero"
         className="flex-1 flex flex-col items-center justify-center text-center px-5 py-20 md:py-32"
       >
         <div className="inline-flex items-center gap-2 bg-gray-100 text-gray-600 text-xs font-medium px-3 py-1.5 rounded-full mb-6">
@@ -142,58 +255,6 @@ export default function Home() {
           Skip the fast food grind. Find babysitting, lawn care, tutoring gigs
           — on your schedule, in your town.
         </p>
-
-        {submitted ? (
-          <div className="mt-10 bg-black text-[#C8FF00] px-8 py-4 rounded-2xl text-base font-semibold">
-            You are on the list — we will be in touch!
-          </div>
-        ) : (
-          <div className="mt-10 w-full max-w-sm flex flex-col gap-3">
-            <div className="flex rounded-xl overflow-hidden border border-gray-200 text-sm font-medium">
-              <button
-                onClick={() => setRole("teen")}
-                className={`flex-1 py-2.5 transition ${
-                  role === "teen"
-                    ? "bg-black text-[#C8FF00]"
-                    : "bg-white text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                I am a teen
-              </button>
-              <button
-                onClick={() => setRole("employer")}
-                className={`flex-1 py-2.5 transition ${
-                  role === "employer"
-                    ? "bg-black text-[#C8FF00]"
-                    : "bg-white text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                I am hiring
-              </button>
-            </div>
-
-            <input
-              type="email"
-              placeholder="your@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-black transition"
-            />
-
-            {error && <p className="text-xs text-red-500 text-left">{error}</p>}
-
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="w-full bg-black text-[#C8FF00] py-3 rounded-xl text-sm font-semibold hover:bg-gray-900 transition disabled:opacity-50"
-            >
-              {loading ? "Joining..." : "Get early access"}
-            </button>
-
-            <p className="text-xs text-gray-400">Free to join. No spam. Ever.</p>
-          </div>
-        )}
 
         {/* animated counters */}
         <div ref={statsRef} className="mt-14 flex gap-8 text-center">
@@ -246,48 +307,20 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {steps[0] && (
-              <div className="flex flex-col rounded-2xl border border-gray-200 bg-white overflow-hidden">
+            {steps.map((step, i) => (
+              <div key={i} className="flex flex-col rounded-2xl border border-gray-200 bg-white overflow-hidden">
                 <div className="w-full h-40 bg-[#C8FF00]/20 flex items-center justify-center">
-                  <span className="text-4xl">{steps[0].emoji}</span>
+                  {step.icon}
                 </div>
                 <div className="p-6 flex flex-col gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-black text-[#C8FF00] text-xs flex items-center justify-center font-bold">1</span>
-                    <h3 className="font-semibold text-gray-900">{steps[0].title}</h3>
+                    <span className="w-6 h-6 rounded-full bg-black text-[#C8FF00] text-xs flex items-center justify-center font-bold">{i + 1}</span>
+                    <h3 className="font-semibold text-gray-900">{step.title}</h3>
                   </div>
-                  <p className="text-sm text-gray-500">{steps[0].desc}</p>
+                  <p className="text-sm text-gray-500">{step.desc}</p>
                 </div>
               </div>
-            )}
-            {steps[1] && (
-              <div className="flex flex-col rounded-2xl border border-gray-200 bg-white overflow-hidden">
-                <div className="w-full h-40 bg-[#C8FF00]/20 flex items-center justify-center">
-                  <span className="text-4xl">{steps[1].emoji}</span>
-                </div>
-                <div className="p-6 flex flex-col gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-black text-[#C8FF00] text-xs flex items-center justify-center font-bold">2</span>
-                    <h3 className="font-semibold text-gray-900">{steps[1].title}</h3>
-                  </div>
-                  <p className="text-sm text-gray-500">{steps[1].desc}</p>
-                </div>
-              </div>
-            )}
-            {steps[2] && (
-              <div className="flex flex-col rounded-2xl border border-gray-200 bg-white overflow-hidden">
-                <div className="w-full h-40 bg-[#C8FF00]/20 flex items-center justify-center">
-                  <span className="text-4xl">{steps[2].emoji}</span>
-                </div>
-                <div className="p-6 flex flex-col gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-black text-[#C8FF00] text-xs flex items-center justify-center font-bold">3</span>
-                    <h3 className="font-semibold text-gray-900">{steps[2].title}</h3>
-                  </div>
-                  <p className="text-sm text-gray-500">{steps[2].desc}</p>
-                </div>
-              </div>
-            )}
+            ))}
           </div>
         </div>
       </section>
@@ -304,46 +337,13 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-gray-200 hover:border-black hover:bg-[#C8FF00]/10 transition">
-              <span className="text-3xl">👶</span>
-              <span className="font-semibold text-sm text-gray-900">Babysitting</span>
-              <span className="text-xs text-gray-400">$15-25/hr</span>
-            </div>
-            <div className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-gray-200 hover:border-black hover:bg-[#C8FF00]/10 transition">
-              <span className="text-3xl">🌿</span>
-              <span className="font-semibold text-sm text-gray-900">Lawn Care</span>
-              <span className="text-xs text-gray-400">$20-40/job</span>
-            </div>
-            <div className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-gray-200 hover:border-black hover:bg-[#C8FF00]/10 transition">
-              <span className="text-3xl">📚</span>
-              <span className="font-semibold text-sm text-gray-900">Tutoring</span>
-              <span className="text-xs text-gray-400">$20-35/hr</span>
-            </div>
-            <div className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-gray-200 hover:border-black hover:bg-[#C8FF00]/10 transition">
-              <span className="text-3xl">🐶</span>
-              <span className="font-semibold text-sm text-gray-900">Pet Sitting</span>
-              <span className="text-xs text-gray-400">$15-25/hr</span>
-            </div>
-            <div className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-gray-200 hover:border-black hover:bg-[#C8FF00]/10 transition">
-              <span className="text-3xl">🛒</span>
-              <span className="font-semibold text-sm text-gray-900">Grocery Help</span>
-              <span className="text-xs text-gray-400">$12-18/hr</span>
-            </div>
-            <div className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-gray-200 hover:border-black hover:bg-[#C8FF00]/10 transition">
-              <span className="text-3xl">🧹</span>
-              <span className="font-semibold text-sm text-gray-900">House Cleaning</span>
-              <span className="text-xs text-gray-400">$15-25/hr</span>
-            </div>
-            <div className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-gray-200 hover:border-black hover:bg-[#C8FF00]/10 transition">
-              <span className="text-3xl">❄️</span>
-              <span className="font-semibold text-sm text-gray-900">Snow Removal</span>
-              <span className="text-xs text-gray-400">$25-50/job</span>
-            </div>
-            <div className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-gray-200 hover:border-black hover:bg-[#C8FF00]/10 transition">
-              <span className="text-3xl">📦</span>
-              <span className="font-semibold text-sm text-gray-900">Moving Help</span>
-              <span className="text-xs text-gray-400">$15-20/hr</span>
-            </div>
+            {gigTypes.map((gig, i) => (
+              <div key={i} className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-gray-200 hover:border-black hover:bg-[#C8FF00]/10 transition">
+                <span className="text-gray-700">{gig.icon}</span>
+                <span className="font-semibold text-sm text-gray-900">{gig.label}</span>
+                <span className="text-xs text-gray-400">{gig.rate}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -357,146 +357,45 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-6">
-              <p className="text-sm text-gray-700 leading-relaxed">
-                "I needed a reliable sitter for Friday nights. Found someone within a day — she has been with us every week since."
-              </p>
-              <div className="flex items-center gap-3 mt-auto">
-                <div className="w-9 h-9 rounded-full bg-[#C8FF00] flex items-center justify-center text-lg">🏠</div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">Sarah M.</p>
-                  <p className="text-xs text-gray-400">Parent in Plymouth</p>
+            {[
+              {
+                quote: "I needed a reliable sitter for Friday nights. Found someone within a day — she has been with us every week since.",
+                name: "Sarah M.",
+                role: "Parent in Plymouth",
+                iconIdx: 0,
+              },
+              {
+                quote: "Made $340 last month just doing lawn care on weekends. Way better than working a register.",
+                name: "Jake R.",
+                role: "Junior, Plymouth High",
+                iconIdx: 1,
+              },
+              {
+                quote: "We needed weekend help at our shop. Posted a job and had 5 applicants by the next morning.",
+                name: "Tom B.",
+                role: "Local business owner",
+                iconIdx: 2,
+              },
+            ].map((t, i) => (
+              <div key={i} className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-6">
+                <p className="text-sm text-gray-700 leading-relaxed">"{t.quote}"</p>
+                <div className="flex items-center gap-3 mt-auto">
+                  <div className="w-9 h-9 rounded-full bg-[#C8FF00] flex items-center justify-center text-black">
+                    {testimonialIcons[t.iconIdx]}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">{t.name}</p>
+                    <p className="text-xs text-gray-400">{t.role}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-6">
-              <p className="text-sm text-gray-700 leading-relaxed">
-                "Made $340 last month just doing lawn care on weekends. Way better than working a register."
-              </p>
-              <div className="flex items-center gap-3 mt-auto">
-                <div className="w-9 h-9 rounded-full bg-[#C8FF00] flex items-center justify-center text-lg">🎓</div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">Jake R.</p>
-                  <p className="text-xs text-gray-400">Junior, Plymouth High</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-6">
-              <p className="text-sm text-gray-700 leading-relaxed">
-                "We needed weekend help at our shop. Posted a job and had 5 applicants by the next morning."
-              </p>
-              <div className="flex items-center gap-3 mt-auto">
-                <div className="w-9 h-9 rounded-full bg-[#C8FF00] flex items-center justify-center text-lg">💼</div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">Tom B.</p>
-                  <p className="text-xs text-gray-400">Local business owner</p>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
-        </div>
-      </section>
-
-      {/* PRICING */}
-      <section className="w-full px-5 py-20 bg-white">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-4">
-            <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Pricing</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Free for teens. Always.</h2>
-            <p className="mt-3 text-gray-500 text-base max-w-md mx-auto">
-              Teens never pay a dime. Employers choose a plan that fits their hiring needs.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-3 mb-12 mt-8">
-            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-full px-4 py-2 text-xs text-gray-600 font-medium">
-              <span>⚡</span> $5 Urgent Hire badge — top of results for 48hrs
-            </div>
-            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-full px-4 py-2 text-xs text-gray-600 font-medium">
-              <span>⭐</span> $10 Featured Teen Profile — boosted for a week
-            </div>
-            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-full px-4 py-2 text-xs text-gray-600 font-medium">
-              <span>✅</span> $15 Verified Background Check badge
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="flex flex-col rounded-2xl border border-gray-200 p-6 gap-4">
-              <div>
-                <p className="text-sm font-semibold text-gray-400 uppercase tracking-widest">Free</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">$0</p>
-                <p className="text-xs text-gray-400 mt-0.5">forever</p>
-              </div>
-              <ul className="flex flex-col gap-2 text-sm text-gray-600 flex-1">
-                <li className="flex items-start gap-2"><span className="text-[#C8FF00] mt-0.5 font-bold">✓</span>1 active listing</li>
-                <li className="flex items-start gap-2"><span className="text-[#C8FF00] mt-0.5 font-bold">✓</span>No application cap</li>
-                <li className="flex items-start gap-2"><span className="text-[#C8FF00] mt-0.5 font-bold">✓</span>Basic profile</li>
-              </ul>
-              <a href="#waitlist" className="text-center text-sm font-medium border border-gray-200 rounded-xl py-2.5 hover:bg-gray-50 transition">
-                Get started
-              </a>
-            </div>
-
-            <div className="flex flex-col rounded-2xl border border-gray-200 p-6 gap-4">
-              <div>
-                <p className="text-sm font-semibold text-gray-400 uppercase tracking-widest">Starter</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">$29</p>
-                <p className="text-xs text-gray-400 mt-0.5">per month</p>
-              </div>
-              <ul className="flex flex-col gap-2 text-sm text-gray-600 flex-1">
-                <li className="flex items-start gap-2"><span className="text-[#C8FF00] mt-0.5 font-bold">✓</span>3 active listings</li>
-                <li className="flex items-start gap-2"><span className="text-[#C8FF00] mt-0.5 font-bold">✓</span>Applicant messaging</li>
-                <li className="flex items-start gap-2"><span className="text-[#C8FF00] mt-0.5 font-bold">✓</span>Priority placement</li>
-              </ul>
-              <a href="#waitlist" className="text-center text-sm font-medium border border-gray-200 rounded-xl py-2.5 hover:bg-gray-50 transition">
-                Get started
-              </a>
-            </div>
-
-            <div className="flex flex-col rounded-2xl border-2 border-black p-6 gap-4 relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="bg-[#C8FF00] text-black text-xs font-bold px-3 py-1 rounded-full">Most popular</span>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-400 uppercase tracking-widest">Pro</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">$79</p>
-                <p className="text-xs text-gray-400 mt-0.5">per month</p>
-              </div>
-              <ul className="flex flex-col gap-2 text-sm text-gray-600 flex-1">
-                <li className="flex items-start gap-2"><span className="text-[#C8FF00] mt-0.5 font-bold">✓</span>Unlimited listings</li>
-                <li className="flex items-start gap-2"><span className="text-[#C8FF00] mt-0.5 font-bold">✓</span>Featured placement</li>
-                <li className="flex items-start gap-2"><span className="text-[#C8FF00] mt-0.5 font-bold">✓</span>Analytics dashboard</li>
-              </ul>
-              <a href="#waitlist" className="text-center text-sm font-semibold bg-black text-[#C8FF00] rounded-xl py-2.5 hover:bg-gray-900 transition">
-                Get started
-              </a>
-            </div>
-
-            <div className="flex flex-col rounded-2xl border border-gray-200 p-6 gap-4">
-              <div>
-                <p className="text-sm font-semibold text-gray-400 uppercase tracking-widest">Agency</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">$149</p>
-                <p className="text-xs text-gray-400 mt-0.5">per month</p>
-              </div>
-              <ul className="flex flex-col gap-2 text-sm text-gray-600 flex-1">
-                <li className="flex items-start gap-2"><span className="text-[#C8FF00] mt-0.5 font-bold">✓</span>Multiple locations</li>
-                <li className="flex items-start gap-2"><span className="text-[#C8FF00] mt-0.5 font-bold">✓</span>Dedicated support</li>
-                <li className="flex items-start gap-2"><span className="text-[#C8FF00] mt-0.5 font-bold">✓</span>Bulk hiring tools</li>
-              </ul>
-              <a href="#waitlist" className="text-center text-sm font-medium border border-gray-200 rounded-xl py-2.5 hover:bg-gray-50 transition">
-                Get started
-              </a>
-            </div>
-          </div>
-
-          <p className="text-center text-xs text-gray-400 mt-6">
-            All paid jobs include SafePay — secure payments with a 5% processing fee. Teens always receive the full agreed amount.
-          </p>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="w-full px-5 py-20 bg-gray-50">
+      <section className="w-full px-5 py-20 bg-white">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">FAQ</p>
@@ -508,24 +407,12 @@ export default function Home() {
               <p className="text-sm text-gray-500">Yes, 100%. Teens never pay anything to create a profile, browse jobs, or apply. Always.</p>
             </div>
             <div className="rounded-2xl border border-gray-200 bg-white p-6">
-              <p className="font-semibold text-gray-900 mb-2">How does SafePay work?</p>
-              <p className="text-sm text-gray-500">SafePay lets employers pay securely through the platform. The teen receives the full agreed amount — the small processing fee is covered by the employer side. No surprises.</p>
-            </div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-6">
               <p className="font-semibold text-gray-900 mb-2">What age do you have to be?</p>
               <p className="text-sm text-gray-500">Catalyst is built for teens ages 14-21. We follow all applicable child labor laws and require age verification on signup.</p>
             </div>
             <div className="rounded-2xl border border-gray-200 bg-white p-6">
               <p className="font-semibold text-gray-900 mb-2">Where is Catalyst available?</p>
               <p className="text-sm text-gray-500">We are launching in Plymouth, IN in March 2026 and expanding across Marshall County shortly after. More towns coming fast.</p>
-            </div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-6">
-              <p className="font-semibold text-gray-900 mb-2">Can businesses post jobs too?</p>
-              <p className="text-sm text-gray-500">Absolutely. Local businesses can post on the Free tier and upgrade anytime. Our Pro and Agency plans are built for businesses that hire regularly.</p>
-            </div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-6">
-              <p className="font-semibold text-gray-900 mb-2">What is the Urgent Hire badge?</p>
-              <p className="text-sm text-gray-500">For $5 you can pin your listing to the top of search results for 48 hours — great when you need someone fast.</p>
             </div>
           </div>
         </div>
@@ -537,15 +424,6 @@ export default function Home() {
           <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight">
             Your town. Your schedule.<br />Your money.
           </h2>
-          <p className="text-gray-400 text-base">
-            Join the waitlist and be first to know when Catalyst launches in Plymouth.
-          </p>
-          <a
-            href="#waitlist"
-            className="bg-[#C8FF00] text-black font-semibold text-sm px-8 py-3 rounded-full hover:bg-lime-300 transition"
-          >
-            Get early access
-          </a>
         </div>
       </section>
 
