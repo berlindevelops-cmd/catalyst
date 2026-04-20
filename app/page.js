@@ -1,46 +1,9 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { getSupabase } from "@/lib/supabase";
+import { useState } from "react";
 
 export default function Home() {
   const [howItWorksTab, setHowItWorksTab] = useState("teen");
-
-  // animated counters
-  const [count1, setCount1] = useState(0);
-  const [count2, setCount2] = useState(0);
-  const statsRef = useRef(null);
-  const hasAnimated = useRef(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !hasAnimated.current) {
-          hasAnimated.current = true;
-          animateCount(setCount1, 530, 1200);
-          animateCount(setCount2, 350, 1200);
-        }
-      },
-      { threshold: 0.5 }
-    );
-    if (statsRef.current) observer.observe(statsRef.current);
-    return () => observer.disconnect();
-  }, []);
-
-  function animateCount(setter, target, duration) {
-    const steps = 40;
-    const increment = target / steps;
-    const interval = duration / steps;
-    let current = 0;
-    const timer = setInterval(() => {
-      current += increment;
-      if (current >= target) {
-        setter(target);
-        clearInterval(timer);
-      } else {
-        setter(Math.floor(current));
-      }
-    }, interval);
-  }
+  const [openFaq, setOpenFaq] = useState(null);
 
   const teenSteps = [
     {
@@ -256,21 +219,31 @@ export default function Home() {
           — on your schedule, in your town.
         </p>
 
-        {/* animated counters */}
-        <div ref={statsRef} className="mt-14 flex gap-8 text-center">
+        {/* location pill */}
+        <div className="mt-10 inline-flex items-center gap-2 bg-gray-50 border border-gray-200 text-gray-500 text-xs font-medium px-4 py-2 rounded-full">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+          </svg>
+          Plymouth, Indiana · Marshall County
+        </div>
+
+        {/* market stats */}
+        <div className="mt-8 flex gap-8 text-center">
           <div className="flex flex-col gap-0.5">
-            <span className="text-2xl font-bold text-gray-900">{count1}+</span>
-            <span className="text-xs text-gray-400">teens in Plymouth</span>
+            <span className="text-2xl font-bold text-gray-900">530+</span>
+            <span className="text-xs text-gray-400">Plymouth teens ready to work</span>
           </div>
           <div className="flex flex-col gap-0.5">
-            <span className="text-2xl font-bold text-gray-900">{count2}+</span>
-            <span className="text-xs text-gray-400">local households</span>
+            <span className="text-2xl font-bold text-gray-900">350+</span>
+            <span className="text-xs text-gray-400">local households need help</span>
           </div>
           <div className="flex flex-col gap-0.5">
             <span className="text-2xl font-bold text-gray-900">$0</span>
             <span className="text-xs text-gray-400">to get started</span>
           </div>
         </div>
+        <p className="mt-2 text-xs text-gray-400">Based on Plymouth market research, Feb 2026</p>
       </section>
 
       {/* HOW IT WORKS */}
@@ -401,19 +374,34 @@ export default function Home() {
             <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">FAQ</p>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Common questions</h2>
           </div>
-          <div className="flex flex-col gap-4">
-            <div className="rounded-2xl border border-gray-200 bg-white p-6">
-              <p className="font-semibold text-gray-900 mb-2">Is it really free for teens?</p>
-              <p className="text-sm text-gray-500">Yes, 100%. Teens never pay anything to create a profile, browse jobs, or apply. Always.</p>
-            </div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-6">
-              <p className="font-semibold text-gray-900 mb-2">What age do you have to be?</p>
-              <p className="text-sm text-gray-500">Catalyst is built for teens ages 14-21. We follow all applicable child labor laws and require age verification on signup.</p>
-            </div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-6">
-              <p className="font-semibold text-gray-900 mb-2">Where is Catalyst available?</p>
-              <p className="text-sm text-gray-500">We are launching in Plymouth, IN in March 2026 and expanding across Marshall County shortly after. More towns coming fast.</p>
-            </div>
+          <div className="flex flex-col divide-y divide-gray-100 border border-gray-200 rounded-2xl overflow-hidden">
+            {[
+              { q: "Is it really free for teens?", a: "Yes, 100%. Teens never pay anything to create a profile, browse jobs, or apply. Always." },
+              { q: "What age do you have to be?", a: "Catalyst is built for teens ages 14-21. We follow all applicable child labor laws and require age verification on signup." },
+              { q: "Where is Catalyst available?", a: "We are launching in Plymouth, IN in March 2026 and expanding across Marshall County shortly after. More towns coming fast." },
+            ].map((item, i) => (
+              <div key={i} className="bg-white">
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between px-6 py-5 text-left"
+                >
+                  <span className="font-semibold text-gray-900 text-sm">{item.q}</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16" height="16" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" strokeWidth={2}
+                    className={`shrink-0 ml-4 transition-transform duration-200 ${openFaq === i ? "rotate-180" : ""}`}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                </button>
+                {openFaq === i && (
+                  <div className="px-6 pb-5">
+                    <p className="text-sm text-gray-500">{item.a}</p>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </section>
