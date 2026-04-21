@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { GraduationCap, Home, Check } from "lucide-react";
 
 export default function SignupPicker() {
   const router = useRouter();
@@ -33,7 +34,15 @@ export default function SignupPicker() {
                   : "border-gray-200 hover:border-gray-400"
               }`}
             >
-              <span className="text-3xl">🎓</span>
+              <div className={`flex items-center justify-center w-11 h-11 rounded-xl ${
+                selected === "teen" ? "bg-white/10" : "bg-gray-100"
+              }`}>
+                <GraduationCap
+                  size={22}
+                  className={selected === "teen" ? "text-white" : "text-gray-600"}
+                  strokeWidth={1.75}
+                />
+              </div>
               <div>
                 <p className="font-semibold text-base">I am a teen</p>
                 <p className={`text-sm mt-0.5 ${selected === "teen" ? "text-gray-300" : "text-gray-400"}`}>
@@ -41,7 +50,9 @@ export default function SignupPicker() {
                 </p>
               </div>
               {selected === "teen" && (
-                <span className="ml-auto text-[#C8FF00] text-xl">✓</span>
+                <span className="ml-auto">
+                  <Check size={18} className="text-[#C8FF00]" strokeWidth={2.5} />
+                </span>
               )}
             </button>
 
@@ -53,7 +64,15 @@ export default function SignupPicker() {
                   : "border-gray-200 hover:border-gray-400"
               }`}
             >
-              <span className="text-3xl">🏠</span>
+              <div className={`flex items-center justify-center w-11 h-11 rounded-xl ${
+                selected === "employer" ? "bg-white/10" : "bg-gray-100"
+              }`}>
+                <Home
+                  size={22}
+                  className={selected === "employer" ? "text-white" : "text-gray-600"}
+                  strokeWidth={1.75}
+                />
+              </div>
               <div>
                 <p className="font-semibold text-base">I am a parent or employer</p>
                 <p className={`text-sm mt-0.5 ${selected === "employer" ? "text-gray-300" : "text-gray-400"}`}>
@@ -61,7 +80,9 @@ export default function SignupPicker() {
                 </p>
               </div>
               {selected === "employer" && (
-                <span className="ml-auto text-[#C8FF00] text-xl">✓</span>
+                <span className="ml-auto">
+                  <Check size={18} className="text-[#C8FF00]" strokeWidth={2.5} />
+                </span>
               )}
             </button>
           </div>
