@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+import { HandMetal, ArrowRight } from "lucide-react";
 
 export default function Login() {
   const router = useRouter();
@@ -9,19 +10,15 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     async function checkSession() {
       const { data: { user } } = await getSupabase().auth.getUser();
-      if (!user) return;
-      const { data: profile } = await getSupabase()
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .maybeSingle();
-      if (profile?.role) {
-        router.push(`/dashboard/${profile.role}`);
-      }
+      if (!user) { setMounted(true); return; }
+      const { data: profile } = await getSupabase().from("profiles").select("role").eq("id", user.id).maybeSingle();
+      if (profile?.role) { router.push(`/dashboard/${profile.role}`); }
+      else { setMounted(true); }
     }
     checkSession();
   }, []);
@@ -33,16 +30,8 @@ export default function Login() {
     const { data, error: sbError } = await getSupabase().auth.signInWithPassword({ email, password });
     setLoading(false);
     if (sbError) { setError("Invalid email or password."); return; }
-
-    // get profile role for accurate redirect
-    const { data: profile } = await getSupabase()
-      .from("profiles")
-      .select("role")
-      .eq("id", data.user.id)
-      .single();
-
+    const { data: profile } = await getSupabase().from("profiles").select("role").eq("id", data.user.id).single();
     const role = profile?.role ?? data.user?.user_metadata?.role;
-
     if (role === "teen") router.push("/dashboard/teen");
     else if (role === "business") router.push("/dashboard/business");
     else router.push("/dashboard/employer");
@@ -51,83 +40,102 @@ export default function Login() {
   async function handleGoogleLogin() {
     await getSupabase().auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback?login=true` }
+      options: { redirectTo: `${window.location.origin}/auth/callback?login=true` },
     });
   }
 
+  const fadeUp = (delay = 0) => ({
+    opacity: mounted ? 1 : 0,
+    transform: mounted ? "translateY(0)" : "translateY(14px)",
+    transition: `opacity 0.45s ease ${delay}s, transform 0.45s ease ${delay}s`,
+  });
+
+  const inputStyle = {
+    width: "100%", padding: "12px 16px", borderRadius: 12,
+    border: "1.5px solid #e5e7eb", fontSize: 14, outline: "none",
+    transition: "border-color 0.2s ease", boxSizing: "border-box",
+    background: "#fff", color: "#111",
+  };
+
   return (
-    <main className="min-h-screen bg-white flex flex-col">
-      <nav className="w-full px-5 py-4 flex items-center justify-between border-b border-gray-100">
-        <a href="/" className="text-xl font-bold tracking-tight text-gray-900">
-          catalyst<span className="text-[#C8FF00]">.</span>
+    <main style={{ minHeight: "100vh", background: "#fff", display: "flex", flexDirection: "column", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+      <nav style={{ width: "100%", padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f3f4f6", boxSizing: "border-box", ...fadeUp(0) }}>
+        <a href="/" style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px", color: "#111", textDecoration: "none" }}>
+          catalyst<span style={{ color: "#C8FF00" }}>.</span>
         </a>
-        <a href="/auth/signup" className="text-sm text-gray-500 hover:text-gray-900 transition">
-          No account? <span className="font-semibold text-black">Sign up</span>
+        <a href="/auth/signup" style={{ fontSize: 13, color: "#9ca3af", textDecoration: "none" }}>
+          No account? <span style={{ fontWeight: 600, color: "#111" }}>Sign up</span>
         </a>
       </nav>
 
-      <div className="flex-1 flex flex-col items-center justify-center px-5 py-16">
-        <div className="w-full max-w-sm flex flex-col gap-6">
-          <div className="text-center">
-            <span className="text-4xl">👋</span>
-            <h1 className="text-2xl font-bold text-gray-900 mt-3">Welcome back</h1>
-            <p className="text-gray-500 text-sm mt-1">Sign in to your Catalyst account</p>
-          </div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "64px 20px" }}>
+        <div style={{ width: "100%", maxWidth: 360, display: "flex", flexDirection: "column", gap: 24 }}>
 
-          <button
-            onClick={handleGoogleLogin}
-            className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-xl py-3 text-sm font-medium hover:bg-gray-50 transition"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            Continue with Google
-          </button>
-
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-xs text-gray-400 font-medium">OR</span>
-            <div className="flex-1 h-px bg-gray-200" />
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <div>
-              <label className="text-xs font-medium text-gray-700 mb-1.5 block">Email</label>
-              <input
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-black transition"
-              />
+          <div style={{ textAlign: "center", ...fadeUp(0.05) }}>
+            <div style={{ width: 56, height: 56, borderRadius: 16, background: "#f3f4f6", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+              <HandMetal size={26} color="#111" strokeWidth={1.75} />
             </div>
-            <div>
-              <label className="text-xs font-medium text-gray-700 mb-1.5 block">Password</label>
-              <input
-                type="password"
-                placeholder="Your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-black transition"
-              />
-            </div>
+            <h1 style={{ fontSize: 24, fontWeight: 700, color: "#111", margin: 0, letterSpacing: "-0.4px" }}>Welcome back</h1>
+            <p style={{ color: "#9ca3af", marginTop: 6, fontSize: 14 }}>Sign in to your Catalyst account</p>
           </div>
 
-          {error && <p className="text-xs text-red-500">{error}</p>}
+          <div style={fadeUp(0.1)}>
+            <button
+              onClick={handleGoogleLogin}
+              style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, border: "1.5px solid #e5e7eb", borderRadius: 14, padding: "13px 20px", fontSize: 14, fontWeight: 500, background: "#fff", cursor: "pointer", transition: "background 0.15s ease, border-color 0.15s ease, transform 0.15s ease", boxSizing: "border-box" }}
+              onMouseEnter={e => { e.currentTarget.style.background = "#fafafa"; e.currentTarget.style.borderColor = "#d1d5db"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.transform = "scale(1)"; }}
+              onMouseDown={e => e.currentTarget.style.transform = "scale(0.98)"}
+              onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              Continue with Google
+            </button>
+          </div>
 
-          <button
-            onClick={handleLogin}
-            disabled={loading}
-            className="w-full bg-black text-[#C8FF00] py-3 rounded-xl text-sm font-semibold hover:bg-gray-900 transition disabled:opacity-50"
+          <div style={{ display: "flex", alignItems: "center", gap: 12, ...fadeUp(0.15) }}>
+            <div style={{ flex: 1, height: 1, background: "#e5e7eb" }} />
+            <span style={{ fontSize: 12, color: "#9ca3af", fontWeight: 500 }}>OR</span>
+            <div style={{ flex: 1, height: 1, background: "#e5e7eb" }} />
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, ...fadeUp(0.2) }}>
+            {[
+              { label: "Email", type: "email", placeholder: "you@example.com", value: email, onChange: (e) => setEmail(e.target.value), onKeyDown: undefined },
+              { label: "Password", type: "password", placeholder: "Your password", value: password, onChange: (e) => setPassword(e.target.value), onKeyDown: (e) => e.key === "Enter" && handleLogin() },
+            ].map((field) => (
+              <div key={field.label}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>{field.label}</label>
+                <input type={field.type} placeholder={field.placeholder} value={field.value} onChange={field.onChange} onKeyDown={field.onKeyDown}
+                  style={inputStyle} onFocus={e => e.target.style.borderColor = "#111"} onBlur={e => e.target.style.borderColor = "#e5e7eb"} />
+              </div>
+            ))}
+          </div>
+
+          {error && <p style={{ fontSize: 12, color: "#ef4444", margin: 0 }}>{error}</p>}
+
+          <div style={fadeUp(0.25)}>
+            <button
+              onClick={handleLogin}
+              disabled={loading}
+              style={{ width: "100%", background: "#111", color: "#C8FF00", padding: "14px 24px", borderRadius: 14, fontWeight: 600, fontSize: 14, border: "none", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.5 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "opacity 0.2s ease, transform 0.15s ease", boxSizing: "border-box" }}
+              onMouseDown={e => !loading && (e.currentTarget.style.transform = "scale(0.98)")}
+              onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
+              onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+            >
+              {loading ? "Signing in..." : "Sign in"} {!loading && <ArrowRight size={16} />}
+            </button>
+          </div>
+
+          <a href="/auth/forgot-password" style={{ textAlign: "center", fontSize: 12, color: "#9ca3af", textDecoration: "none", ...fadeUp(0.3) }}
+            onMouseEnter={e => e.currentTarget.style.color = "#6b7280"}
+            onMouseLeave={e => e.currentTarget.style.color = "#9ca3af"}
           >
-            {loading ? "Signing in..." : "Sign in"}
-          </button>
-
-          <a href="/auth/forgot-password" className="text-center text-xs text-gray-400 hover:text-gray-600 transition">
             Forgot your password?
           </a>
         </div>

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+import { LockKeyhole, ArrowRight } from "lucide-react";
 
 export default function ResetPassword() {
   const router = useRouter();
@@ -10,17 +11,15 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Supabase sets the session automatically when the user
-    // lands here from the reset email link
-    const { data: { subscription } } = getSupabase().auth.onAuthStateChange(
-      (event) => {
-        if (event === "PASSWORD_RECOVERY") {
-          setReady(true);
-        }
+    const { data: { subscription } } = getSupabase().auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setReady(true);
+        setMounted(true);
       }
-    );
+    });
     return () => subscription.unsubscribe();
   }, []);
 
@@ -28,94 +27,112 @@ export default function ResetPassword() {
     if (!password || !confirm) { setError("Please fill in both fields."); return; }
     if (password.length < 6) { setError("Password must be at least 6 characters."); return; }
     if (password !== confirm) { setError("Passwords don't match."); return; }
-
     setLoading(true);
     setError("");
-
     const { error: sbError } = await getSupabase().auth.updateUser({ password });
-
     setLoading(false);
     if (sbError) { setError(sbError.message); return; }
-
-    // get role and redirect to correct dashboard
     const { data: { user } } = await getSupabase().auth.getUser();
-    const { data: profile } = await getSupabase()
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
+    const { data: profile } = await getSupabase().from("profiles").select("role").eq("id", user.id).single();
     const role = profile?.role;
     if (role === "teen") router.replace("/dashboard/teen");
     else if (role === "business") router.replace("/dashboard/business");
     else router.replace("/dashboard/employer");
   }
 
+  const fadeUp = (delay = 0) => ({
+    opacity: mounted ? 1 : 0,
+    transform: mounted ? "translateY(0)" : "translateY(14px)",
+    transition: `opacity 0.45s ease ${delay}s, transform 0.45s ease ${delay}s`,
+  });
+
+  const inputStyle = {
+    width: "100%", padding: "12px 16px", borderRadius: 12,
+    border: "1.5px solid #e5e7eb", fontSize: 14, outline: "none",
+    transition: "border-color 0.2s ease", boxSizing: "border-box",
+    background: "#fff", color: "#111",
+  };
+
+  const Nav = () => (
+    <nav style={{ width: "100%", padding: "16px 20px", display: "flex", alignItems: "center", borderBottom: "1px solid #f3f4f6", boxSizing: "border-box" }}>
+      <a href="/" style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px", color: "#111", textDecoration: "none" }}>
+        catalyst<span style={{ color: "#C8FF00" }}>.</span>
+      </a>
+    </nav>
+  );
+
   if (!ready) {
     return (
-      <main className="min-h-screen bg-white flex flex-col">
-        <nav className="w-full px-5 py-4 flex items-center border-b border-gray-100">
-          <a href="/" className="text-xl font-bold tracking-tight text-gray-900">
-            catalyst<span className="text-[#C8FF00]">.</span>
-          </a>
-        </nav>
-        <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center px-5">
-          <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-500">Verifying your reset link...</p>
+      <main style={{ minHeight: "100vh", background: "#fff", display: "flex", flexDirection: "column", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+        <Nav />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
+          <div style={{ width: 24, height: 24, border: "2.5px solid #111", borderTopColor: "#C8FF00", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
+          <p style={{ fontSize: 14, color: "#9ca3af" }}>Verifying your reset link...</p>
         </div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-white flex flex-col">
-      <nav className="w-full px-5 py-4 flex items-center border-b border-gray-100">
-        <a href="/" className="text-xl font-bold tracking-tight text-gray-900">
-          catalyst<span className="text-[#C8FF00]">.</span>
-        </a>
-      </nav>
+    <main style={{ minHeight: "100vh", background: "#fff", display: "flex", flexDirection: "column", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <Nav />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "64px 20px" }}>
+        <div style={{ width: "100%", maxWidth: 360, display: "flex", flexDirection: "column", gap: 24 }}>
 
-      <div className="flex-1 flex flex-col items-center justify-center px-5 py-16">
-        <div className="w-full max-w-sm flex flex-col gap-6">
-          <div className="text-center">
-            <span className="text-4xl">🔒</span>
-            <h1 className="text-2xl font-bold text-gray-900 mt-3">Set new password</h1>
-            <p className="text-gray-500 text-sm mt-1">Choose a strong password for your account</p>
+          <div style={{ textAlign: "center", ...fadeUp(0.05) }}>
+            <div style={{ width: 56, height: 56, borderRadius: 16, background: "#f3f4f6", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+              <LockKeyhole size={26} color="#111" strokeWidth={1.75} />
+            </div>
+            <h1 style={{ fontSize: 24, fontWeight: 700, color: "#111", margin: 0, letterSpacing: "-0.4px" }}>Set new password</h1>
+            <p style={{ color: "#9ca3af", marginTop: 6, fontSize: 14 }}>Choose a strong password for your account</p>
           </div>
 
-          <div className="flex flex-col gap-3">
-            <div>
-              <label className="text-xs font-medium text-gray-700 mb-1.5 block">New password</label>
-              <input
-                type="password"
-                placeholder="Min. 6 characters"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-black transition"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-gray-700 mb-1.5 block">Confirm password</label>
-              <input
-                type="password"
-                placeholder="Repeat your password"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleReset()}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-black transition"
-              />
-            </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, ...fadeUp(0.1) }}>
+            {[
+              { label: "New password", placeholder: "Min. 6 characters", value: password, onChange: (e) => setPassword(e.target.value), onKeyDown: undefined },
+              { label: "Confirm password", placeholder: "Repeat your password", value: confirm, onChange: (e) => setConfirm(e.target.value), onKeyDown: (e) => e.key === "Enter" && handleReset() },
+            ].map((field) => (
+              <div key={field.label}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>{field.label}</label>
+                <input
+                  type="password"
+                  placeholder={field.placeholder}
+                  value={field.value}
+                  onChange={field.onChange}
+                  onKeyDown={field.onKeyDown}
+                  style={inputStyle}
+                  onFocus={e => e.target.style.borderColor = "#111"}
+                  onBlur={e => e.target.style.borderColor = "#e5e7eb"}
+                />
+              </div>
+            ))}
           </div>
 
-          {error && <p className="text-xs text-red-500">{error}</p>}
+          {error && <p style={{ fontSize: 12, color: "#ef4444", margin: 0 }}>{error}</p>}
 
-          <button
-            onClick={handleReset}
-            disabled={loading}
-            className="w-full bg-black text-[#C8FF00] py-3 rounded-xl text-sm font-semibold hover:bg-gray-900 transition disabled:opacity-50"
-          >
-            {loading ? "Updating..." : "Update password"}
-          </button>
+          <div style={fadeUp(0.15)}>
+            <button
+              onClick={handleReset}
+              disabled={loading}
+              style={{
+                width: "100%", background: "#111", color: "#C8FF00",
+                padding: "14px 24px", borderRadius: 14, fontWeight: 600,
+                fontSize: 14, border: "none", cursor: loading ? "not-allowed" : "pointer",
+                opacity: loading ? 0.5 : 1, display: "flex", alignItems: "center",
+                justifyContent: "center", gap: 8, letterSpacing: "0.01em",
+                transition: "opacity 0.2s ease, transform 0.15s ease",
+                boxSizing: "border-box",
+              }}
+              onMouseDown={e => !loading && (e.currentTarget.style.transform = "scale(0.98)")}
+              onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
+              onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+            >
+              {loading ? "Updating..." : "Update password"}
+              {!loading && <ArrowRight size={16} />}
+            </button>
+          </div>
         </div>
       </div>
     </main>

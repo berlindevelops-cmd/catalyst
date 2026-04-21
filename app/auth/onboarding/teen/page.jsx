@@ -1,10 +1,17 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+import { UserRound, Wrench, CalendarDays, ArrowRight, ChevronLeft } from "lucide-react";
 
 const SKILLS = ["Babysitting", "Lawn Care", "Tutoring", "Pet Sitting", "Snow Removal", "House Cleaning", "Grocery Help", "Moving Help", "Car Washing", "Dog Walking"];
 const AVAILABILITY = ["Weekday mornings", "Weekday afternoons", "Weekday evenings", "Weekend mornings", "Weekend afternoons", "Weekend evenings"];
+
+const STEP_META = [
+  { Icon: UserRound, heading: "About you", sub: "Let employers know who you are" },
+  { Icon: Wrench, heading: "Your skills", sub: "Pick everything you can do" },
+  { Icon: CalendarDays, heading: "Your availability", sub: "When are you free to work?" },
+];
 
 export default function TeenOnboarding() {
   const router = useRouter();
@@ -16,17 +23,16 @@ export default function TeenOnboarding() {
   const [availability, setAvailability] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   function toggleSkill(skill) {
-    setSkills((prev) =>
-      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
-    );
+    setSkills((prev) => prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]);
   }
 
   function toggleAvailability(slot) {
-    setAvailability((prev) =>
-      prev.includes(slot) ? prev.filter((s) => s !== slot) : [...prev, slot]
-    );
+    setAvailability((prev) => prev.includes(slot) ? prev.filter((s) => s !== slot) : [...prev, slot]);
   }
 
   async function handleSubmit() {
@@ -34,184 +40,173 @@ export default function TeenOnboarding() {
     setError("");
     const { data: { user } } = await getSupabase().auth.getUser();
     if (!user) { setError("Not logged in."); setLoading(false); return; }
-    
     const { error: sbError } = await getSupabase().from("profiles").upsert({
-      id: user.id,
-      role: "teen",
-      full_name: fullName,
-      age: parseInt(age),
-      bio,
-      skills,
-      availability: availability.join(", "),
+      id: user.id, role: "teen", full_name: fullName,
+      age: parseInt(age), bio, skills, availability: availability.join(", "),
     });
-    
     if (sbError) { setError(sbError.message); setLoading(false); return; }
-
-    // wait until profile is confirmed written before redirecting
     let retries = 0;
     while (retries < 10) {
-      const { data: check } = await getSupabase()
-        .from("profiles")
-        .select("id")
-        .eq("id", user.id)
-        .single();
-      if (check?.id) {
-        router.push("/dashboard/teen");
-        return;
-      }
+      const { data: check } = await getSupabase().from("profiles").select("id").eq("id", user.id).single();
+      if (check?.id) { router.push("/dashboard/teen"); return; }
       await new Promise((res) => setTimeout(res, 400));
       retries++;
     }
-    // fallback if retries exhausted
     router.push("/dashboard/teen");
   }
 
+  const fadeUp = (delay = 0) => ({
+    opacity: mounted ? 1 : 0,
+    transform: mounted ? "translateY(0)" : "translateY(14px)",
+    transition: `opacity 0.45s ease ${delay}s, transform 0.45s ease ${delay}s`,
+  });
+
+  const { Icon, heading, sub } = STEP_META[step - 1];
+
+  const pillBase = (active) => ({
+    padding: "9px 16px", borderRadius: 999, fontSize: 13, fontWeight: 500,
+    border: active ? "1.5px solid #111" : "1.5px solid #e5e7eb",
+    background: active ? "#111" : "#fff",
+    color: active ? "#C8FF00" : "#6b7280",
+    cursor: "pointer",
+    transition: "background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease",
+  });
+
+  const inputStyle = {
+    width: "100%", padding: "12px 16px", borderRadius: 12,
+    border: "1.5px solid #e5e7eb", fontSize: 14, outline: "none",
+    transition: "border-color 0.2s ease", boxSizing: "border-box",
+    background: "#fff", color: "#111",
+  };
+
   return (
-    <main className="min-h-screen bg-white flex flex-col">
-      <nav className="w-full px-5 py-4 flex items-center justify-between border-b border-gray-100">
-        <a href="/" className="text-xl font-bold tracking-tight text-gray-900">
-          catalyst<span className="text-[#C8FF00]">.</span>
+    <main style={{ minHeight: "100vh", background: "#fff", display: "flex", flexDirection: "column", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+      <nav style={{ width: "100%", padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f3f4f6", boxSizing: "border-box" }}>
+        <a href="/" style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px", color: "#111", textDecoration: "none" }}>
+          catalyst<span style={{ color: "#C8FF00" }}>.</span>
         </a>
-        <span className="text-xs text-gray-400 font-medium">Step {step} of 3</span>
+        <span style={{ fontSize: 12, color: "#9ca3af", fontWeight: 500 }}>Step {step} of 3</span>
       </nav>
 
-      {/* progress bar */}
-      <div className="w-full h-1 bg-gray-100">
-        <div
-          className="h-1 bg-[#C8FF00] transition-all duration-300"
-          style={{ width: `${(step / 3) * 100}%` }}
-        />
+      <div style={{ width: "100%", height: 3, background: "#f3f4f6" }}>
+        <div style={{ height: 3, background: "#C8FF00", width: `${(step / 3) * 100}%`, transition: "width 0.4s cubic-bezier(0.4,0,0.2,1)" }} />
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center px-5 py-16">
-        <div className="w-full max-w-md flex flex-col gap-6">
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "64px 20px" }}>
+        <div style={{ width: "100%", maxWidth: 440, display: "flex", flexDirection: "column", gap: 24 }}>
+
+          <div style={{ textAlign: "center", ...fadeUp(0.05) }}>
+            <div style={{ width: 56, height: 56, borderRadius: 16, background: "#f3f4f6", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+              <Icon size={26} color="#111" strokeWidth={1.75} />
+            </div>
+            <h1 style={{ fontSize: 24, fontWeight: 700, color: "#111", margin: 0, letterSpacing: "-0.4px" }}>{heading}</h1>
+            <p style={{ color: "#9ca3af", marginTop: 6, fontSize: 14 }}>{sub}</p>
+          </div>
 
           {step === 1 && (
             <>
-              <div className="text-center">
-                <span className="text-4xl">👤</span>
-                <h1 className="text-2xl font-bold text-gray-900 mt-3">About you</h1>
-                <p className="text-gray-500 text-sm mt-1">Let employers know who you are</p>
-              </div>
-              <div className="flex flex-col gap-3">
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, ...fadeUp(0.1) }}>
+                {[
+                  { label: "Full name", placeholder: "Your name", type: "text", value: fullName, onChange: (e) => setFullName(e.target.value) },
+                  { label: "Age", placeholder: "Your age (14–21)", type: "number", value: age, onChange: (e) => setAge(e.target.value) },
+                ].map((field) => (
+                  <div key={field.label}>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>{field.label}</label>
+                    <input type={field.type} placeholder={field.placeholder} value={field.value} onChange={field.onChange} min={field.type === "number" ? 14 : undefined} max={field.type === "number" ? 21 : undefined}
+                      style={inputStyle} onFocus={e => e.target.style.borderColor = "#111"} onBlur={e => e.target.style.borderColor = "#e5e7eb"} />
+                  </div>
+                ))}
                 <div>
-                  <label className="text-xs font-medium text-gray-700 mb-1.5 block">Full name</label>
-                  <input
-                    type="text"
-                    placeholder="Your name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-black transition"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-gray-700 mb-1.5 block">Age</label>
-                  <input
-                    type="number"
-                    placeholder="Your age"
-                    min="14"
-                    max="21"
-                    value={age}
-                    onChange={(e) => setAge(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-black transition"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-gray-700 mb-1.5 block">Bio <span className="text-gray-400">(optional)</span></label>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>
+                    Bio <span style={{ color: "#9ca3af", fontWeight: 400 }}>(optional)</span>
+                  </label>
                   <textarea
                     placeholder="Tell employers a bit about yourself..."
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     rows={3}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-black transition resize-none"
+                    style={{ ...inputStyle, resize: "none", lineHeight: 1.6 }}
+                    onFocus={e => e.target.style.borderColor = "#111"}
+                    onBlur={e => e.target.style.borderColor = "#e5e7eb"}
                   />
                 </div>
               </div>
-              <button
-                onClick={() => { if (!fullName || !age) { setError("Name and age are required."); return; } setError(""); setStep(2); }}
-                className="w-full bg-black text-[#C8FF00] py-3 rounded-xl text-sm font-semibold hover:bg-gray-900 transition"
-              >
-                Continue
-              </button>
+              {error && <p style={{ fontSize: 12, color: "#ef4444", margin: 0 }}>{error}</p>}
+              <div style={fadeUp(0.15)}>
+                <button
+                  onClick={() => { if (!fullName || !age) { setError("Name and age are required."); return; } setError(""); setStep(2); }}
+                  style={{ width: "100%", background: "#111", color: "#C8FF00", padding: "14px 24px", borderRadius: 14, fontWeight: 600, fontSize: 14, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "transform 0.15s ease", boxSizing: "border-box" }}
+                  onMouseDown={e => e.currentTarget.style.transform = "scale(0.98)"}
+                  onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
+                  onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+                >
+                  Continue <ArrowRight size={16} />
+                </button>
+              </div>
             </>
           )}
 
           {step === 2 && (
             <>
-              <div className="text-center">
-                <span className="text-4xl">🛠️</span>
-                <h1 className="text-2xl font-bold text-gray-900 mt-3">Your skills</h1>
-                <p className="text-gray-500 text-sm mt-1">Pick everything you can do</p>
-              </div>
-              <div className="flex flex-wrap gap-2">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, ...fadeUp(0.1) }}>
                 {SKILLS.map((skill) => (
                   <button
                     key={skill}
                     onClick={() => toggleSkill(skill)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium border transition ${
-                      skills.includes(skill)
-                        ? "bg-black text-[#C8FF00] border-black"
-                        : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
-                    }`}
+                    style={pillBase(skills.includes(skill))}
+                    onMouseDown={e => e.currentTarget.style.transform = "scale(0.95)"}
+                    onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
+                    onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
                   >
                     {skill}
                   </button>
                 ))}
               </div>
-              {error && <p className="text-xs text-red-500">{error}</p>}
-              <div className="flex gap-3">
-                <button onClick={() => setStep(1)} className="flex-1 border border-gray-200 py-3 rounded-xl text-sm font-medium hover:bg-gray-50 transition">
-                  Back
-                </button>
-                <button
-                  onClick={() => { if (skills.length === 0) { setError("Pick at least one skill."); return; } setError(""); setStep(3); }}
-                  className="flex-1 bg-black text-[#C8FF00] py-3 rounded-xl text-sm font-semibold hover:bg-gray-900 transition"
-                >
-                  Continue
-                </button>
+              {error && <p style={{ fontSize: 12, color: "#ef4444", margin: 0 }}>{error}</p>}
+              <div style={{ display: "flex", gap: 12, ...fadeUp(0.15) }}>
+                <button onClick={() => setStep(1)} style={{ flex: 1, border: "1.5px solid #e5e7eb", borderRadius: 14, padding: "14px 20px", fontSize: 14, fontWeight: 500, background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, transition: "background 0.15s ease, transform 0.15s ease", boxSizing: "border-box" }}
+                  onMouseEnter={e => e.currentTarget.style.background = "#fafafa"} onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.transform = "scale(1)"; }}
+                  onMouseDown={e => e.currentTarget.style.transform = "scale(0.98)"} onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
+                ><ChevronLeft size={16} /> Back</button>
+                <button onClick={() => { if (skills.length === 0) { setError("Pick at least one skill."); return; } setError(""); setStep(3); }}
+                  style={{ flex: 1, background: "#111", color: "#C8FF00", padding: "14px 20px", borderRadius: 14, fontWeight: 600, fontSize: 14, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "transform 0.15s ease", boxSizing: "border-box" }}
+                  onMouseDown={e => e.currentTarget.style.transform = "scale(0.98)"} onMouseUp={e => e.currentTarget.style.transform = "scale(1)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+                >Continue <ArrowRight size={16} /></button>
               </div>
             </>
           )}
 
           {step === 3 && (
             <>
-              <div className="text-center">
-                <span className="text-4xl">📅</span>
-                <h1 className="text-2xl font-bold text-gray-900 mt-3">Your availability</h1>
-                <p className="text-gray-500 text-sm mt-1">When are you free to work?</p>
-              </div>
-              <div className="flex flex-wrap gap-2">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, ...fadeUp(0.1) }}>
                 {AVAILABILITY.map((slot) => (
                   <button
                     key={slot}
                     onClick={() => toggleAvailability(slot)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium border transition ${
-                      availability.includes(slot)
-                        ? "bg-black text-[#C8FF00] border-black"
-                        : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
-                    }`}
+                    style={pillBase(availability.includes(slot))}
+                    onMouseDown={e => e.currentTarget.style.transform = "scale(0.95)"}
+                    onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
+                    onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
                   >
                     {slot}
                   </button>
                 ))}
               </div>
-              {error && <p className="text-xs text-red-500">{error}</p>}
-              <div className="flex gap-3">
-                <button onClick={() => setStep(2)} className="flex-1 border border-gray-200 py-3 rounded-xl text-sm font-medium hover:bg-gray-50 transition">
-                  Back
-                </button>
+              {error && <p style={{ fontSize: 12, color: "#ef4444", margin: 0 }}>{error}</p>}
+              <div style={{ display: "flex", gap: 12, ...fadeUp(0.15) }}>
+                <button onClick={() => setStep(2)} style={{ flex: 1, border: "1.5px solid #e5e7eb", borderRadius: 14, padding: "14px 20px", fontSize: 14, fontWeight: 500, background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, transition: "background 0.15s ease, transform 0.15s ease", boxSizing: "border-box" }}
+                  onMouseEnter={e => e.currentTarget.style.background = "#fafafa"} onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.transform = "scale(1)"; }}
+                  onMouseDown={e => e.currentTarget.style.transform = "scale(0.98)"} onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
+                ><ChevronLeft size={16} /> Back</button>
                 <button
                   onClick={() => { if (availability.length === 0) { setError("Pick at least one time slot."); return; } setError(""); handleSubmit(); }}
                   disabled={loading}
-                  className="flex-1 bg-black text-[#C8FF00] py-3 rounded-xl text-sm font-semibold hover:bg-gray-900 transition disabled:opacity-50"
-                >
-                  {loading ? "Saving..." : "Finish"}
-                </button>
+                  style={{ flex: 1, background: "#111", color: "#C8FF00", padding: "14px 20px", borderRadius: 14, fontWeight: 600, fontSize: 14, border: "none", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.5 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "opacity 0.2s ease, transform 0.15s ease", boxSizing: "border-box" }}
+                  onMouseDown={e => !loading && (e.currentTarget.style.transform = "scale(0.98)")} onMouseUp={e => e.currentTarget.style.transform = "scale(1)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+                >{loading ? "Saving..." : "Finish"} {!loading && <ArrowRight size={16} />}</button>
               </div>
             </>
           )}
-
-          {error && step === 1 && <p className="text-xs text-red-500">{error}</p>}
         </div>
       </div>
     </main>
