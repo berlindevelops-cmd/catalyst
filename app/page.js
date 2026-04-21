@@ -8,7 +8,7 @@ export default function Home() {
   const teenSteps = [
     {
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} className="text-black">
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
         </svg>
       ),
@@ -17,7 +17,7 @@ export default function Home() {
     },
     {
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} className="text-black">
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z" />
         </svg>
       ),
@@ -26,7 +26,7 @@ export default function Home() {
     },
     {
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} className="text-black">
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
         </svg>
       ),
@@ -38,7 +38,7 @@ export default function Home() {
   const employerSteps = [
     {
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} className="text-black">
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
         </svg>
       ),
@@ -47,7 +47,7 @@ export default function Home() {
     },
     {
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} className="text-black">
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
         </svg>
       ),
@@ -56,7 +56,7 @@ export default function Home() {
     },
     {
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} className="text-black">
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
@@ -109,9 +109,11 @@ export default function Home() {
       rate: "$20-35/hr",
     },
     {
+      // Paw print — correct icon for Pet Sitting
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm10.5 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM4.5 9.75a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm15 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 21c-3.314 0-6-1.8-6-4.5 0-1.06.47-2.02 1.25-2.78.3-.29.5-.68.5-1.1V12a4.25 4.25 0 0 1 8.5 0v.62c0 .42.2.81.5 1.1.78.76 1.25 1.72 1.25 2.78C18 19.2 15.314 21 12 21z" />
         </svg>
       ),
       label: "Pet Sitting",
@@ -127,10 +129,11 @@ export default function Home() {
       rate: "$12-18/hr",
     },
     {
+      // Spray bottle / cleaning — correct icon for House Cleaning
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9.5 3H7a1 1 0 0 0-1 1v3.5M9.5 3h1a1 1 0 0 1 1 1v1.5m-1-2.5V2m0 1.5V7m0 0h1.75a1 1 0 0 1 .96.714l2.54 8.572A2 2 0 0 1 13.833 18H8.167a2 2 0 0 1-1.917-1.714L5.5 10.5" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 7h5m7 3h.008v.008H18V10zm0 3h.008v.008H18V13zm0 3h.008v.008H18V16zm-3-6h.008v.008H15V10zm0 3h.008v.008H15V13z" />
         </svg>
       ),
       label: "House Cleaning",
@@ -168,6 +171,49 @@ export default function Home() {
     </svg>,
   ];
 
+  const businessRoles = [
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
+        </svg>
+      ),
+      title: "Retail & Stock",
+      desc: "Weekend shelf restocking, inventory counts, and customer-facing floor help.",
+      badge: "Weekends",
+    },
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 3.75h.008v.008H21V15.75zm-18 0h.008v.008H3V15.75z" />
+        </svg>
+      ),
+      title: "Food Service",
+      desc: "Bussing, dishwashing, prep work, and front-of-house support during peak hours.",
+      badge: "Evenings",
+    },
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+        </svg>
+      ),
+      title: "Seasonal Help",
+      desc: "Holiday rushes, summer events, and one-off busy periods that need extra hands fast.",
+      badge: "Seasonal",
+    },
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+        </svg>
+      ),
+      title: "Delivery & Errands",
+      desc: "Local pickups, drop-offs, and errand runs for businesses that need a reliable extra set of hands.",
+      badge: "Flexible",
+    },
+  ];
+
   return (
     <main className="min-h-screen bg-white flex flex-col">
 
@@ -196,15 +242,11 @@ export default function Home() {
       </nav>
 
       {/* HERO */}
-      <section
-        id="hero"
-        className="flex-1 flex flex-col items-center justify-center text-center px-5 py-20 md:py-32"
-      >
+      <section className="flex-1 flex flex-col items-center justify-center text-center px-5 py-20 md:py-32">
         <div className="inline-flex items-center gap-2 bg-gray-100 text-gray-600 text-xs font-medium px-3 py-1.5 rounded-full mb-6">
           <span className="w-2 h-2 rounded-full bg-[#C8FF00] animate-pulse" />
           Launching in Plymouth, IN — March 2026
         </div>
-
         <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight tracking-tight max-w-2xl">
           The local job board{" "}
           <span className="relative inline-block">
@@ -213,13 +255,10 @@ export default function Home() {
             </span>
           </span>
         </h1>
-
         <p className="mt-5 text-base md:text-lg text-gray-500 max-w-md">
           Skip the fast food grind. Find babysitting, lawn care, tutoring gigs
           — on your schedule, in your town.
         </p>
-
-        {/* location pill */}
         <div className="mt-10 inline-flex items-center gap-2 bg-gray-50 border border-gray-200 text-gray-500 text-xs font-medium px-4 py-2 rounded-full">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -227,8 +266,6 @@ export default function Home() {
           </svg>
           Plymouth, Indiana · Marshall County
         </div>
-
-        {/* market stats */}
         <div className="mt-8 flex gap-8 text-center">
           <div className="flex flex-col gap-0.5">
             <span className="text-2xl font-bold text-gray-900">530+</span>
@@ -253,32 +290,22 @@ export default function Home() {
             <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">How it works</p>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Up and running in minutes</h2>
           </div>
-
           <div className="flex justify-center mb-10">
             <div className="flex rounded-xl overflow-hidden border border-gray-200 text-sm font-medium">
               <button
                 onClick={() => setHowItWorksTab("teen")}
-                className={`px-6 py-2.5 transition ${
-                  howItWorksTab === "teen"
-                    ? "bg-black text-[#C8FF00]"
-                    : "bg-white text-gray-600 hover:bg-gray-50"
-                }`}
+                className={`px-6 py-2.5 transition ${howItWorksTab === "teen" ? "bg-black text-[#C8FF00]" : "bg-white text-gray-600 hover:bg-gray-50"}`}
               >
                 For Teens
               </button>
               <button
                 onClick={() => setHowItWorksTab("employer")}
-                className={`px-6 py-2.5 transition ${
-                  howItWorksTab === "employer"
-                    ? "bg-black text-[#C8FF00]"
-                    : "bg-white text-gray-600 hover:bg-gray-50"
-                }`}
+                className={`px-6 py-2.5 transition ${howItWorksTab === "employer" ? "bg-black text-[#C8FF00]" : "bg-white text-gray-600 hover:bg-gray-50"}`}
               >
                 For Employers
               </button>
             </div>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {steps.map((step, i) => (
               <div key={i} className="flex flex-col rounded-2xl border border-gray-200 bg-white overflow-hidden">
@@ -308,7 +335,6 @@ export default function Home() {
               Every gig is flexible, local, and pays way better than minimum wage.
             </p>
           </div>
-
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {gigTypes.map((gig, i) => (
               <div key={i} className="flex flex-col items-center gap-2 p-5 rounded-2xl border border-gray-200 hover:border-black hover:bg-[#C8FF00]/10 transition">
@@ -321,6 +347,51 @@ export default function Home() {
         </div>
       </section>
 
+      {/* BUSINESS PART-TIME SECTION */}
+      <section className="w-full px-5 py-20 bg-black">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#C8FF00]/70 mb-2">For local businesses</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white">
+              Your next part-time hire<br />is already in town
+            </h2>
+            <p className="mt-4 text-gray-400 text-base max-w-lg mx-auto">
+              Catalyst isn't just for one-off gigs. Post recurring part-time roles and find motivated local teens who show up, stay consistent, and grow with your business.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
+            {businessRoles.map((role, i) => (
+              <div key={i} className="flex items-start gap-4 p-5 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-[#C8FF00]/40 transition">
+                <div className="w-11 h-11 rounded-xl bg-[#C8FF00]/15 flex items-center justify-center shrink-0 text-[#C8FF00]">
+                  {role.icon}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-white text-sm">{role.title}</h3>
+                    <span className="text-xs font-medium bg-white/10 text-gray-400 px-2 py-0.5 rounded-full">{role.badge}</span>
+                  </div>
+                  <p className="text-sm text-gray-400 leading-relaxed">{role.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl border border-white/10 bg-white/5 p-8">
+            <div>
+              <h3 className="text-white font-bold text-xl mb-1">Ready to build your local roster?</h3>
+              <p className="text-gray-400 text-sm">Free to post. Pay only when you hire. No recruiters, no agencies.</p>
+            </div>
+            <a
+              href="/auth/signup/employer"
+              className="shrink-0 bg-[#C8FF00] text-black font-semibold text-sm px-6 py-3 rounded-xl hover:bg-lime-300 transition whitespace-nowrap"
+            >
+              Post a role for free
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* SOCIAL PROOF */}
       <section className="w-full px-5 py-20 bg-gray-50">
         <div className="max-w-4xl mx-auto">
@@ -328,27 +399,11 @@ export default function Home() {
             <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Early feedback</p>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Your neighbors are already in</h2>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              {
-                quote: "I needed a reliable sitter for Friday nights. Found someone within a day — she has been with us every week since.",
-                name: "Sarah M.",
-                role: "Parent in Plymouth",
-                iconIdx: 0,
-              },
-              {
-                quote: "Made $340 last month just doing lawn care on weekends. Way better than working a register.",
-                name: "Jake R.",
-                role: "Junior, Plymouth High",
-                iconIdx: 1,
-              },
-              {
-                quote: "We needed weekend help at our shop. Posted a job and had 5 applicants by the next morning.",
-                name: "Tom B.",
-                role: "Local business owner",
-                iconIdx: 2,
-              },
+              { quote: "I needed a reliable sitter for Friday nights. Found someone within a day — she has been with us every week since.", name: "Sarah M.", role: "Parent in Plymouth", iconIdx: 0 },
+              { quote: "Made $340 last month just doing lawn care on weekends. Way better than working a register.", name: "Jake R.", role: "Junior, Plymouth High", iconIdx: 1 },
+              { quote: "We needed weekend help at our shop. Posted a job and had 5 applicants by the next morning.", name: "Tom B.", role: "Local business owner", iconIdx: 2 },
             ].map((t, i) => (
               <div key={i} className="flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-6">
                 <p className="text-sm text-gray-700 leading-relaxed">"{t.quote}"</p>
@@ -379,6 +434,7 @@ export default function Home() {
               { q: "Is it really free for teens?", a: "Yes, 100%. Teens never pay anything to create a profile, browse jobs, or apply. Always." },
               { q: "What age do you have to be?", a: "Catalyst is built for teens ages 14-21. We follow all applicable child labor laws and require age verification on signup." },
               { q: "Where is Catalyst available?", a: "We are launching in Plymouth, IN in March 2026 and expanding across Marshall County shortly after. More towns coming fast." },
+              { q: "Can businesses post recurring part-time roles?", a: "Absolutely. Businesses can post both one-off gigs and ongoing part-time positions. You set the hours, schedule, and pay — Catalyst handles the applicant pipeline." },
             ].map((item, i) => (
               <div key={i} className="bg-white">
                 <button
@@ -386,12 +442,8 @@ export default function Home() {
                   className="w-full flex items-center justify-between px-6 py-5 text-left"
                 >
                   <span className="font-semibold text-gray-900 text-sm">{item.q}</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16" height="16" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor" strokeWidth={2}
-                    className={`shrink-0 ml-4 transition-transform duration-200 ${openFaq === i ? "rotate-180" : ""}`}
-                  >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+                    className={`shrink-0 ml-4 transition-transform duration-200 ${openFaq === i ? "rotate-180" : ""}`}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                   </svg>
                 </button>
@@ -421,7 +473,6 @@ export default function Home() {
           <span className="text-white font-bold text-lg tracking-tight">
             catalyst<span className="text-[#C8FF00]">.</span>
           </span>
-
           <div className="flex items-center gap-3">
             <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"
               className="w-10 h-10 rounded-full bg-white/10 hover:bg-[#C8FF00] hover:text-black transition flex items-center justify-center group">
@@ -442,7 +493,6 @@ export default function Home() {
               </svg>
             </a>
           </div>
-
           <div className="flex items-center gap-5 text-xs text-gray-500">
             <a href="#" className="hover:text-gray-300 transition">Privacy</a>
             <a href="#" className="hover:text-gray-300 transition">Terms</a>
@@ -451,7 +501,6 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* MARQUEE ANIMATION */}
       <style jsx>{`
         @keyframes marquee {
           0% { transform: translateX(0); }
@@ -461,7 +510,6 @@ export default function Home() {
           animation: marquee 20s linear infinite;
         }
       `}</style>
-
     </main>
   );
 }
