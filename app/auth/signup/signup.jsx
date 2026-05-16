@@ -1,11 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getSupabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
-import { Briefcase, ArrowRight } from "lucide-react";
+import { Briefcase, GraduationCap, ArrowRight } from "lucide-react";
 
-export default function EmployerSignup() {
+export default function Signup() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [role, setRole] = useState("teen");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -13,6 +16,17 @@ export default function EmployerSignup() {
   const [googleUser, setGoogleUser] = useState(null);
   const [checkingSession, setCheckingSession] = useState(true);
   const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // Role priority: query param > localStorage (post-Google redirect) > default
+    const fromQuery = searchParams.get("role");
+    const fromStorage = localStorage.getItem("pendingRole");
+    if (fromQuery === "teen" || fromQuery === "employer") {
+      setRole(fromQuery);
+    } else if (fromStorage === "teen" || fromStorage === "employer") {
+      setRole(fromStorage);
+    }
+  }, []);
 
   useEffect(() => {
     async function checkSession() {
@@ -28,8 +42,9 @@ export default function EmployerSignup() {
       if (profile?.role) {
         router.push(`/dashboard/${profile.role}`);
       } else {
+        // Google OAuth returned — user exists but no profile role yet
         setGoogleUser(user);
-        setEmail(user.email);
+        setEmail(user.email ?? "");
         setCheckingSession(false);
         setMounted(true);
       }
@@ -38,9 +53,10 @@ export default function EmployerSignup() {
   }, []);
 
   async function handleGoogleSignup() {
+    localStorage.setItem("pendingRole", role);
     await getSupabase().auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/signup/employer` },
+      options: { redirectTo: `${window.location.origin}/auth/signup` },
     });
   }
 
@@ -52,28 +68,26 @@ export default function EmployerSignup() {
     const { data, error: sbError } = await getSupabase().auth.signUp({
       email,
       password,
-      options: { data: { role: "employer" } },
+      options: { data: { role } },
     });
     setLoading(false);
     if (sbError) { setError(sbError.message); return; }
-    if (data.user) router.push("/auth/onboarding/employer");
+    if (data.user) router.push(`/auth/onboarding/${role}`);
   }
 
   async function handleGoogleContinue() {
     setLoading(true);
-    await getSupabase().auth.updateUser({ data: { role: "employer" } });
+    const savedRole = localStorage.getItem("pendingRole") ?? role;
+    localStorage.removeItem("pendingRole");
+    await getSupabase().auth.updateUser({ data: { role: savedRole } });
     setLoading(false);
-    router.push("/auth/onboarding/employer");
+    router.push(`/auth/onboarding/${savedRole}`);
   }
 
   if (checkingSession) {
     return (
       <main style={{ minHeight: "100vh", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{
-          width: 24, height: 24, border: "2.5px solid #111",
-          borderTopColor: "#C8FF00", borderRadius: "50%",
-          animation: "spin 0.7s linear infinite",
-        }} />
+        <div style={{ width: 24, height: 24, border: "2.5px solid #111", borderTopColor: "#C8FF00", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </main>
     );
@@ -84,6 +98,30 @@ export default function EmployerSignup() {
     transform: mounted ? "translateY(0)" : "translateY(14px)",
     transition: `opacity 0.45s ease ${delay}s, transform 0.45s ease ${delay}s`,
   });
+
+  const RoleToggle = () => (
+    <div style={{ display: "flex", background: "#f3f4f6", borderRadius: 12, padding: 4, gap: 4, ...fadeUp(0.08) }}>
+      {["teen", "employer"].map((r) => (
+        <button
+          key={r}
+          onClick={() => { setRole(r); setError(""); }}
+          style={{
+            flex: 1, padding: "9px 0", borderRadius: 9, border: "none",
+            fontWeight: 600, fontSize: 13, cursor: "pointer",
+            background: role === r ? "#111" : "transparent",
+            color: role === r ? "#C8FF00" : "#6b7280",
+            transition: "background 0.2s ease, color 0.2s ease",
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+          }}
+        >
+          {r === "teen"
+            ? <><GraduationCap size={14} strokeWidth={2} /> Teen</>
+            : <><Briefcase size={14} strokeWidth={2} /> Employer</>
+          }
+        </button>
+      ))}
+    </div>
+  );
 
   return (
     <main style={{ minHeight: "100vh", background: "#fff", display: "flex", flexDirection: "column", fontFamily: "system-ui, -apple-system, sans-serif" }}>
@@ -100,21 +138,27 @@ export default function EmployerSignup() {
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "64px 20px" }}>
         <div style={{ width: "100%", maxWidth: 360, display: "flex", flexDirection: "column", gap: 24 }}>
 
+          {/* Header */}
           <div style={{ textAlign: "center", ...fadeUp(0.05) }}>
             <div style={{
               width: 56, height: 56, borderRadius: 16, background: "#f3f4f6",
               display: "inline-flex", alignItems: "center", justifyContent: "center",
-              marginBottom: 14,
+              marginBottom: 14, transition: "transform 0.3s cubic-bezier(0.34,1.56,0.64,1)",
             }}>
-              <Briefcase size={26} color="#111" strokeWidth={1.75} />
+              {role === "employer"
+                ? <Briefcase size={26} color="#111" strokeWidth={1.75} />
+                : <GraduationCap size={26} color="#111" strokeWidth={1.75} />
+              }
             </div>
             <h1 style={{ fontSize: 24, fontWeight: 700, color: "#111", margin: 0, letterSpacing: "-0.4px" }}>
               Create your account
             </h1>
             <p style={{ color: "#9ca3af", marginTop: 6, fontSize: 14 }}>
-              Start hiring talented teens nearby
+              {role === "employer" ? "Start hiring talented teens nearby" : "Start finding gigs in your area"}
             </p>
           </div>
+
+          <RoleToggle />
 
           {googleUser ? (
             <>
@@ -136,18 +180,17 @@ export default function EmployerSignup() {
                   disabled={loading}
                   style={{
                     width: "100%", background: "#111", color: "#C8FF00",
-                    padding: "14px 24px", borderRadius: 14, fontWeight: 600,
-                    fontSize: 14, border: "none", cursor: loading ? "not-allowed" : "pointer",
+                    padding: "14px 24px", borderRadius: 14, fontWeight: 600, fontSize: 14,
+                    border: "none", cursor: loading ? "not-allowed" : "pointer",
                     opacity: loading ? 0.5 : 1, display: "flex", alignItems: "center",
                     justifyContent: "center", gap: 8, letterSpacing: "0.01em",
-                    transition: "opacity 0.2s ease, transform 0.15s ease",
-                    boxSizing: "border-box",
+                    transition: "opacity 0.2s ease, transform 0.15s ease", boxSizing: "border-box",
                   }}
-                  onMouseDown={e => e.currentTarget.style.transform = "scale(0.98)"}
-                  onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
-                  onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+                  onMouseDown={e => (e.currentTarget.style.transform = "scale(0.98)")}
+                  onMouseUp={e => (e.currentTarget.style.transform = "scale(1)")}
+                  onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")}
                 >
-                  {loading ? "Continuing..." : "Continue"}
+                  {loading ? "Continuing..." : `Continue as ${role === "teen" ? "Teen" : "Employer"}`}
                   {!loading && <ArrowRight size={16} />}
                 </button>
               </div>
@@ -155,15 +198,15 @@ export default function EmployerSignup() {
               <button
                 onClick={async () => { await getSupabase().auth.signOut(); setGoogleUser(null); setEmail(""); }}
                 style={{ background: "none", border: "none", fontSize: 12, color: "#9ca3af", cursor: "pointer", textAlign: "center", transition: "color 0.2s ease" }}
-                onMouseEnter={e => e.currentTarget.style.color = "#6b7280"}
-                onMouseLeave={e => e.currentTarget.style.color = "#9ca3af"}
+                onMouseEnter={e => (e.currentTarget.style.color = "#6b7280")}
+                onMouseLeave={e => (e.currentTarget.style.color = "#9ca3af")}
               >
                 Use a different account
               </button>
             </>
           ) : (
             <>
-              <div style={fadeUp(0.1)}>
+              <div style={fadeUp(0.12)}>
                 <button
                   onClick={handleGoogleSignup}
                   style={{
@@ -175,8 +218,8 @@ export default function EmployerSignup() {
                   }}
                   onMouseEnter={e => { e.currentTarget.style.background = "#fafafa"; e.currentTarget.style.borderColor = "#d1d5db"; }}
                   onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.borderColor = "#e5e7eb"; }}
-                  onMouseDown={e => e.currentTarget.style.transform = "scale(0.98)"}
-                  onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
+                  onMouseDown={e => (e.currentTarget.style.transform = "scale(0.98)")}
+                  onMouseUp={e => (e.currentTarget.style.transform = "scale(1)")}
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -188,7 +231,7 @@ export default function EmployerSignup() {
                 </button>
               </div>
 
-              <div style={{ display: "flex", alignItems: "center", gap: 12, ...fadeUp(0.15) }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, ...fadeUp(0.16) }}>
                 <div style={{ flex: 1, height: 1, background: "#e5e7eb" }} />
                 <span style={{ fontSize: 12, color: "#9ca3af", fontWeight: 500 }}>OR</span>
                 <div style={{ flex: 1, height: 1, background: "#e5e7eb" }} />
@@ -215,18 +258,14 @@ export default function EmployerSignup() {
                         transition: "border-color 0.2s ease", boxSizing: "border-box",
                         background: "#fff", color: "#111",
                       }}
-                      onFocus={e => e.target.style.borderColor = "#111"}
-                      onBlur={e => e.target.style.borderColor = "#e5e7eb"}
+                      onFocus={e => (e.target.style.borderColor = "#111")}
+                      onBlur={e => (e.target.style.borderColor = "#e5e7eb")}
                     />
                   </div>
                 ))}
               </div>
 
-              {error && (
-                <p style={{ fontSize: 12, color: "#ef4444", margin: 0, ...fadeUp(0) }}>
-                  {error}
-                </p>
-              )}
+              {error && <p style={{ fontSize: 12, color: "#ef4444", margin: 0, ...fadeUp(0) }}>{error}</p>}
 
               <div style={fadeUp(0.25)}>
                 <button
@@ -234,16 +273,15 @@ export default function EmployerSignup() {
                   disabled={loading}
                   style={{
                     width: "100%", background: "#111", color: "#C8FF00",
-                    padding: "14px 24px", borderRadius: 14, fontWeight: 600,
-                    fontSize: 14, border: "none", cursor: loading ? "not-allowed" : "pointer",
+                    padding: "14px 24px", borderRadius: 14, fontWeight: 600, fontSize: 14,
+                    border: "none", cursor: loading ? "not-allowed" : "pointer",
                     opacity: loading ? 0.5 : 1, display: "flex", alignItems: "center",
                     justifyContent: "center", gap: 8, letterSpacing: "0.01em",
-                    transition: "opacity 0.2s ease, transform 0.15s ease",
-                    boxSizing: "border-box",
+                    transition: "opacity 0.2s ease, transform 0.15s ease", boxSizing: "border-box",
                   }}
                   onMouseDown={e => !loading && (e.currentTarget.style.transform = "scale(0.98)")}
-                  onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
-                  onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+                  onMouseUp={e => (e.currentTarget.style.transform = "scale(1)")}
+                  onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")}
                 >
                   {loading ? "Creating account..." : "Create account"}
                   {!loading && <ArrowRight size={16} />}
