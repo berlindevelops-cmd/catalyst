@@ -126,7 +126,7 @@ export default function SignupPicker() {
 
           <button
             disabled={!selected}
-            onClick={() => router.push(`/auth/signup?role=${selected}`)}
+            onClick={() => router.push(`/auth/signup/form?role=${selected}`)}
             style={{
               width: "100%", background: "#111", color: "#C8FF00",
               padding: "14px 24px", borderRadius: 14, fontWeight: 600, fontSize: 14,
