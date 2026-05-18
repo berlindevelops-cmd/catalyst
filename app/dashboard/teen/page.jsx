@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import ReportModal from "@/components/ReportModal";
 
 const CATEGORIES = [
   "All", "Babysitting", "Lawn Care", "Tutoring", "Pet Sitting",
