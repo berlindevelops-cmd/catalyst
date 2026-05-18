@@ -118,7 +118,7 @@ export default function AuthProvider({ children }) {
         if (dashboard) {
           router.replace(dashboard);
         } else {
-          router.replace("/auth/onboarding/employer");
+          router.replace("/auth/onboarding");
         }
       }
     });
