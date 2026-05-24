@@ -6,19 +6,24 @@ import { HandMetal, ArrowRight } from "lucide-react";
 
 export default function Login() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [mounted, setMounted] = useState(false);
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState("");
+  const [mounted, setMounted]   = useState(false);
 
+  // Always mount immediately so the page is never white
+  useEffect(() => { setMounted(true); }, []);
+
+  // Session check is separate — redirect in background if already logged in
   useEffect(() => {
     async function checkSession() {
       const { data: { user } } = await getSupabase().auth.getUser();
-      if (!user) { setMounted(true); return; }
-      const { data: profile } = await getSupabase().from("profiles").select("role").eq("id", user.id).maybeSingle();
-      if (profile?.role) { router.push(`/dashboard/${profile.role}`); }
-      else { setMounted(true); }
+      if (!user) return;
+      const { data: profile } = await getSupabase()
+        .from("profiles").select("role").eq("id", user.id).maybeSingle();
+      if (profile?.role) router.replace(`/dashboard/${profile.role}`);
+      else router.replace("/auth/onboarding");
     }
     checkSession();
   }, []);
@@ -30,17 +35,20 @@ export default function Login() {
     const { data, error: sbError } = await getSupabase().auth.signInWithPassword({ email, password });
     setLoading(false);
     if (sbError) { setError("Invalid email or password."); return; }
-    const { data: profile } = await getSupabase().from("profiles").select("role").eq("id", data.user.id).single();
+    const { data: profile } = await getSupabase()
+      .from("profiles").select("role").eq("id", data.user.id).maybeSingle();
     const role = profile?.role ?? data.user?.user_metadata?.role;
     if (role === "teen") router.push("/dashboard/teen");
     else if (role === "business") router.push("/dashboard/business");
-    else router.push("/dashboard/employer");
+    else if (role === "employer") router.push("/dashboard/employer");
+    else router.push("/auth/onboarding");
   }
 
   async function handleGoogleLogin() {
     await getSupabase().auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback?login=true` },
+      // No ?login=true needed — callback handles all cases the same way now
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
   }
 
@@ -58,9 +66,14 @@ export default function Login() {
   };
 
   return (
-    <main style={{ minHeight: "100vh", background: "#fff", display: "flex", flexDirection: "column", fontFamily: "system-ui, -apple-system, sans-serif" }}>
-      <nav style={{ width: "100%", padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f3f4f6", boxSizing: "border-box", ...fadeUp(0) }}>
-        <a href="/" style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px", color: "#111", textDecoration: "none" }}>
+    <main style={{ minHeight: "100vh", background: "#fff", display: "flex",
+      flexDirection: "column", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+
+      <nav style={{ width: "100%", padding: "16px 20px", display: "flex", alignItems: "center",
+        justifyContent: "space-between", borderBottom: "1px solid #f3f4f6",
+        boxSizing: "border-box", ...fadeUp(0) }}>
+        <a href="/" style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.5px",
+          color: "#111", textDecoration: "none" }}>
           catalyst<span style={{ color: "#C8FF00" }}>.</span>
         </a>
         <a href="/auth/signup" style={{ fontSize: 13, color: "#9ca3af", textDecoration: "none" }}>
@@ -68,21 +81,28 @@ export default function Login() {
         </a>
       </nav>
 
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "64px 20px" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
+        justifyContent: "center", padding: "64px 20px" }}>
         <div style={{ width: "100%", maxWidth: 360, display: "flex", flexDirection: "column", gap: 24 }}>
 
           <div style={{ textAlign: "center", ...fadeUp(0.05) }}>
-            <div style={{ width: 56, height: 56, borderRadius: 16, background: "#f3f4f6", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
+            <div style={{ width: 56, height: 56, borderRadius: 16, background: "#f3f4f6",
+              display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
               <HandMetal size={26} color="#111" strokeWidth={1.75} />
             </div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, color: "#111", margin: 0, letterSpacing: "-0.4px" }}>Welcome back</h1>
+            <h1 style={{ fontSize: 24, fontWeight: 700, color: "#111", margin: 0, letterSpacing: "-0.4px" }}>
+              Welcome back
+            </h1>
             <p style={{ color: "#9ca3af", marginTop: 6, fontSize: 14 }}>Sign in to your Catalyst account</p>
           </div>
 
           <div style={fadeUp(0.1)}>
-            <button
-              onClick={handleGoogleLogin}
-              style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, border: "1.5px solid #e5e7eb", borderRadius: 14, padding: "13px 20px", fontSize: 14, fontWeight: 500, background: "#fff", cursor: "pointer", transition: "background 0.15s ease, border-color 0.15s ease, transform 0.15s ease", boxSizing: "border-box" }}
+            <button onClick={handleGoogleLogin}
+              style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center",
+                gap: 10, border: "1.5px solid #e5e7eb", borderRadius: 14, padding: "13px 20px",
+                fontSize: 14, fontWeight: 500, background: "#fff", cursor: "pointer",
+                transition: "background 0.15s ease, border-color 0.15s ease, transform 0.15s ease",
+                boxSizing: "border-box" }}
               onMouseEnter={e => { e.currentTarget.style.background = "#fafafa"; e.currentTarget.style.borderColor = "#d1d5db"; }}
               onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.transform = "scale(1)"; }}
               onMouseDown={e => e.currentTarget.style.transform = "scale(0.98)"}
@@ -106,13 +126,20 @@ export default function Login() {
 
           <div style={{ display: "flex", flexDirection: "column", gap: 12, ...fadeUp(0.2) }}>
             {[
-              { label: "Email", type: "email", placeholder: "you@example.com", value: email, onChange: (e) => setEmail(e.target.value), onKeyDown: undefined },
-              { label: "Password", type: "password", placeholder: "Your password", value: password, onChange: (e) => setPassword(e.target.value), onKeyDown: (e) => e.key === "Enter" && handleLogin() },
-            ].map((field) => (
+              { label: "Email", type: "email", placeholder: "you@example.com",
+                value: email, onChange: e => setEmail(e.target.value) },
+              { label: "Password", type: "password", placeholder: "Your password",
+                value: password, onChange: e => setPassword(e.target.value),
+                onKeyDown: e => e.key === "Enter" && handleLogin() },
+            ].map(field => (
               <div key={field.label}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>{field.label}</label>
-                <input type={field.type} placeholder={field.placeholder} value={field.value} onChange={field.onChange} onKeyDown={field.onKeyDown}
-                  style={inputStyle} onFocus={e => e.target.style.borderColor = "#111"} onBlur={e => e.target.style.borderColor = "#e5e7eb"} />
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#374151",
+                  display: "block", marginBottom: 6 }}>{field.label}</label>
+                <input type={field.type} placeholder={field.placeholder}
+                  value={field.value} onChange={field.onChange} onKeyDown={field.onKeyDown}
+                  style={inputStyle}
+                  onFocus={e => e.target.style.borderColor = "#111"}
+                  onBlur={e => e.target.style.borderColor = "#e5e7eb"} />
               </div>
             ))}
           </div>
@@ -120,19 +147,23 @@ export default function Login() {
           {error && <p style={{ fontSize: 12, color: "#ef4444", margin: 0 }}>{error}</p>}
 
           <div style={fadeUp(0.25)}>
-            <button
-              onClick={handleLogin}
-              disabled={loading}
-              style={{ width: "100%", background: "#111", color: "#C8FF00", padding: "14px 24px", borderRadius: 14, fontWeight: 600, fontSize: 14, border: "none", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.5 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "opacity 0.2s ease, transform 0.15s ease", boxSizing: "border-box" }}
+            <button onClick={handleLogin} disabled={loading}
+              style={{ width: "100%", background: "#111", color: "#C8FF00", padding: "14px 24px",
+                borderRadius: 14, fontWeight: 600, fontSize: 14, border: "none",
+                cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.5 : 1,
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                transition: "opacity 0.2s ease, transform 0.15s ease", boxSizing: "border-box" }}
               onMouseDown={e => !loading && (e.currentTarget.style.transform = "scale(0.98)")}
               onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
               onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
             >
-              {loading ? "Signing in..." : "Sign in"} {!loading && <ArrowRight size={16} />}
+              {loading ? "Signing in…" : "Sign in"} {!loading && <ArrowRight size={16} />}
             </button>
           </div>
 
-          <a href="/auth/forgot-password" style={{ textAlign: "center", fontSize: 12, color: "#9ca3af", textDecoration: "none", ...fadeUp(0.3) }}
+          <a href="/auth/forgot-password"
+            style={{ textAlign: "center", fontSize: 12, color: "#9ca3af",
+              textDecoration: "none", ...fadeUp(0.3) }}
             onMouseEnter={e => e.currentTarget.style.color = "#6b7280"}
             onMouseLeave={e => e.currentTarget.style.color = "#9ca3af"}
           >
