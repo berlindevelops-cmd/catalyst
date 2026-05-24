@@ -10,40 +10,29 @@ function getDashboard(role) {
   return null;
 }
 
-const AUTH_PAGES = ["/auth/login", "/auth/signup"];
-const ONBOARDING_PAGES = ["/auth/onboarding"];
+const PROTECTED_PREFIXES = ["/dashboard"];
+const AUTH_PAGE_PREFIXES = ["/auth/login", "/auth/signup"];
 
 export default function AuthProvider({ children }) {
   const router = useRouter();
   const pathname = usePathname();
 
+  // One-time check on mount only — NOT on every pathname change.
+  // This prevents a Supabase round-trip on every client-side navigation.
   useEffect(() => {
-    async function handleAuth() {
-      const {
-        data: { session },
-      } = await getSupabase().auth.getSession();
+    async function init() {
+      const { data: { session } } = await getSupabase().auth.getSession();
 
-      // --- Not logged in ---
+      // Not logged in: boot them off protected pages
       if (!session) {
-        // Protect dashboard and onboarding pages
-        if (
-          pathname.startsWith("/dashboard") ||
-          ONBOARDING_PAGES.some((p) => pathname.startsWith(p))
-        ) {
+        if (PROTECTED_PREFIXES.some(p => pathname.startsWith(p))) {
           router.replace("/auth/login");
         }
         return;
       }
 
-      // --- Logged in ---
-
-      // Let the callback page do its own thing — don't interfere
-      if (pathname.startsWith("/auth/callback")) return;
-
-      const isAuthPage = AUTH_PAGES.some((p) => pathname.startsWith(p));
-
-      // On login/signup pages while logged in → redirect to their dashboard
-      if (isAuthPage) {
+      // Logged in but on an auth page (login/signup): send to dashboard
+      if (AUTH_PAGE_PREFIXES.some(p => pathname.startsWith(p))) {
         const { data: profile } = await getSupabase()
           .from("profiles")
           .select("role")
@@ -52,76 +41,54 @@ export default function AuthProvider({ children }) {
 
         const role = profile?.role ?? session.user.user_metadata?.role;
         const dashboard = getDashboard(role);
-
-        if (dashboard) {
-          router.replace(dashboard);
-        } else {
-          // Logged in but no role yet — send to onboarding
-          router.replace("/auth/onboarding/employer");
-        }
-        return;
-      }
-
-      // On a dashboard page, verify they actually have a role
-      // (catches edge cases where profile write failed)
-      if (pathname.startsWith("/dashboard")) {
-        const { data: profile } = await getSupabase()
-          .from("profiles")
-          .select("role")
-          .eq("id", session.user.id)
-          .maybeSingle();
-
-        const role = profile?.role ?? session.user.user_metadata?.role;
-
-        if (!role) {
-          router.replace("/auth/onboarding/employer");
-          return;
-        }
-
-        // Make sure they're on the right dashboard for their role
-        const dashboard = getDashboard(role);
-        if (dashboard && !pathname.startsWith(dashboard)) {
-          router.replace(dashboard);
-        }
+        router.replace(dashboard ?? "/auth/onboarding/employer");
       }
     }
 
-    handleAuth();
-  }, [pathname]);
+    init();
+  }, []); // Empty deps — run once on mount only
 
+  // Subscription handles runtime auth state changes (sign-out, etc.)
   useEffect(() => {
-    const {
-      data: { subscription },
-    } = getSupabase().auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_OUT") {
-        router.replace("/");
-        return;
-      }
+    const { data: { subscription } } = getSupabase().auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === "SIGNED_OUT") {
+          router.replace("/");
+          return;
+        }
 
-      if (event === "PASSWORD_RECOVERY") {
-        router.replace("/auth/reset-password");
-        return;
-      }
+        if (event === "PASSWORD_RECOVERY") {
+          router.replace("/auth/reset-password");
+          return;
+        }
 
-      // After OAuth completes, Supabase fires SIGNED_IN.
-      // /auth/callback handles the redirect — don't double-redirect here.
-      if (event === "SIGNED_IN" && !window.location.pathname.startsWith("/auth/callback")) {
-        const { data: profile } = await getSupabase()
-          .from("profiles")
-          .select("role")
-          .eq("id", session.user.id)
-          .maybeSingle();
+        // SIGNED_IN fires after OAuth. Let /auth/callback handle that redirect
+        // entirely — don't compete with it here.
+        if (event === "SIGNED_IN") {
+          const isOnCallback = window.location.pathname.startsWith("/auth/callback");
+          const isOnAuthPage = AUTH_PAGE_PREFIXES.some(p =>
+            window.location.pathname.startsWith(p)
+          );
 
-        const role = profile?.role ?? session.user.user_metadata?.role;
-        const dashboard = getDashboard(role);
+          // Only redirect if we're somewhere unexpected (e.g. mid-session
+          // token refresh on a dashboard page) — not during the OAuth flow
+          if (!isOnCallback && !isOnAuthPage) return;
 
-        if (dashboard) {
-          router.replace(dashboard);
-        } else {
-          router.replace("/auth/onboarding");
+          if (isOnCallback) return; // Callback handles its own redirect
+
+          // On a login/signup page after SIGNED_IN (e.g. email confirm link)
+          const { data: profile } = await getSupabase()
+            .from("profiles")
+            .select("role")
+            .eq("id", session.user.id)
+            .maybeSingle();
+
+          const role = profile?.role ?? session.user.user_metadata?.role;
+          const dashboard = getDashboard(role);
+          router.replace(dashboard ?? "/auth/onboarding/employer");
         }
       }
-    });
+    );
 
     return () => subscription.unsubscribe();
   }, []);
