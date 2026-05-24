@@ -12,10 +12,12 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [mounted, setMounted] = useState(false);
 
+  useEffect(() => { setMounted(true); }, []);
+
   useEffect(() => {
     async function checkSession() {
       const { data: { user } } = await getSupabase().auth.getUser();
-      if (!user) { setMounted(true); return; }
+      if (!user) return;
       const { data: profile } = await getSupabase()
         .from("profiles").select("role").eq("id", user.id).maybeSingle();
       if (profile?.role) router.replace(`/dashboard/${profile.role}`);
@@ -55,8 +57,6 @@ export default function SignupPage() {
     transition: "border-color 0.2s ease", boxSizing: "border-box",
     background: "#fff", color: "#111",
   };
-
-  if (!mounted) return null;
 
   return (
     <main style={{ minHeight: "100vh", background: "#fff", display: "flex",
