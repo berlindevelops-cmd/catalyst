@@ -14,45 +14,52 @@ export default function AuthCallback() {
   const router = useRouter();
 
   useEffect(() => {
-    // Don't call getSession() immediately — with PKCE flow, Supabase hasn't
-    // exchanged the ?code param yet. Wait for the SIGNED_IN event instead,
-    // which fires only after the exchange completes successfully.
+    let resolved = false;
+
+    async function redirect(session) {
+      if (resolved) return;
+      resolved = true;
+
+      const { data: profile } = await getSupabase()
+        .from("profiles")
+        .select("role")
+        .eq("id", session.user.id)
+        .maybeSingle();
+
+      const role = profile?.role ?? session.user.user_metadata?.role;
+      const dashboard = getDashboard(role);
+      router.replace(dashboard ?? "/auth/onboarding");
+    }
+
+    // Case 1: user hit the back button after OAuth already completed.
+    // getSession() returns immediately with the existing session.
+    getSupabase().auth.getSession().then(({ data: { session } }) => {
+      if (session) redirect(session);
+    });
+
+    // Case 2: fresh OAuth — code is being exchanged right now.
+    // Supabase fires SIGNED_IN once the exchange finishes.
     const { data: { subscription } } = getSupabase().auth.onAuthStateChange(
-      async (event, session) => {
-        if (event !== "SIGNED_IN" || !session) return;
-
-        // Unsubscribe immediately so we don't double-fire
-        subscription.unsubscribe();
-
-        const { data: profile } = await getSupabase()
-          .from("profiles")
-          .select("role")
-          .eq("id", session.user.id)
-          .maybeSingle();
-
-        const role = profile?.role ?? session.user.user_metadata?.role;
-        const dashboard = getDashboard(role);
-
-        if (dashboard) {
-          router.replace(dashboard);
-          return;
-        }
-
-        // New user — read the role they picked before OAuth and send to
-        // the right onboarding. Falls back to employer if nothing was stored.
-        const pendingRole = localStorage.getItem("pendingRole") ?? "employer";
-        localStorage.removeItem("pendingRole");
-        router.replace(`/auth/onboarding/${pendingRole}`);
+      (event, session) => {
+        if (event === "SIGNED_IN" && session) redirect(session);
       }
     );
 
-    return () => subscription.unsubscribe();
+    // Fallback: if neither fires (bad state, expired code, etc.), don't spin forever
+    const timeout = setTimeout(() => {
+      if (!resolved) router.replace("/auth/login");
+    }, 8000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   return (
     <main style={{ minHeight: "100vh", display: "flex", alignItems: "center",
-      justifyContent: "center", fontFamily: "system-ui, -apple-system, sans-serif",
-      background: "#fff" }}>
+      justifyContent: "center", background: "#fff",
+      fontFamily: "system-ui, -apple-system, sans-serif" }}>
       <div style={{ textAlign: "center" }}>
         <div style={{ width: 40, height: 40, borderRadius: "50%",
           border: "3px solid #f3f4f6", borderTopColor: "#111",
