@@ -12,6 +12,22 @@ export default function ForgotPassword() {
 
   useEffect(() => { setMounted(true); }, []);
 
+  useEffect(() => {
+    // Fallback: if AuthProvider already caught PASSWORD_RECOVERY and the
+    // session exists by the time this page mounts, we'd miss the event.
+    // getSession() catches that case immediately.
+    getSupabase().auth.getSession().then(({ data: { session } }) => {
+      if (session) setReady(true);
+    });
+
+    // Primary: catch the event if it fires after we mount
+    const { data: { subscription } } = getSupabase().auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") setReady(true);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   async function handleSubmit() {
     if (!email) { setError("Please enter your email."); return; }
     setLoading(true);
