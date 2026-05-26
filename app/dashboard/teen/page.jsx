@@ -272,21 +272,24 @@ export default function TeenDashboard() {
       const { data: { user } } = await getSupabase().auth.getUser();
       if (!user) return;
 
-      const { data: profileData } = await getSupabase()
-        .from("profiles").select("*").eq("id", user.id).single();
-      setProfile(profileData);
+      // ✅ Read from the layout's cache instantly — no flash
+      const cached = localStorage.getItem(`profile:${user.id}`);
+      if (cached) setProfile(JSON.parse(cached));
 
-      const { data: jobsData } = await getSupabase()
-        .from("jobs").select("*").eq("status", "active")
-        .order("urgent", { ascending: false })
-        .order("created_at", { ascending: false });
+      // Fetch everything in parallel instead of sequentially
+      const [{ data: profileData }, { data: jobsData }, { data: appsData }] = await Promise.all([
+        getSupabase().from("profiles").select("*").eq("id", user.id).single(),
+        getSupabase().from("jobs").select("*").eq("status", "active")
+          .order("urgent", { ascending: false })
+          .order("created_at", { ascending: false }),
+        getSupabase().from("applications").select("job_id").eq("teen_id", user.id),
+      ]);
+
+      setProfile(profileData);
       setJobs(jobsData ?? []);
       setFilteredJobs(jobsData ?? []);
-      setLoading(false);
-
-      const { data: appsData } = await getSupabase()
-        .from("applications").select("job_id").eq("teen_id", user.id);
       setAppliedJobs(appsData?.map((a) => a.job_id) ?? []);
+      setLoading(false);
 
       channel = getSupabase().channel("jobs-feed")
         .on("postgres_changes", { event: "INSERT", schema: "public", table: "jobs" }, (payload) => {
@@ -299,8 +302,6 @@ export default function TeenDashboard() {
           setJobs((prev) => prev.filter((j) => j.id !== payload.old.id));
         })
         .subscribe();
-
-      return () => getSupabase().removeChannel(channel);
     }
     load();
     return () => { if (channel) getSupabase().removeChannel(channel); };
