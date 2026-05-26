@@ -264,6 +264,7 @@ export default function TeenDashboard() {
   const [applyingTo, setApplyingTo] = useState(null);
   const [message, setMessage] = useState("");
   const [appliedJobs, setAppliedJobs] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     let channel;
@@ -351,6 +352,9 @@ export default function TeenDashboard() {
     setSubmitting(false);                            // ← unlock regardless of outcome
 
     if (!error) {
+      const appliedJob = applyingTo;
+      const appliedMessage = message;
+
       setAppliedJobs((prev) => [...prev, applyingTo.id]);
       setApplyingTo(null);
       setMessage("");
@@ -380,27 +384,6 @@ export default function TeenDashboard() {
       } catch (notifyErr) {
         // Email failed — application was still submitted successfully, so don't surface this to the user
         console.error("Notify failed:", notifyErr);
-      }
-
-      const { data: employerData } = await getSupabase()
-        .from("profiles").select("full_name, business_name")
-        .eq("id", applyingTo.employer_id).single();
-
-      const { data: employerAuth } = await getSupabase()
-        .rpc("get_user_email", { user_id: applyingTo.employer_id }).single();
-
-      if (employerAuth?.email) {
-        await fetch("/api/notify/apply", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            employerEmail: employerAuth.email,
-            employerName: employerData?.business_name ?? employerData?.full_name ?? "there",
-            teenName: profile?.full_name ?? "A teen",
-            jobTitle: applyingTo.title,
-            message,
-          }),
-        });
       }
     }
   }
