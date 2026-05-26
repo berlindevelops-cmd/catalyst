@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import MessagingPopup from "@/components/MessagingPopup";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 const BriefcaseIcon = () => (

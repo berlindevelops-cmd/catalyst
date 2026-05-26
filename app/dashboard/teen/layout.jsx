@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter, usePathname } from "next/navigation";
-import MessagingPopup from "@/components/MessagingPopup";
 import Link from "next/link";
 
 // Icons
