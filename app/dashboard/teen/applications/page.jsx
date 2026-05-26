@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
+import Link from "next/link";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 const MapPinIcon = ({ size = 12 }) => (
@@ -175,12 +176,9 @@ export default function TeenApplications() {
           </div>
           <p className="text-gray-600 text-sm font-medium">No applications yet</p>
           <p className="text-gray-400 text-xs">Browse jobs and hit Apply to get started</p>
-          <a
-            href="/dashboard/teen"
-            className="mt-2 bg-black text-[#C8FF00] px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-gray-900 transition"
-          >
+          <Link href="/dashboard/teen" className="mt-2 bg-black text-[#C8FF00] px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-gray-900 transition">
             Browse jobs
-          </a>
+          </Link>
         </div>
       )}
 
