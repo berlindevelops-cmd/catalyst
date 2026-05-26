@@ -41,24 +41,32 @@ export default function TeenDashboardLayout({ children }) {
       if (!user) { router.push("/auth/login"); return; }
       setUser(user);
 
+      // ✅ Load from cache instantly — no flash
+      const cached = localStorage.getItem(`profile:${user.id}`);
+      if (cached) setProfile(JSON.parse(cached));
+
+      // Then fetch fresh from Supabase in the background
       const { data: profile, error } = await getSupabase()
         .from("profiles")
         .select("*")
         .eq("id", user.id)
         .single();
 
-      // Profile row missing — send them to finish onboarding
       if (error || !profile) {
         router.push("/onboarding");
         return;
       }
 
+      // ✅ Update cache and state with fresh data
+      localStorage.setItem(`profile:${user.id}`, JSON.stringify(profile));
       setProfile(profile);
     }
     loadUser();
   }, []);
 
   async function handleSignOut() {
+    const { data: { user } } = await getSupabase().auth.getUser();
+    if (user) localStorage.removeItem(`profile:${user.id}`);
     await getSupabase().auth.signOut();
     router.push("/");
   }
