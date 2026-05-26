@@ -129,7 +129,7 @@ export default function TeenProfile() {
   return (
     <>
       {/* Scroll content — extra bottom padding so sticky bar doesn't cover last card */}
-      <div className="flex flex-col gap-4 pb-32 md:pb-8 max-w-xl">
+      <div className="flex flex-col gap-4 pb-32 md:pb-8 max-w-xl mx-auto">
 
         {/* Header banner */}
         <div className="w-full bg-black rounded-2xl px-5 py-6 flex items-center justify-between gap-4">

@@ -89,6 +89,7 @@ export default function TeenApplications() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let channel;
     async function load() {
       const { data: { user } } = await getSupabase().auth.getUser();
       if (!user) return;
@@ -103,7 +104,7 @@ export default function TeenApplications() {
       setLoading(false);
 
       // Real-time updates when employer accepts/rejects
-      const channel = getSupabase()
+      channel = getSupabase()
         .channel("teen-applications")
         .on(
           "postgres_changes",
@@ -119,6 +120,7 @@ export default function TeenApplications() {
       return () => getSupabase().removeChannel(channel);
     }
     load();
+    return () => { if (channel) getSupabase().removeChannel(channel); };
   }, []);
 
   const pending = applications.filter((a) => a.status === "pending");
@@ -134,7 +136,7 @@ export default function TeenApplications() {
   }
 
   return (
-    <div className="flex flex-col gap-6 pb-24 md:pb-0 max-w-xl">
+    <div className="flex flex-col gap-6 pb-24 md:pb-0 max-w-xl mx-auto">
 
       {/* Header — matches dashboard welcome banner */}
       <div className="w-full bg-black rounded-2xl px-6 py-7 flex items-center justify-between gap-4">
