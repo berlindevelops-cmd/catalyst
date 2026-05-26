@@ -333,6 +333,13 @@ export default function TeenDashboard() {
     const { data: { user } } = await getSupabase().auth.getUser();
     if (!user) { setSubmitting(false); return; }
 
+    let teenName = profile?.full_name;
+    if (!teenName) {
+      const { data: freshProfile } = await getSupabase()
+        .from("profiles").select("full_name").eq("id", user.id).single();
+      teenName = freshProfile?.full_name ?? "A teen";
+    }
+
     const { error } = await getSupabase().from("applications").insert({
       job_id: applyingTo.id,
       teen_id: user.id,
@@ -347,6 +354,33 @@ export default function TeenDashboard() {
       setAppliedJobs((prev) => [...prev, applyingTo.id]);
       setApplyingTo(null);
       setMessage("");
+
+      try {
+        const [{ data: employerData }, { data: employerAuth }] = await Promise.all([
+          getSupabase()
+            .from("profiles").select("full_name, business_name")
+            .eq("id", appliedJob.employer_id).single(),
+          getSupabase()
+            .rpc("get_user_email", { user_id: appliedJob.employer_id }).single(),
+        ]);
+
+        if (employerAuth?.email) {
+          await fetch("/api/notify/apply", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              employerEmail: employerAuth.email,
+              employerName: employerData?.business_name ?? employerData?.full_name ?? "there",
+              teenName,
+              jobTitle: appliedJob.title,
+              message: appliedMessage,
+            }),
+          });
+        }
+      } catch (notifyErr) {
+        // Email failed — application was still submitted successfully, so don't surface this to the user
+        console.error("Notify failed:", notifyErr);
+      }
 
       const { data: employerData } = await getSupabase()
         .from("profiles").select("full_name, business_name")

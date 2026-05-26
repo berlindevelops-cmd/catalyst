@@ -40,11 +40,19 @@ export default function TeenDashboardLayout({ children }) {
       const { data: { user } } = await getSupabase().auth.getUser();
       if (!user) { router.push("/auth/login"); return; }
       setUser(user);
-      const { data: profile } = await getSupabase()
+
+      const { data: profile, error } = await getSupabase()
         .from("profiles")
         .select("*")
         .eq("id", user.id)
         .single();
+
+      // Profile row missing — send them to finish onboarding
+      if (error || !profile) {
+        router.push("/onboarding");
+        return;
+      }
+
       setProfile(profile);
     }
     loadUser();
