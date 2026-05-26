@@ -266,6 +266,7 @@ export default function TeenDashboard() {
   const [appliedJobs, setAppliedJobs] = useState([]);
 
   useEffect(() => {
+    let channel;
     async function load() {
       const { data: { user } } = await getSupabase().auth.getUser();
       if (!user) return;
@@ -286,7 +287,7 @@ export default function TeenDashboard() {
         .from("applications").select("job_id").eq("teen_id", user.id);
       setAppliedJobs(appsData?.map((a) => a.job_id) ?? []);
 
-      const channel = getSupabase().channel("jobs-feed")
+      channel = getSupabase().channel("jobs-feed")
         .on("postgres_changes", { event: "INSERT", schema: "public", table: "jobs" }, (payload) => {
           if (payload.new.status === "active") setJobs((prev) => [payload.new, ...prev]);
         })
@@ -301,6 +302,7 @@ export default function TeenDashboard() {
       return () => getSupabase().removeChannel(channel);
     }
     load();
+    return () => { if (channel) getSupabase().removeChannel(channel); };
   }, []);
 
   useEffect(() => {
@@ -325,8 +327,11 @@ export default function TeenDashboard() {
   }
 
   async function submitApplication() {
+    if (submitting) return;                          // ← guard
+    setSubmitting(true);                             // ← lock
+
     const { data: { user } } = await getSupabase().auth.getUser();
-    if (!user) return;
+    if (!user) { setSubmitting(false); return; }
 
     const { error } = await getSupabase().from("applications").insert({
       job_id: applyingTo.id,
@@ -335,6 +340,8 @@ export default function TeenDashboard() {
       message,
       status: "pending",
     });
+
+    setSubmitting(false);                            // ← unlock regardless of outcome
 
     if (!error) {
       setAppliedJobs((prev) => [...prev, applyingTo.id]);
@@ -492,9 +499,10 @@ export default function TeenDashboard() {
               </button>
               <button
                 onClick={submitApplication}
-                className="flex-1 bg-black text-[#C8FF00] py-3 rounded-xl text-sm font-semibold hover:bg-gray-800 transition"
+                disabled={submitting}
+                className="flex-1 bg-black text-[#C8FF00] py-3 rounded-xl text-sm font-semibold hover:bg-gray-800 transition disabled:opacity-50"
               >
-                Submit application
+                {submitting ? "Submitting..." : "Submit application"}
               </button>
             </div>
           </div>

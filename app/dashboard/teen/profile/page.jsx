@@ -96,7 +96,7 @@ export default function TeenProfile() {
       .from("profiles")
       .update({
         full_name: fullName,
-        age: parseInt(age),
+        age: parseInt(age, 10) || null,
         bio,
         skills,
         availability: availability.join(", "),
