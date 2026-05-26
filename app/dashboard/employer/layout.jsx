@@ -2,9 +2,8 @@
 import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter, usePathname } from "next/navigation";
-import MessagingPopup from "@/components/MessagingPopup";
 
-export default function EmployerDashboardLayout({ children }) {
+export default function BusinessDashboardLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   const [profile, setProfile] = useState(null);
@@ -14,18 +13,18 @@ export default function EmployerDashboardLayout({ children }) {
     async function loadUser() {
       const { data: { user } } = await getSupabase().auth.getUser();
       if (!user) { router.push("/auth/login"); return; }
+      setUser(user);
       const { data: profile } = await getSupabase()
         .from("profiles")
         .select("*")
         .eq("id", user.id)
         .single();
       if (!profile) { router.push("/auth/onboarding/employer"); return; }
-      if (profile.role === "business") {
-        router.push("/dashboard/business");
+      if (profile.role === "employer") {
+        router.push("/dashboard/employer");
         return;
       }
       setProfile(profile);
-      setUser(user);
     }
     loadUser();
   }, []);
@@ -36,18 +35,24 @@ export default function EmployerDashboardLayout({ children }) {
   }
 
   const navItems = [
-    { label: "My Jobs", href: "/dashboard/employer", emoji: "📋" },
-    { label: "Post a Job", href: "/dashboard/employer/post", emoji: "➕" },
-    { label: "Applicants", href: "/dashboard/employer/applicants", emoji: "📬" },
-    { label: "Profile", href: "/dashboard/employer/profile", emoji: "👤" },
+    { label: "Dashboard", href: "/dashboard/business", emoji: "📊" },
+    { label: "Post Job", href: "/dashboard/business/post", emoji: "➕" },
+    { label: "Applicants", href: "/dashboard/business/applicants", emoji: "📬" },
+    { label: "Profile", href: "/dashboard/business/profile", emoji: "👤" },
+
   ];
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <nav className="sticky top-0 z-50 w-full bg-white border-b border-gray-100 px-5 py-3 flex items-center justify-between">
-        <a href="/" className="text-lg font-bold tracking-tight text-gray-900">
-          catalyst<span className="text-[#C8FF00]">.</span>
-        </a>
+      <nav className="sticky top-0 z-50 w-full bg-black border-b border-white/10 px-5 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <a href="/" className="text-lg font-bold tracking-tight text-white">
+            catalyst<span className="text-[#C8FF00]">.</span>
+          </a>
+          <span className="text-xs font-bold bg-[#C8FF00] text-black px-2 py-0.5 rounded-full">
+            Business
+          </span>
+        </div>
 
         <div className="hidden md:flex items-center gap-1">
           {navItems.map((item) => (
@@ -56,8 +61,8 @@ export default function EmployerDashboardLayout({ children }) {
               href={item.href}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition ${
                 pathname === item.href
-                  ? "bg-black text-[#C8FF00]"
-                  : "text-gray-600 hover:bg-gray-100"
+                  ? "bg-[#C8FF00] text-black"
+                  : "text-gray-400 hover:bg-white/10 hover:text-white"
               }`}
             >
               {item.emoji} {item.label}
@@ -67,16 +72,16 @@ export default function EmployerDashboardLayout({ children }) {
 
         <div className="flex items-center gap-3">
           <div className="hidden md:flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-black text-[#C8FF00] flex items-center justify-center text-xs font-bold">
-              {profile?.full_name?.[0]?.toUpperCase() ?? "E"}
+            <div className="w-8 h-8 rounded-full bg-[#C8FF00] text-black flex items-center justify-center text-xs font-bold">
+              {profile?.business_name?.[0]?.toUpperCase() ?? "B"}
             </div>
-            <span className="text-sm font-medium text-gray-700">
-              {profile?.business_name ?? profile?.full_name ?? "Employer"}
+            <span className="text-sm font-medium text-white">
+              {profile?.business_name ?? profile?.full_name ?? "Business"}
             </span>
           </div>
           <button
             onClick={handleSignOut}
-            className="text-xs text-gray-400 hover:text-gray-600 transition border border-gray-200 px-3 py-1.5 rounded-lg"
+            className="text-xs text-gray-400 hover:text-white transition border border-white/20 px-3 py-1.5 rounded-lg"
           >
             Sign out
           </button>
@@ -87,13 +92,13 @@ export default function EmployerDashboardLayout({ children }) {
         {children}
       </main>
 
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-2 py-2 flex items-center justify-around z-50">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-black border-t border-white/10 px-2 py-2 flex items-center justify-around z-50">
         {navItems.map((item) => (
-          <a
+         <a
             key={item.href}
             href={item.href}
             className={`flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl transition ${
-              pathname === item.href ? "text-black" : "text-gray-400"
+              pathname === item.href ? "text-[#C8FF00]" : "text-gray-500"
             }`}
           >
             <span className="text-xl">{item.emoji}</span>
@@ -101,7 +106,6 @@ export default function EmployerDashboardLayout({ children }) {
           </a>
         ))}
       </nav>
-      <MessagingPopup userId={user?.id} />
     </div>
   );
 }
