@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter, usePathname } from "next/navigation";
 import MessagingPopup from "@/components/MessagingPopup";
+import Link from "next/link";
 
 // Icons
 const BriefcaseIcon = () => (
@@ -82,25 +83,23 @@ export default function TeenDashboardLayout({ children }) {
 
       {/* Top nav */}
       <nav className="sticky top-0 z-50 w-full bg-white border-b border-gray-100 px-5 py-3 flex items-center justify-between">
-        <a href="/" className="text-lg font-bold tracking-tight text-gray-900">
+        <Link href="/" className="text-lg font-bold tracking-tight text-gray-900">
           catalyst<span className="text-[#C8FF00]">.</span>
-        </a>
+        </Link>
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-1">
           {navItems.map(({ label, href, Icon }) => (
-            <a
+            <Link
               key={href}
               href={href}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition ${
-                pathname === href
-                  ? "bg-black text-[#C8FF00]"
-                  : "text-gray-600 hover:bg-gray-100"
+                pathname === href ? "bg-black text-[#C8FF00]" : "text-gray-600 hover:bg-gray-100"
               }`}
             >
               <Icon />
               {label}
-            </a>
+            </Link>
           ))}
         </div>
 
@@ -133,21 +132,17 @@ export default function TeenDashboardLayout({ children }) {
         {navItems.map(({ label, href, Icon }) => {
           const active = pathname === href;
           return (
-            <a
+            <Link
               key={href}
               href={href}
               className={`flex flex-col items-center gap-1 px-5 py-1.5 rounded-xl transition ${
                 active ? "text-black" : "text-gray-400"
               }`}
             >
-              <span className={`${active ? "text-black" : "text-gray-400"}`}>
-                <Icon />
-              </span>
+              <span className={`${active ? "text-black" : "text-gray-400"}`}><Icon /></span>
               <span className="text-[10px] font-semibold tracking-wide">{label}</span>
-              {active && (
-                <span className="w-1 h-1 rounded-full bg-[#C8FF00] mt-0.5" />
-              )}
-            </a>
+              {active && <span className="w-1 h-1 rounded-full bg-[#C8FF00] mt-0.5" />}
+            </Link>
           );
         })}
       </nav>
