@@ -149,8 +149,6 @@ export default function EmployerDashboardLayout({ children }) {
           );
         })}
       </nav>
-
-      <MessagingPopup userId={user?.id} />
     </div>
   );
 }

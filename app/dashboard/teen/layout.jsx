@@ -146,8 +146,6 @@ export default function TeenDashboardLayout({ children }) {
           );
         })}
       </nav>
-
-      <MessagingPopup userId={user?.id} />
     </div>
   );
 }
