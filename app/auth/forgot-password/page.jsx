@@ -16,9 +16,6 @@ export default function ForgotPassword() {
     // Fallback: if AuthProvider already caught PASSWORD_RECOVERY and the
     // session exists by the time this page mounts, we'd miss the event.
     // getSession() catches that case immediately.
-    getSupabase().auth.getSession().then(({ data: { session } }) => {
-      if (session) setReady(true);
-    });
 
     // Primary: catch the event if it fires after we mount
     const { data: { subscription } } = getSupabase().auth.onAuthStateChange((event) => {
