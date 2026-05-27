@@ -2,108 +2,107 @@
 import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 
-export default function BusinessApplicants() {
-  const [jobs, setJobs] = useState([]);
-  const [applications, setApplications] = useState([]);
-  const [selectedJob, setSelectedJob] = useState("all");
-  const [loading, setLoading] = useState(true);
+// ─────────────────────────────────────────────────────────────────────────────
+
+const BUSINESS_TYPES = [
+  "Retail", "Food & Beverage", "Landscaping", "Childcare",
+  "Education", "Events", "Office", "Health & Wellness", "Other"
+];
+
+export default function BusinessProfile() {
+  const [loading, setLoading]       = useState(true);
+  const [saving, setSaving]         = useState(false);
+  const [saved, setSaved]           = useState(false);
+  const [error, setError]           = useState("");
+
+  const [fullName, setFullName]         = useState("");
+  const [businessName, setBusinessName] = useState("");
+  const [businessType, setBusinessType] = useState("");
+  const [location, setLocation]         = useState("");
+  const [bio, setBio]                   = useState("");
+  const [website, setWebsite]           = useState("");
+  const [email, setEmail]               = useState("");
 
   useEffect(() => {
     async function load() {
       const { data: { user } } = await getSupabase().auth.getUser();
       if (!user) return;
+      setEmail(user.email ?? "");
 
-      const { data: jobsData } = await getSupabase()
-        .from("jobs")
-        .select("id, title")
-        .eq("employer_id", user.id)
-        .eq("listing_type", "business")
-        .order("created_at", { ascending: false });
-      setJobs(jobsData ?? []);
+      // Read from cache for instant render
+      const cached = localStorage.getItem(`profile:${user.id}`);
+      if (cached) {
+        const p = JSON.parse(cached);
+        setFullName(p.full_name ?? "");
+        setBusinessName(p.business_name ?? "");
+        setLocation(p.location ?? "");
+        setBio(p.bio ?? "");
+        setWebsite(p.website ?? "");
+        setBusinessType(p.business_type ?? "");
+      }
 
-      const { data: appsData } = await getSupabase()
-        .from("applications")
-        .select(`
-          *,
-          jobs ( title, pay, pay_type, location, category, schedule, interview_required, job_type ),
-          profiles!teen_id (
-            full_name, age, bio, skills, availability
-          )
-        `)
-        .eq("employer_id", user.id)
-        .order("created_at", { ascending: false });
+      const { data } = await getSupabase()
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
 
-      // filter to only business job applications
-      const businessJobIds = (jobsData ?? []).map((j) => j.id);
-      const filtered = (appsData ?? []).filter((a) => businessJobIds.includes(a.job_id));
-      setApplications(filtered);
+      if (data) {
+        setFullName(data.full_name ?? "");
+        setBusinessName(data.business_name ?? "");
+        setLocation(data.location ?? "");
+        setBio(data.bio ?? "");
+        setWebsite(data.website ?? "");
+        setBusinessType(data.business_type ?? "");
+        localStorage.setItem(`profile:${user.id}`, JSON.stringify(data));
+      }
       setLoading(false);
-
-      // real-time
-      const channel = getSupabase()
-        .channel("business-applicants")
-        .on("postgres_changes",
-          { event: "INSERT", schema: "public", table: "applications", filter: `employer_id=eq.${user.id}` },
-          async (payload) => {
-            if (!businessJobIds.includes(payload.new.job_id)) return;
-            const { data } = await getSupabase()
-              .from("applications")
-              .select(`*, jobs ( title, pay, pay_type, location, category, schedule, interview_required, job_type ), profiles!teen_id ( full_name, age, bio, skills, availability )`)
-              .eq("id", payload.new.id)
-              .single();
-            if (data) setApplications((prev) => [data, ...prev]);
-          }
-        )
-        .subscribe();
-
-      return () => getSupabase().removeChannel(channel);
     }
     load();
   }, []);
 
-  async function updateStatus(appId, status) {
-    await getSupabase().from("applications").update({ status }).eq("id", appId);
-    setApplications((prev) =>
-      prev.map((a) => a.id === appId ? { ...a, status } : a)
-    );
-
-    if (status === "accepted" || status === "rejected") {
-      const app = applications.find((a) => a.id === appId);
-      if (!app) return;
-
-      // get teen email
-      const { data: teenAuth } = await getSupabase()
-        .rpc("get_user_email", { user_id: app.teen_id })
-        .single();
-
-      const { data: employerProfile } = await getSupabase()
-        .from("profiles")
-        .select("full_name, business_name")
-        .eq("id", app.employer_id)
-        .single();
-
-      if (teenAuth?.email) {
-        await fetch("/api/notify/status", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            teenEmail: teenAuth.email,
-            teenName: app.profiles?.full_name ?? "there",
-            jobTitle: app.jobs?.title,
-            status,
-            employerName: employerProfile?.business_name ?? employerProfile?.full_name ?? "Your employer",
-          }),
-        });
-      }
+  async function handleSave() {
+    if (!fullName || !businessName) {
+      setError("Name and business name are required.");
+      return;
     }
+    if (saving) return;
+    setSaving(true);
+    setError("");
+
+    const { data: { user } } = await getSupabase().auth.getUser();
+    const updates = {
+      full_name: fullName,
+      business_name: businessName,
+      location,
+      bio,
+      website,
+      business_type: businessType,
+    };
+
+    const { error: sbError } = await getSupabase()
+      .from("profiles")
+      .update(updates)
+      .eq("id", user.id);
+
+    setSaving(false);
+    if (sbError) { setError(sbError.message); return; }
+
+    // Keep cache in sync
+    const cached = localStorage.getItem(`profile:${user.id}`);
+    if (cached) {
+      localStorage.setItem(`profile:${user.id}`, JSON.stringify({ ...JSON.parse(cached), ...updates }));
+    }
+
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
   }
 
-  const filtered = selectedJob === "all"
-    ? applications
-    : applications.filter((a) => a.job_id === selectedJob);
+  const completedFields = [fullName, businessName, location, bio, website, businessType].filter(Boolean);
+  const strengthPct = Math.min(completedFields.length * 17, 100);
 
-  const pending = filtered.filter((a) => a.status === "pending");
-  const reviewed = filtered.filter((a) => a.status !== "pending");
+  const inputClass = "w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-black transition";
+  const labelClass = "text-xs font-medium text-gray-700 mb-1.5 block";
 
   if (loading) return (
     <div className="flex items-center justify-center py-16">
@@ -112,153 +111,134 @@ export default function BusinessApplicants() {
   );
 
   return (
-    <div className="flex flex-col gap-6 pb-24 md:pb-0">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Applicants</h1>
-        <p className="text-gray-500 text-sm mt-1">Review applications for your business listings</p>
-      </div>
+    <div className="flex flex-col gap-6 pb-24 md:pb-0 max-w-xl mx-auto">
 
-      <div className="grid grid-cols-3 gap-3">
-        <div className="bg-white rounded-2xl border border-gray-200 p-4 text-center">
-          <p className="text-2xl font-bold text-gray-900">{applications.length}</p>
-          <p className="text-xs text-gray-400 mt-0.5">Total</p>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Business Profile</h1>
+          <p className="text-gray-500 text-sm mt-1">How teens see your business on Catalyst</p>
         </div>
-        <div className="bg-white rounded-2xl border border-gray-200 p-4 text-center">
-          <p className="text-2xl font-bold text-yellow-500">{applications.filter((a) => a.status === "pending").length}</p>
-          <p className="text-xs text-gray-400 mt-0.5">Pending</p>
-        </div>
-        <div className="bg-white rounded-2xl border border-gray-200 p-4 text-center">
-          <p className="text-2xl font-bold text-green-500">{applications.filter((a) => a.status === "accepted").length}</p>
-          <p className="text-xs text-gray-400 mt-0.5">Accepted</p>
+        <div className="w-14 h-14 rounded-full bg-black text-[#C8FF00] flex items-center justify-center text-2xl font-bold">
+          {businessName?.[0]?.toUpperCase() ?? "B"}
         </div>
       </div>
 
-      {jobs.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          <button onClick={() => setSelectedJob("all")}
-            className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold border transition ${
-              selectedJob === "all" ? "bg-black text-[#C8FF00] border-black" : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
-            }`}>
-            All jobs
-          </button>
-          {jobs.map((job) => (
-            <button key={job.id} onClick={() => setSelectedJob(job.id)}
-              className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold border transition ${
-                selectedJob === job.id ? "bg-black text-[#C8FF00] border-black" : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+      {/* Profile strength */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-5 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-semibold text-gray-700">Profile strength</p>
+          <p className="text-sm font-bold text-gray-900">{strengthPct}%</p>
+        </div>
+        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div
+            className="h-2 bg-[#C8FF00] rounded-full transition-all duration-500"
+            style={{ width: `${strengthPct}%` }}
+          />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { label: "Name",     done: !!fullName },
+            { label: "Business", done: !!businessName },
+            { label: "Location", done: !!location },
+            { label: "About",    done: !!bio },
+            { label: "Website",  done: !!website },
+            { label: "Type",     done: !!businessType },
+          ].map((item) => (
+            <span key={item.label}
+              className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                item.done ? "bg-black text-[#C8FF00]" : "bg-gray-100 text-gray-400"
               }`}>
-              {job.title}
-            </button>
+              {item.done ? "✓" : "+"} {item.label}
+            </span>
           ))}
         </div>
-      )}
+      </div>
 
-      {filtered.length === 0 && (
-        <div className="w-full rounded-2xl border border-dashed border-gray-300 bg-white flex flex-col items-center justify-center py-16 gap-3">
-          <span className="text-4xl">📬</span>
-          <p className="text-gray-500 text-sm font-medium">No applicants yet</p>
-          <p className="text-gray-400 text-xs">Applications will appear here in real time</p>
-        </div>
-      )}
-
-      {pending.length > 0 && (
-        <div className="flex flex-col gap-3">
-          <p className="text-sm font-semibold text-gray-500 uppercase tracking-widest">New — {pending.length} pending</p>
-          {pending.map((app) => <ApplicantCard key={app.id} app={app} onUpdate={updateStatus} />)}
-        </div>
-      )}
-
-      {reviewed.length > 0 && (
-        <div className="flex flex-col gap-3 opacity-70">
-          <p className="text-sm font-semibold text-gray-500 uppercase tracking-widest">Reviewed</p>
-          {reviewed.map((app) => <ApplicantCard key={app.id} app={app} onUpdate={updateStatus} />)}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function ApplicantCard({ app, onUpdate }) {
-  const [expanded, setExpanded] = useState(false);
-  const teen = app.profiles;
-
-  return (
-    <div className="w-full bg-white rounded-2xl border border-gray-200 overflow-hidden">
-      <div className="p-5 flex items-center justify-between gap-3 cursor-pointer hover:bg-gray-50 transition"
-        onClick={() => setExpanded(!expanded)}>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-black text-[#C8FF00] flex items-center justify-center text-sm font-bold shrink-0">
-            {teen?.full_name?.[0]?.toUpperCase() ?? "T"}
-          </div>
-          <div>
-            <p className="font-semibold text-gray-900 text-sm">{teen?.full_name ?? "Teen"}</p>
-            <p className="text-xs text-gray-400">
-              {app.jobs?.title} · {new Date(app.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {app.status === "pending" && <span className="text-xs font-semibold bg-yellow-50 text-yellow-600 border border-yellow-200 px-2 py-1 rounded-full">⏳ Pending</span>}
-          {app.status === "accepted" && <span className="text-xs font-semibold bg-green-50 text-green-600 border border-green-200 px-2 py-1 rounded-full">✅ Accepted</span>}
-          {app.status === "rejected" && <span className="text-xs font-semibold bg-red-50 text-red-400 border border-red-200 px-2 py-1 rounded-full">❌ Rejected</span>}
-          <span className="text-gray-400 text-xs">{expanded ? "▲" : "▼"}</span>
+      {/* Account */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-4">
+        <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Account</p>
+        <div>
+          <label className={labelClass}>Email</label>
+          <input
+            type="email"
+            value={email}
+            disabled
+            className="w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50 text-sm text-gray-400 cursor-not-allowed"
+          />
+          <p className="text-xs text-gray-400 mt-1">Email cannot be changed here</p>
         </div>
       </div>
 
-      {expanded && (
-        <div className="border-t border-gray-100 p-5 flex flex-col gap-4">
-          <div className="flex flex-wrap gap-4">
-            {teen?.age && <div><p className="text-xs text-gray-400 mb-0.5">Age</p><p className="text-sm font-medium">{teen.age}</p></div>}
-            {teen?.availability && <div><p className="text-xs text-gray-400 mb-0.5">Availability</p><p className="text-sm font-medium">{teen.availability}</p></div>}
-            {app.jobs?.schedule && <div><p className="text-xs text-gray-400 mb-0.5">Required schedule</p><p className="text-sm font-medium">{app.jobs.schedule}</p></div>}
-            {app.jobs?.interview_required && <div><p className="text-xs text-gray-400 mb-0.5">Interview</p><p className="text-sm font-medium text-orange-600">Required</p></div>}
-          </div>
+      {/* Business info */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-4">
+        <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Business info</p>
 
-          {teen?.bio && (
-            <div>
-              <p className="text-xs text-gray-400 mb-1">Bio</p>
-              <p className="text-sm text-gray-600">{teen.bio}</p>
-            </div>
-          )}
-
-          {teen?.skills?.length > 0 && (
-            <div>
-              <p className="text-xs text-gray-400 mb-2">Skills</p>
-              <div className="flex flex-wrap gap-1.5">
-                {teen.skills.map((skill) => (
-                  <span key={skill} className="px-2 py-1 bg-black text-[#C8FF00] text-xs font-semibold rounded-full">{skill}</span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {app.message && (
-            <div className="bg-gray-50 rounded-xl px-4 py-3">
-              <p className="text-xs text-gray-400 mb-1 font-medium">Their message</p>
-              <p className="text-sm text-gray-600">{app.message}</p>
-            </div>
-          )}
-
-          {app.status === "pending" && (
-            <div className="flex gap-3">
-              <button onClick={() => onUpdate(app.id, "rejected")}
-                className="flex-1 border border-red-200 text-red-500 py-2.5 rounded-xl text-sm font-medium hover:bg-red-50 transition">
-                Decline
-              </button>
-              <button onClick={() => onUpdate(app.id, "accepted")}
-                className="flex-1 bg-black text-[#C8FF00] py-2.5 rounded-xl text-sm font-semibold hover:bg-gray-900 transition">
-                Accept
-              </button>
-            </div>
-          )}
-
-          {app.status !== "pending" && (
-            <button onClick={() => onUpdate(app.id, "pending")}
-              className="text-xs text-gray-400 hover:text-gray-600 transition underline text-left">
-              Undo decision
-            </button>
-          )}
+        <div>
+          <label className={labelClass}>Your name</label>
+          <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className={inputClass} />
         </div>
-      )}
+
+        <div>
+          <label className={labelClass}>Business name</label>
+          <input type="text" placeholder="Your business name" value={businessName}
+            onChange={(e) => setBusinessName(e.target.value)} className={inputClass} />
+        </div>
+
+        <div>
+          <label className="text-xs font-medium text-gray-700 mb-2 block">Business type</label>
+          <div className="flex flex-wrap gap-2">
+            {BUSINESS_TYPES.map((type) => (
+              <button key={type} onClick={() => setBusinessType(type === businessType ? "" : type)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${
+                  businessType === type
+                    ? "bg-black text-[#C8FF00] border-black"
+                    : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                }`}>
+                {type}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className={labelClass}>Location</label>
+          <input type="text" placeholder="e.g. Plymouth, IN" value={location}
+            onChange={(e) => setLocation(e.target.value)} className={inputClass} />
+        </div>
+
+        <div>
+          <label className={labelClass}>
+            Website <span className="text-gray-400">(optional)</span>
+          </label>
+          <input type="url" placeholder="https://yourbusiness.com" value={website}
+            onChange={(e) => setWebsite(e.target.value)} className={inputClass} />
+        </div>
+
+        <div>
+          <label className={labelClass}>
+            About your business <span className="text-gray-400">(optional)</span>
+          </label>
+          <textarea
+            placeholder="Tell teens about your business, culture, what it's like to work there..."
+            value={bio} onChange={(e) => setBio(e.target.value)}
+            rows={4}
+            className={`${inputClass} resize-none`}
+          />
+        </div>
+      </div>
+
+      {error && <p className="text-xs text-red-500">{error}</p>}
+
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className={`w-full py-3 rounded-xl text-sm font-semibold transition disabled:opacity-50 ${
+          saved ? "bg-[#C8FF00] text-black" : "bg-black text-[#C8FF00] hover:bg-gray-900"
+        }`}
+      >
+        {saving ? "Saving..." : saved ? "✓ Saved!" : "Save changes"}
+      </button>
     </div>
   );
 }
